@@ -1,74 +1,47 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useLocation } from "@/context/LocationContext";
-import { Search, MapPin, Navigation, CheckCircle2 } from "lucide-react";
-
-interface AddressSuggestion {
-  fullAddress: string;
-  street: string;
-  city: string;
-  state: string;
-  zip: string;
-}
-
-const PRESET_SUGGESTIONS: AddressSuggestion[] = [
-  { fullAddress: "100 Broadway, New York, NY 10005", street: "100 Broadway", city: "New York", state: "NY", zip: "10005" },
-  { fullAddress: "350 5th Ave, New York, NY 10118", street: "350 5th Ave", city: "New York", state: "NY", zip: "10118" },
-  { fullAddress: "1 Flatbush Ave, Brooklyn, NY 11217", street: "1 Flatbush Ave", city: "Brooklyn", state: "NY", zip: "11217" },
-  { fullAddress: "28-07 Jackson Ave, Long Island City, NY 11101", street: "28-07 Jackson Ave", city: "Long Island City", state: "NY", zip: "11101" },
-  { fullAddress: "1 Grand Central Terminal, Bronx, NY 10451", street: "1 Grand Central Terminal", city: "Bronx", state: "NY", zip: "10451" },
-  { fullAddress: "100 Bay St, Staten Island, NY 10301", street: "100 Bay St", city: "Staten Island", state: "NY", zip: "10301" },
-  { fullAddress: "1 Getty Square, Yonkers, NY 10701", street: "1 Getty Square", city: "Yonkers", state: "NY", zip: "10701" },
-  { fullAddress: "1 Mamaroneck Ave, White Plains, NY 10601", street: "1 Mamaroneck Ave", city: "White Plains", state: "NY", zip: "10601" },
-  { fullAddress: "500 Main St, New Rochelle, NY 10801", street: "500 Main St", city: "New Rochelle", state: "NY", zip: "10801" },
-  { fullAddress: "1 Washington St, Jersey City, NJ 07302", street: "1 Washington St", city: "Jersey City", state: "NJ", zip: "07302" },
-  { fullAddress: "100 Hudson St, Hoboken, NJ 07030", street: "100 Hudson St", city: "Hoboken", state: "NJ", zip: "07030" },
-  { fullAddress: "1 Broad St, Newark, NJ 07102", street: "1 Broad St", city: "Newark", state: "NJ", zip: "07102" },
-  { fullAddress: "10 Main St, Hackensack, NJ 07601", street: "10 Main St", city: "Hackensack", state: "NJ", zip: "07601" },
-  { fullAddress: "1 Ocean Ave, Lakewood, NJ 08701", street: "1 Ocean Ave", city: "Lakewood", state: "NJ", zip: "08701" },
-  { fullAddress: "1 Atlantic St, Stamford, CT 06901", street: "1 Atlantic St", city: "Stamford", state: "CT", zip: "06901" },
-  { fullAddress: "1 Greenwich Ave, Greenwich, CT 06830", street: "1 Greenwich Ave", city: "Greenwich", state: "CT", zip: "06830" }
-];
+import { MapPin, Search } from "lucide-react";
 
 interface AddressAutocompleteProps {
+  value: string;
+  onChange: (address: string, zip?: string, city?: string, state?: string) => void;
   placeholder?: string;
-  buttonText?: string;
   className?: string;
-  inputClassName?: string;
-  buttonClassName?: string;
-  onSelect?: (address: string) => void;
+  style?: React.CSSProperties;
 }
 
-export function AddressAutocomplete({
-  placeholder = "Enter your street address or zip code...",
-  buttonText = "Check Price & Coverage",
-  className = "",
-  inputClassName = "",
-  buttonClassName = "",
-  onSelect
+// Popular sample street suggestions for Tri-State area fallback when Google Places Key is pending
+const SAMPLE_STREETS = [
+  { street: "123 Main Street", city: "Newark", state: "NJ", zip: "07102" },
+  { street: "45 Ocean Avenue", city: "Jersey City", state: "NJ", zip: "07305" },
+  { street: "88 Broad Street", city: "Trenton", state: "NJ", zip: "08608" },
+  { street: "500 Princeton Pike", city: "Princeton", state: "NJ", zip: "08540" },
+  { street: "140 Atlantic Avenue", city: "Atlantic City", state: "NJ", zip: "08401" },
+  { street: "248 W 57th Street", city: "New York", state: "NY", zip: "10107" },
+  { street: "55 Mamaroneck Ave", city: "White Plains", state: "NY", zip: "10601" },
+];
+
+export default function AddressAutocomplete({
+  value,
+  onChange,
+  placeholder = "Enter street address (e.g. 123 Main St, Newark, NJ)",
+  className,
+  style,
 }: AddressAutocompleteProps) {
-  const { streetAddress, zipCode, submitAddressSearch } = useLocation();
-  const [query, setQuery] = useState<string>(streetAddress || zipCode || "");
-  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
-  const [isOpen, setIsOpen] = useState(false);
-  const [selectedIndex, setSelectedIndex] = useState(-1);
+  const [query, setQuery] = useState(value);
+  const [suggestions, setSuggestions] = useState<typeof SAMPLE_STREETS>([]);
+  const [showDropdown, setShowDropdown] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  // Sync with context if updated externally
   useEffect(() => {
-    if (streetAddress) {
-      setQuery(streetAddress);
-    } else if (zipCode) {
-      setQuery(zipCode);
-    }
-  }, [streetAddress, zipCode]);
+    setQuery(value);
+  }, [value]);
 
-  // Handle outside click to close suggestions
   useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
+    function handleClickOutside(e: MouseEvent) {
+      if (wrapperRef.current && !wrapperRef.current.contains(e.target as Node)) {
+        setShowDropdown(false);
       }
     }
     document.addEventListener("mousedown", handleClickOutside);
@@ -78,137 +51,98 @@ export function AddressAutocomplete({
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setQuery(val);
-    setSelectedIndex(-1);
+    onChange(val);
 
-    if (val.trim().length >= 2) {
-      const lower = val.toLowerCase().trim();
-      const filtered = PRESET_SUGGESTIONS.filter(
-        item => 
-          item.fullAddress.toLowerCase().includes(lower) ||
-          item.city.toLowerCase().includes(lower) ||
-          item.zip.includes(lower) ||
-          item.street.toLowerCase().includes(lower)
+    if (val.trim().length > 1) {
+      const filtered = SAMPLE_STREETS.filter(s =>
+        `${s.street} ${s.city} ${s.state} ${s.zip}`.toLowerCase().includes(val.toLowerCase())
       );
-      setSuggestions(filtered);
-      setIsOpen(true);
+      setSuggestions(filtered.length > 0 ? filtered : [
+        { street: val, city: "New Jersey", state: "NJ", zip: "07001" }
+      ]);
+      setShowDropdown(true);
     } else {
-      setSuggestions([]);
-      setIsOpen(false);
+      setShowDropdown(false);
     }
   };
 
-  const handleSelectSuggestion = (fullAddr: string) => {
+  const handleSelect = (item: typeof SAMPLE_STREETS[0]) => {
+    const fullAddr = `${item.street}, ${item.city}, ${item.state} ${item.zip}`;
     setQuery(fullAddr);
-    setIsOpen(false);
-    submitAddressSearch(fullAddr);
-    if (onSelect) onSelect(fullAddr);
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!query.trim()) return;
-    setIsOpen(false);
-    submitAddressSearch(query);
-    if (onSelect) onSelect(query);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (!isOpen || suggestions.length === 0) return;
-
-    if (e.key === "ArrowDown") {
-      e.preventDefault();
-      setSelectedIndex(prev => (prev < suggestions.length - 1 ? prev + 1 : 0));
-    } else if (e.key === "ArrowUp") {
-      e.preventDefault();
-      setSelectedIndex(prev => (prev > 0 ? prev - 1 : suggestions.length - 1));
-    } else if (e.key === "Enter" && selectedIndex >= 0) {
-      e.preventDefault();
-      handleSelectSuggestion(suggestions[selectedIndex].fullAddress);
-    } else if (e.key === "Escape") {
-      setIsOpen(false);
-    }
-  };
-
-  const handleGeolocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          // Fallback location for demo in NY metro
-          const demoAddress = "100 Broadway, New York, NY 10005";
-          setQuery(demoAddress);
-          submitAddressSearch(demoAddress);
-        },
-        () => {
-          const fallback = "350 5th Ave, New York, NY 10118";
-          setQuery(fallback);
-          submitAddressSearch(fallback);
-        }
-      );
-    }
+    onChange(fullAddr, item.zip, item.city, item.state);
+    setShowDropdown(false);
   };
 
   return (
-    <div ref={wrapperRef} className={`relative w-full ${className}`}>
-      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-2.5 w-full">
-        <div className="relative flex-1">
-          <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-            <MapPin className="w-5 h-5" />
-          </div>
-          <input
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => {
-              if (query.trim().length >= 2 && suggestions.length > 0) setIsOpen(true);
-            }}
-            placeholder={placeholder}
-            className={`w-full pl-11 pr-10 py-3.5 bg-white text-gray-900 border border-gray-300 rounded-xl text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#0066cc] focus:border-transparent shadow-sm ${inputClassName}`}
-          />
-          <button
-            type="button"
-            onClick={handleGeolocation}
-            title="Use my current location"
-            className="absolute inset-y-0 right-0 pr-3.5 flex items-center text-gray-400 hover:text-[#0066cc] transition-colors"
-          >
-            <Navigation className="w-4 h-4" />
-          </button>
-        </div>
-
-        <button
-          type="submit"
-          className={`bg-[#ffc400] hover:bg-[#e6b000] text-[#071b4d] font-extrabold px-6 py-3.5 rounded-xl text-sm sm:text-base flex items-center justify-center gap-2 transition-all shadow-md active:scale-95 ${buttonClassName}`}
-        >
-          <Search className="w-4 h-4" />
-          <span>{buttonText}</span>
-        </button>
-      </form>
+    <div ref={wrapperRef} style={{ position: "relative", width: "100%", ...style }}>
+      <div style={{ position: "relative", display: "flex", alignItems: "center" }}>
+        <MapPin style={{ position: "absolute", left: 14, width: 18, height: 18, color: "#1557b8", pointerEvents: "none" }} />
+        <input
+          type="text"
+          value={query}
+          onChange={handleInputChange}
+          onFocus={() => { if (query.trim().length > 1) setShowDropdown(true); }}
+          placeholder={placeholder}
+          className={className}
+          style={{
+            width: "100%",
+            height: 48,
+            paddingLeft: 42,
+            paddingRight: 16,
+            borderRadius: 10,
+            border: "1.5px solid #cbd5e1",
+            fontSize: 14,
+            fontWeight: 600,
+            color: "#0f172a",
+            outline: "none",
+            background: "#ffffff",
+          }}
+        />
+      </div>
 
       {/* Autocomplete Dropdown List */}
-      {isOpen && suggestions.length > 0 && (
-        <ul className="absolute z-50 top-full left-0 right-0 mt-1.5 bg-white border border-gray-200 rounded-xl shadow-2xl overflow-hidden max-h-64 overflow-y-auto animate-fade-in">
-          <li className="px-3.5 py-1.5 bg-gray-50 text-[11px] font-extrabold uppercase tracking-wider text-gray-500 border-b border-gray-100 flex items-center justify-between">
-            <span>Suggested Tri-State Addresses</span>
-            <span className="text-[10px] text-gray-400 lowercase font-normal">select or press enter</span>
-          </li>
-          {suggestions.map((item, index) => (
-            <li
-              key={index}
-              onClick={() => handleSelectSuggestion(item.fullAddress)}
-              className={`px-4 py-3 flex items-start gap-3 cursor-pointer text-xs sm:text-sm border-b border-gray-50 last:border-0 transition-colors ${
-                index === selectedIndex ? "bg-blue-50 text-[#0066cc] font-semibold" : "hover:bg-gray-50 text-gray-700"
-              }`}
+      {showDropdown && suggestions.length > 0 && (
+        <div style={{
+          position: "absolute",
+          top: "100%",
+          left: 0,
+          right: 0,
+          marginTop: 6,
+          background: "#ffffff",
+          borderRadius: 12,
+          border: "1px solid #e2e8f0",
+          boxShadow: "0 10px 25px rgba(0,0,0,0.12)",
+          zIndex: 50,
+          overflow: "hidden",
+          maxHeight: 240,
+        }}>
+          <div style={{ padding: "8px 12px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            Suggested Address Match
+          </div>
+          {suggestions.map((item, idx) => (
+            <div
+              key={idx}
+              onClick={() => handleSelect(item)}
+              style={{
+                padding: "10px 14px",
+                display: "flex",
+                alignItems: "center",
+                gap: 10,
+                cursor: "pointer",
+                borderBottom: "1px solid #f8fafc",
+                transition: "background 0.1s",
+              }}
+              onMouseEnter={e => (e.currentTarget.style.background = "#eff6ff")}
+              onMouseLeave={e => (e.currentTarget.style.background = "#ffffff")}
             >
-              <MapPin className={`w-4 h-4 mt-0.5 flex-shrink-0 ${index === selectedIndex ? "text-[#0066cc]" : "text-gray-400"}`} />
+              <Search style={{ width: 14, height: 14, color: "#1557b8", flexShrink: 0 }} />
               <div>
-                <span className="font-bold block text-gray-900">{item.fullAddress}</span>
-                <span className="text-[11px] text-gray-500 block mt-0.5">
-                  {item.city}, {item.state} ({item.zip})
-                </span>
+                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{item.street}</p>
+                <p style={{ margin: 0, fontSize: 11, color: "#64748b" }}>{item.city}, {item.state} {item.zip} · New Jersey Statewide Coverage</p>
               </div>
-            </li>
+            </div>
           ))}
-        </ul>
+        </div>
       )}
     </div>
   );
