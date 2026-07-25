@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { sendOrderConfirmationEmail } from "@/lib/email";
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,6 +17,20 @@ export async function POST(req: NextRequest) {
     }
 
     const referenceCode = `PIQ-${Date.now().toString().slice(-6)}`;
+    const planName = planType === "monthly" ? "Complete Protection Plan" : "One-Time Treatment";
+    const fullAddress = `${address}, ${city || "New York"}, ${state || "NY"} ${zip || "10001"}`;
+
+    // Dispatch transactional email async
+    sendOrderConfirmationEmail({
+      toEmail: email,
+      customerName: name,
+      referenceCode,
+      serviceAddress: fullAddress,
+      preferredDate: preferredDate || "As soon as available",
+      arrivalWindow: arrivalWindow || "Flexible",
+      planName,
+      notes: description,
+    }).catch(err => console.warn("Async email dispatch error:", err));
 
     // Try DB insertion if DATABASE_URL is configured
     if (process.env.DATABASE_URL) {
@@ -43,7 +58,7 @@ export async function POST(req: NextRequest) {
           update: {},
           create: {
             slug: planType === "monthly" ? "complete" : "onetime",
-            name: planType === "monthly" ? "Complete Protection" : "One-Time Service",
+            name: planName,
             description: "PestIQ Pest Control Plan",
           },
         });
@@ -74,7 +89,7 @@ export async function POST(req: NextRequest) {
           success: true,
           referenceCode,
           orderId: order.id,
-          message: "Order & appointment request created in DB successfully",
+          message: "Order & appointment request created in DB successfully. Confirmation email dispatched.",
         });
       } catch (dbErr) {
         console.warn("DB connection error, falling back to response:", dbErr);
@@ -85,7 +100,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       referenceCode,
-      message: "Appointment request recorded",
+      message: "Appointment request recorded and email dispatched.",
     });
   } catch (err: any) {
     return NextResponse.json({ error: err.message || "Failed to process order" }, { status: 500 });
