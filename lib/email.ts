@@ -145,3 +145,75 @@ export async function sendPasswordResetEmail(params: { toEmail: string; resetTok
     console.log(`[TEST MODE] Password reset email link for ${toEmail}: ${resetUrl}`);
   }
 }
+
+export async function sendCustomerWelcomeEmail(params: {
+  toEmail: string;
+  customerName: string;
+  tempPassword: string;
+  portalUrl: string;
+}) {
+  const { toEmail, customerName, tempPassword, portalUrl } = params;
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; color: #071b4d; max-width: 600px; margin: 0 auto; padding: 0; border-radius: 14px; overflow: hidden; border: 1px solid #e2e8f0;">
+      <div style="background: linear-gradient(135deg, #071b4d 0%, #1557b8 100%); padding: 28px 32px;">
+        <h1 style="color: #FACC15; margin: 0; font-size: 26px; font-weight: 900;">PestIQ Solutions</h1>
+        <p style="color: #94a3b8; margin: 6px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Your Account is Ready</p>
+      </div>
+
+      <div style="padding: 32px;">
+        <h2 style="color: #0f172a; font-size: 20px; margin: 0 0 12px;">Welcome to PestIQ, ${customerName}! 🏠</h2>
+        <p style="color: #475569; font-size: 14px; line-height: 1.7; margin: 0 0 24px;">
+          Your service has been booked and your customer account is now active. Track your service, reschedule visits, report pest activity, and view your history — all from your personal portal.
+        </p>
+
+        <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 10px; padding: 20px; margin-bottom: 24px;">
+          <p style="margin: 0 0 14px; font-size: 13px; font-weight: 800; color: #0369a1; text-transform: uppercase; letter-spacing: 0.05em;">Your Login Credentials</p>
+          <table style="width: 100%; font-size: 14px; border-collapse: collapse;">
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 700; width: 130px;">Email:</td>
+              <td style="padding: 6px 0; color: #0f172a; font-weight: 700;">${toEmail}</td>
+            </tr>
+            <tr>
+              <td style="padding: 6px 0; color: #64748b; font-weight: 700;">Temp Password:</td>
+              <td style="padding: 6px 0; font-family: monospace; font-size: 17px; font-weight: 900; color: #1557b8; letter-spacing: 2px;">${tempPassword}</td>
+            </tr>
+          </table>
+        </div>
+
+        <div style="text-align: center; margin: 28px 0;">
+          <a href="${portalUrl}" style="background: linear-gradient(135deg, #071b4d, #1557b8); color: #FACC15; padding: 14px 32px; text-decoration: none; font-weight: 900; border-radius: 10px; font-size: 15px; display: inline-block;">
+            Access My Portal →
+          </a>
+        </div>
+
+        <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 8px; padding: 14px;">
+          <p style="margin: 0; font-size: 12px; color: #92400e; line-height: 1.6;">
+            <strong>🔒 Security note:</strong> Please change your password after your first login. Your temporary password expires in 72 hours.
+          </p>
+        </div>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding: 16px 32px; text-align: center; background: #f8fafc;">
+        <p style="margin: 0; color: #94a3b8; font-size: 11px;">PestIQ Solutions Inc. · Serving NJ, NYC &amp; Westchester</p>
+        <p style="margin: 4px 0 0; color: #94a3b8; font-size: 11px;">Questions? Call +1 (800) 555-PEST or reply to this email</p>
+      </div>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || "PestIQ Solutions <no-reply@pestiq.com>",
+        to: [toEmail],
+        subject: `Welcome to PestIQ — Your Portal Access Details`,
+        html: htmlContent,
+      });
+      console.log(`Customer welcome email sent to ${toEmail}`);
+    } catch (err) {
+      console.warn("Failed to send customer welcome email:", err);
+    }
+  } else {
+    console.log(`[TEST MODE] Customer welcome email for ${toEmail}: password=${tempPassword}`);
+  }
+}

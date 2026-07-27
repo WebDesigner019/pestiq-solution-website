@@ -64,17 +64,20 @@ model StaffProfile {
 }
 
 model Customer {
-  id               String           @id @default(uuid())
-  email            String           @unique
-  fullName         String
-  phone            String
-  stripeCustomerId String?          @unique
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  addresses        ServiceAddress[]
-  quotes           Quote[]
-  orders           Order[]
-  subscriptions    Subscription[]
+  id                      String           @id @default(uuid())
+  email                   String           @unique
+  fullName                String
+  phone                   String
+  stripeCustomerId        String?          @unique
+  passwordHash            String?
+  portalResetToken        String?
+  portalResetTokenExpiry  DateTime?
+  createdAt               DateTime         @default(now())
+  updatedAt               DateTime         @updatedAt
+  addresses               ServiceAddress[]
+  quotes                  Quote[]
+  orders                  Order[]
+  subscriptions           Subscription[]
 
   @@map("customers")
 }
