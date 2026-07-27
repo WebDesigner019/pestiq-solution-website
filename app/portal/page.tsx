@@ -6,7 +6,7 @@ import {
   LayoutDashboard,
   Calendar,
   Clock,
-  AlertTriangle,
+  AlertCircle,
   FileText,
   DollarSign,
   CheckCircle2,
@@ -17,7 +17,6 @@ import {
   Download,
   History,
   LogOut,
-  PhoneCall,
   CalendarCheck
 } from "lucide-react";
 
@@ -100,7 +99,7 @@ export default function CustomerPortal() {
                   onClick={() => setActiveTab(item.id as any)}
                   className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all text-left ${
                     isActive
-                      ? "bg-[#2563eb] text-white shadow-md shadow-blue-500/20"
+                      ? "bg-[#071b4d] text-white shadow-md shadow-slate-900/10"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
                   }`}
                 >
@@ -145,7 +144,7 @@ export default function CustomerPortal() {
               <input
                 type="text"
                 placeholder="Search visits, reports, or plan..."
-                className="w-full h-9 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all"
+                className="w-full h-9 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-slate-800 focus:bg-white transition-all"
               />
             </div>
           </div>
@@ -171,7 +170,7 @@ export default function CustomerPortal() {
               <h1 className="text-2xl font-black text-slate-900 tracking-tight">Welcome back, John Smith!</h1>
               <p className="text-slate-500 text-xs mt-1">Manage your active protection plan, upcoming technician visits, and service history.</p>
             </div>
-            <Link href="/" className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
+            <Link href="/" className="text-xs font-bold text-slate-700 hover:text-slate-900 flex items-center gap-1">
               Back to main site →
             </Link>
           </div>
@@ -186,7 +185,7 @@ export default function CustomerPortal() {
                   <span className="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider block">Upcoming Service</span>
                   <h2 className="text-lg font-black text-slate-900 mt-0.5">Routine Exterior Barrier &amp; Inspection</h2>
                 </div>
-                <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-extrabold rounded-full">
+                <span className="px-3 py-1 bg-blue-50 text-blue-800 border border-blue-200 text-xs font-extrabold rounded-full">
                   CONFIRMED
                 </span>
               </div>
@@ -199,7 +198,7 @@ export default function CustomerPortal() {
                 <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 text-slate-900 font-black text-sm">
-                      <Calendar className="w-4 h-4 text-[#2563eb]" />
+                      <Calendar className="w-4 h-4 text-[#071b4d]" />
                       Tuesday, August 5, 2026
                     </div>
                     <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
@@ -232,7 +231,7 @@ export default function CustomerPortal() {
             <div className="bg-[#071b4d] rounded-2xl p-6 text-white flex flex-col justify-between shadow-lg relative overflow-hidden">
               <div className="space-y-3 z-10 relative">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-[#FACC15] border border-amber-400/30 text-xs font-extrabold">
-                  <AlertTriangle className="w-3.5 h-3.5" /> Priority Response Guaranteed
+                  <AlertCircle className="w-3.5 h-3.5" /> Priority Response Guaranteed
                 </div>
                 <h3 className="text-xl font-black text-white leading-snug">Noticed Pest Activity?</h3>
                 <p className="text-xs text-slate-300 leading-relaxed">
@@ -256,7 +255,7 @@ export default function CustomerPortal() {
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#2563eb] flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#071b4d] flex items-center justify-center flex-shrink-0">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
@@ -367,18 +366,18 @@ export default function CustomerPortal() {
       {sightingModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSightingModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10 animate-fadeIn">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10 animate-fadeIn border border-slate-200">
             <button onClick={() => setSightingModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
               <X className="w-5 h-5" />
             </button>
 
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
-                <AlertTriangle className="w-5 h-5" />
+            <div className="flex items-center gap-3 mb-5">
+              <div className="w-10 h-10 rounded-xl bg-slate-100 text-slate-800 flex items-center justify-center flex-shrink-0">
+                <AlertCircle className="w-5 h-5 text-[#071b4d]" />
               </div>
               <div>
-                <h3 className="text-lg font-black text-slate-900">Log Pest Activity</h3>
-                <p className="text-slate-500 text-xs">Priority dispatch for active subscribers</p>
+                <h3 className="text-lg font-black text-slate-900">Report Pest Activity</h3>
+                <p className="text-slate-500 text-xs">Priority dispatch for active plan subscribers</p>
               </div>
             </div>
 
@@ -395,7 +394,7 @@ export default function CustomerPortal() {
                   <select
                     value={sightingType}
                     onChange={e => setSightingType(e.target.value)}
-                    className="w-full h-10 px-3 rounded-lg border border-slate-300 text-xs font-semibold text-slate-900 bg-white"
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-slate-50 outline-none focus:border-slate-800 focus:bg-white transition-all"
                   >
                     <option value="Ants (Kitchen / Indoors)">Ants (Kitchen / Indoors)</option>
                     <option value="Mice / Rodents">Mice / Rodents</option>
@@ -412,15 +411,15 @@ export default function CustomerPortal() {
                     rows={3}
                     value={sightingNotes}
                     onChange={e => setSightingNotes(e.target.value)}
-                    placeholder="e.g., Noticed small black ants along kitchen counter near sink..."
+                    placeholder="Describe location and severity..."
                     required
-                    className="w-full p-3 rounded-lg border border-slate-300 text-xs text-slate-900 bg-white outline-none focus:border-blue-600"
+                    className="w-full p-3 rounded-xl border border-slate-200 text-xs text-slate-900 bg-slate-50 outline-none focus:border-slate-800 focus:bg-white transition-all"
                   />
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full h-11 bg-[#071b4d] hover:bg-blue-900 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs"
+                  className="w-full h-11 bg-[#071b4d] hover:bg-slate-900 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 text-xs transition-all"
                 >
                   <Send className="w-3.5 h-3.5 text-[#FACC15]" /> Submit Priority Callback Request
                 </button>
@@ -434,7 +433,7 @@ export default function CustomerPortal() {
       {rescheduleModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setRescheduleModal(false)} />
-          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10 animate-fadeIn">
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10 animate-fadeIn border border-slate-200">
             <button onClick={() => setRescheduleModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
               <X className="w-5 h-5" />
             </button>
@@ -456,7 +455,7 @@ export default function CustomerPortal() {
                     value={rescheduleDate}
                     onChange={e => setRescheduleDate(e.target.value)}
                     required
-                    className="w-full h-10 px-3 rounded-lg border border-slate-300 text-xs font-semibold text-slate-900 bg-white"
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-slate-50 outline-none focus:border-slate-800 focus:bg-white transition-all"
                   />
                 </div>
 
@@ -465,7 +464,7 @@ export default function CustomerPortal() {
                   <select
                     value={rescheduleWindow}
                     onChange={e => setRescheduleWindow(e.target.value)}
-                    className="w-full h-10 px-3 rounded-lg border border-slate-300 text-xs font-semibold text-slate-900 bg-white"
+                    className="w-full h-10 px-3 rounded-xl border border-slate-200 text-xs font-semibold text-slate-900 bg-slate-50 outline-none focus:border-slate-800 focus:bg-white transition-all"
                   >
                     <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
                     <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
@@ -476,7 +475,7 @@ export default function CustomerPortal() {
 
                 <button
                   type="submit"
-                  className="w-full h-10 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl shadow flex items-center justify-center text-xs"
+                  className="w-full h-10 bg-[#071b4d] hover:bg-slate-900 text-white font-bold rounded-xl shadow flex items-center justify-center text-xs transition-all"
                 >
                   Confirm New Schedule
                 </button>

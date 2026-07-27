@@ -1,32 +1,26 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, MessageCircle, X, Phone, Mail, MapPin, ArrowUpRight } from "lucide-react";
+import { Search, MessageSquare, X, Phone, Mail, MapPin, ArrowUpRight } from "lucide-react";
 import { MOCK_BOOKINGS, type Booking, type BookingStatus } from "@/lib/adminMockData";
 
-const STATUS: Record<BookingStatus, { label:string; dot:string; text:string; bg:string; border:string }> = {
-  pending:   { label:"Pending",   dot:"#f59e0b", text:"#92400e", bg:"#fffbeb", border:"#fde68a" },
-  confirmed: { label:"Confirmed", dot:"#3b82f6", text:"#1e40af", bg:"#eff6ff", border:"#bfdbfe" },
-  completed: { label:"Completed", dot:"#10b981", text:"#065f46", bg:"#ecfdf5", border:"#a7f3d0" },
-  cancelled: { label:"Cancelled", dot:"#ef4444", text:"#991b1b", bg:"#fef2f2", border:"#fecaca" },
+const STATUS: Record<BookingStatus, { label: string; dot: string; text: string; bg: string; border: string }> = {
+  pending:   { label: "Pending",   dot: "#d97706", text: "#92400e", bg: "#fef3c7", border: "#fde68a" },
+  confirmed: { label: "Confirmed", dot: "#2563eb", text: "#1e40af", bg: "#dbeafe", border: "#bfdbfe" },
+  completed: { label: "Completed", dot: "#16a34a", text: "#166534", bg: "#dcfce7", border: "#bbf7d0" },
+  cancelled: { label: "Cancelled", dot: "#dc2626", text: "#991b1b", bg: "#fee2e2", border: "#fecaca" },
 };
 
-const GRADS = [
-  "#1d4ed8,#3b82f6","#7c3aed,#a78bfa","#059669,#34d399",
-  "#dc2626,#f87171","#d97706,#fbbf24","#0284c7,#38bdf8",
-  "#c026d3,#e879f9","#16a34a,#86efac",
-];
-
 const TABS: { key: BookingStatus | "all"; label: string }[] = [
-  { key:"all",       label:"All"       },
-  { key:"pending",   label:"Pending"   },
-  { key:"confirmed", label:"Confirmed" },
-  { key:"completed", label:"Completed" },
-  { key:"cancelled", label:"Cancelled" },
+  { key: "all",       label: "All"       },
+  { key: "pending",   label: "Pending"   },
+  { key: "confirmed", label: "Confirmed" },
+  { key: "completed", label: "Completed" },
+  { key: "cancelled", label: "Cancelled" },
 ];
 
 function buildWA(b: Booking) {
-  const msg = `🛡️ *PestIQ — Service Assignment*\n\n*Booking:* ${b.id}\n*Customer:* ${b.customerName}\n*Contact:* ${b.phone}\n*Address:* ${b.address}, ${b.city}, ${b.state} ${b.zip}\n*Service:* ${b.service} (${b.plan})\n*Date:* ${new Date(b.scheduledDate).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}\n*Time:* ${b.scheduledTime}\n*Notes:* ${b.notes||"None"}\n\nPlease confirm. — PestIQ Admin`;
+  const msg = `PestIQ Service Assignment\n\nBooking: ${b.id}\nCustomer: ${b.customerName}\nContact: ${b.phone}\nAddress: ${b.address}, ${b.city}, ${b.state} ${b.zip}\nService: ${b.service} (${b.plan})\nDate: ${new Date(b.scheduledDate).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}\nTime: ${b.scheduledTime}\nNotes: ${b.notes||"None"}\n\nPlease confirm arrival.`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
 
@@ -36,12 +30,12 @@ export default function AdminBookingsPage() {
   const [filter,   setFilter]   = useState<BookingStatus | "all">("all");
   const [selected, setSelected] = useState<Booking | null>(null);
 
-  const counts: Record<string,number> = {
+  const counts: Record<string, number> = {
     all: bookings.length,
-    pending:   bookings.filter(b=>b.status==="pending").length,
-    confirmed: bookings.filter(b=>b.status==="confirmed").length,
-    completed: bookings.filter(b=>b.status==="completed").length,
-    cancelled: bookings.filter(b=>b.status==="cancelled").length,
+    pending:   bookings.filter(b => b.status === "pending").length,
+    confirmed: bookings.filter(b => b.status === "confirmed").length,
+    completed: bookings.filter(b => b.status === "completed").length,
+    cancelled: bookings.filter(b => b.status === "cancelled").length,
   };
 
   const filtered = bookings.filter(b => {
@@ -57,157 +51,161 @@ export default function AdminBookingsPage() {
     setSelected(p => p?.id === id ? { ...p, status: s } : p);
   };
 
-  const customerGrad = (name: string) => {
-    const idx = MOCK_BOOKINGS.findIndex(b => b.customerName === name);
-    return GRADS[(idx < 0 ? 0 : idx) % GRADS.length];
-  };
-
   return (
-    <div style={{ padding:"24px 28px", maxWidth:1280, margin:"0 auto" }}>
+    <div className="p-6 md:p-8 max-w-6xl w-full mx-auto space-y-6">
+
       {/* Heading */}
-      <div style={{ marginBottom:20 }}>
-        <h1 style={{ color:"#0d1e4a", fontSize:20, fontWeight:900, margin:0, letterSpacing:"-0.025em" }}>Bookings</h1>
-        <p style={{ color:"#94a3b8", fontSize:13, margin:"4px 0 0" }}>{bookings.length} total service requests</p>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Bookings Management</h1>
+          <p className="text-slate-500 text-xs mt-1">{bookings.length} total service requests recorded</p>
+        </div>
       </div>
 
-      {/* Toolbar */}
-      <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:18, flexWrap:"wrap" }}>
-        {/* Filter tabs */}
-        <div style={{ display:"flex", background:"#fff", border:"1px solid #e8edf5", borderRadius:10, padding:3, gap:2, flexWrap:"wrap" }}>
+      {/* Toolbar: Filter Tabs + Search */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4">
+
+        {/* Filter Tabs */}
+        <div className="inline-flex bg-slate-200/70 p-1 rounded-xl border border-slate-300/60 gap-1 flex-wrap">
           {TABS.map(({ key, label }) => {
             const active = filter === key;
             const m = key !== "all" ? STATUS[key] : null;
             return (
-              <button key={key} onClick={() => setFilter(key)}
-                style={{
-                  display:"flex", alignItems:"center", gap:5,
-                  padding:"5px 12px", borderRadius:7, border:"none",
-                  fontSize:13, fontWeight: active ? 700 : 500, cursor:"pointer",
-                  background: active ? "#0d1e4a" : "transparent",
-                  color: active ? "#fff" : "#64748b",
-                  transition:"all 0.12s",
-                }}
+              <button
+                key={key}
+                onClick={() => setFilter(key)}
+                className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                  active
+                    ? "bg-[#071b4d] text-white shadow-sm"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                }`}
               >
-                {m && <span style={{ width:7, height:7, borderRadius:"50%", background:m.dot, display:"inline-block" }} />}
+                {m && <span className="w-2 h-2 rounded-full" style={{ backgroundColor: active ? "#ffffff" : m.dot }} />}
                 {label}
-                <span style={{
-                  fontSize:11, fontWeight:800, padding:"1px 7px", borderRadius:999,
-                  background: active ? "rgba(255,255,255,0.18)" : "#f1f5f9",
-                  color: active ? "#fff" : "#64748b",
-                }}>{counts[key]}</span>
+                <span className={`text-[11px] font-extrabold px-2 py-0.5 rounded-full ${
+                  active ? "bg-white/20 text-white" : "bg-slate-300/80 text-slate-700"
+                }`}>
+                  {counts[key]}
+                </span>
               </button>
             );
           })}
         </div>
 
         {/* Search */}
-        <div style={{ position:"relative", flex:1, maxWidth:280 }}>
-          <Search style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)", width:14, height:14, color:"#94a3b8" }} />
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search by name, service, city…"
-            style={{
-              width:"100%", height:36, paddingLeft:34, paddingRight:12,
-              background:"#fff", border:"1px solid #e8edf5", borderRadius:9,
-              fontSize:13, outline:"none", color:"#0d1e4a", boxSizing:"border-box",
-            }}
-            onFocus={e=>e.target.style.borderColor="#3b82f6"}
-            onBlur={e=>e.target.style.borderColor="#e8edf5"}
+        <div className="relative max-w-xs w-full">
+          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+          <input
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search by name, service, city..."
+            className="w-full h-9 pl-9 pr-4 bg-white border border-slate-200 rounded-xl text-xs text-slate-800 outline-none focus:border-blue-600 focus:bg-white transition-all shadow-xs"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div style={{ background:"#fff", borderRadius:14, border:"1px solid #edf0f7", boxShadow:"0 1px 3px rgba(15,30,74,0.05)", overflow:"hidden" }}>
-        <div style={{ overflowX:"auto" }}>
-          <table style={{ width:"100%", borderCollapse:"collapse", minWidth:760 }}>
-            <thead>
-              <tr style={{ background:"#fafbfd", borderBottom:"1px solid #edf0f7" }}>
-                {["#","Customer","Service","Date & Time","Status","Actions"].map(h => (
-                  <th key={h} style={{
-                    textAlign:"left", padding:"10px 16px",
-                    fontSize:11, fontWeight:700, color:"#94a3b8",
-                    textTransform:"uppercase", letterSpacing:"0.07em", whiteSpace:"nowrap",
-                  }}>{h}</th>
-                ))}
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full text-left text-xs">
+            <thead className="bg-slate-50/80 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider">
+              <tr>
+                <th className="px-6 py-3.5">#</th>
+                <th className="px-6 py-3.5">Customer</th>
+                <th className="px-6 py-3.5">Service</th>
+                <th className="px-6 py-3.5">Date &amp; Time</th>
+                <th className="px-6 py-3.5">Status</th>
+                <th className="px-6 py-3.5 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
-              {filtered.map((b, i) => {
+            <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+              {filtered.map((b) => {
                 const m = STATUS[b.status];
-                const grad = customerGrad(b.customerName);
+                const initials = b.customerName.split(" ").map(n => n[0]).join("").slice(0, 2);
                 return (
-                  <tr key={b.id}
+                  <tr
+                    key={b.id}
                     onClick={() => setSelected(b)}
-                    style={{ borderBottom: i < filtered.length-1 ? "1px solid #f8fafc" : "none", cursor:"pointer" }}
-                    onMouseEnter={e=>(e.currentTarget.style.background="#fafcff")}
-                    onMouseLeave={e=>(e.currentTarget.style.background="transparent")}
+                    className="hover:bg-slate-50/60 transition-colors cursor-pointer"
                   >
                     {/* ID */}
-                    <td style={{ padding:"13px 16px" }}>
-                      <span style={{ fontFamily:"monospace", fontSize:11, color:"#94a3b8", fontWeight:700 }}>{b.id}</span>
+                    <td className="px-6 py-4 font-mono text-[11px] text-slate-400 font-bold">
+                      {b.id}
                     </td>
+
                     {/* Customer */}
-                    <td style={{ padding:"13px 16px" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:9 }}>
-                        <div style={{
-                          width:30, height:30, borderRadius:"50%", flexShrink:0,
-                          background:`linear-gradient(135deg,${grad})`,
-                          display:"flex", alignItems:"center", justifyContent:"center",
-                          color:"#fff", fontSize:10, fontWeight:900,
-                        }}>{b.customerName.split(" ").map(n=>n[0]).join("").slice(0,2)}</div>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-[#071b4d] text-white flex items-center justify-center font-bold text-xs flex-shrink-0">
+                          {initials}
+                        </div>
                         <div>
-                          <p style={{ color:"#0d1e4a", fontSize:13, fontWeight:700, margin:0 }}>{b.customerName}</p>
-                          <p style={{ color:"#94a3b8", fontSize:12, margin:"2px 0 0" }}>{b.city}, {b.state}</p>
+                          <p className="font-extrabold text-xs text-slate-900">{b.customerName}</p>
+                          <p className="text-[11px] text-slate-400">{b.city}, {b.state}</p>
                         </div>
                       </div>
                     </td>
+
                     {/* Service */}
-                    <td style={{ padding:"13px 16px" }}>
-                      <p style={{ color:"#0d1e4a", fontSize:13, fontWeight:600, margin:0 }}>{b.service}</p>
-                      <p style={{ color:"#94a3b8", fontSize:12, margin:"2px 0 0" }}>{b.plan} · ${b.price}</p>
+                    <td className="px-6 py-4">
+                      <p className="font-bold text-xs text-slate-900">{b.service}</p>
+                      <p className="text-[11px] text-slate-400">{b.plan} • ${b.price}</p>
                     </td>
+
                     {/* Date */}
-                    <td style={{ padding:"13px 16px", whiteSpace:"nowrap" }}>
-                      <p style={{ color:"#0d1e4a", fontSize:13, fontWeight:600, margin:0 }}>
-                        {new Date(b.scheduledDate).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <p className="font-bold text-xs text-slate-900">
+                        {new Date(b.scheduledDate).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                       </p>
-                      <p style={{ color:"#94a3b8", fontSize:12, margin:"2px 0 0" }}>{b.scheduledTime}</p>
+                      <p className="text-[11px] text-slate-400">{b.scheduledTime}</p>
                     </td>
+
                     {/* Status */}
-                    <td style={{ padding:"13px 16px" }}>
-                      <span style={{
-                        display:"inline-flex", alignItems:"center", gap:5,
-                        padding:"3px 10px", borderRadius:999, fontSize:12, fontWeight:700,
-                        background:m.bg, color:m.text,
-                        border:`1px solid ${m.border}`,
-                      }}>
-                        <span style={{ width:6,height:6,borderRadius:"50%",background:m.dot,display:"inline-block" }} />
+                    <td className="px-6 py-4">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-extrabold"
+                        style={{ color: m.text, backgroundColor: m.bg, border: `1px solid ${m.border}` }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: m.dot }} />
                         {m.label}
                       </span>
                     </td>
+
                     {/* Actions */}
-                    <td style={{ padding:"13px 16px" }} onClick={e=>e.stopPropagation()}>
-                      <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                    <td className="px-6 py-4 text-right" onClick={e => e.stopPropagation()}>
+                      <div className="flex items-center justify-end gap-2">
                         {b.status === "pending" && (
-                          <button onClick={()=>changeStatus(b.id,"confirmed")}
-                            style={{ height:28, padding:"0 10px", fontSize:12, fontWeight:700, borderRadius:7, border:"1px solid #bfdbfe", background:"#eff6ff", color:"#1d4ed8", cursor:"pointer" }}>
+                          <button
+                            onClick={() => changeStatus(b.id, "confirmed")}
+                            className="px-3 py-1 text-xs font-bold rounded-lg border border-blue-200 bg-blue-50 text-blue-800 hover:bg-blue-100 transition-all"
+                          >
                             Confirm
                           </button>
                         )}
                         {b.status === "confirmed" && (
-                          <button onClick={()=>changeStatus(b.id,"completed")}
-                            style={{ height:28, padding:"0 10px", fontSize:12, fontWeight:700, borderRadius:7, border:"1px solid #a7f3d0", background:"#ecfdf5", color:"#065f46", cursor:"pointer" }}>
+                          <button
+                            onClick={() => changeStatus(b.id, "completed")}
+                            className="px-3 py-1 text-xs font-bold rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-800 hover:bg-emerald-100 transition-all"
+                          >
                             Complete
                           </button>
                         )}
                         {(b.status === "pending" || b.status === "confirmed") && (
-                          <button onClick={()=>changeStatus(b.id,"cancelled")}
-                            style={{ height:28, padding:"0 10px", fontSize:12, fontWeight:700, borderRadius:7, border:"1px solid #fecaca", background:"#fef2f2", color:"#b91c1c", cursor:"pointer" }}>
+                          <button
+                            onClick={() => changeStatus(b.id, "cancelled")}
+                            className="px-3 py-1 text-xs font-bold rounded-lg border border-rose-200 bg-rose-50 text-rose-800 hover:bg-rose-100 transition-all"
+                          >
                             Cancel
                           </button>
                         )}
-                        <a href={buildWA(b)} target="_blank" rel="noopener noreferrer"
-                          style={{ width:28,height:28,borderRadius:7,background:"#f0fdf4",display:"flex",alignItems:"center",justifyContent:"center",textDecoration:"none",flexShrink:0 }}>
-                          <MessageCircle style={{width:13,height:13,color:"#16a34a"}}/>
+                        <a
+                          href={buildWA(b)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="Dispatch via WhatsApp"
+                          className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 flex items-center justify-center transition-colors"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" />
                         </a>
                       </div>
                     </td>
@@ -215,7 +213,11 @@ export default function AdminBookingsPage() {
                 );
               })}
               {filtered.length === 0 && (
-                <tr><td colSpan={6} style={{ padding:"52px 16px", textAlign:"center", color:"#94a3b8", fontSize:13 }}>No bookings match your search.</td></tr>
+                <tr>
+                  <td colSpan={6} className="px-6 py-12 text-center text-slate-400 text-xs">
+                    No bookings match your search.
+                  </td>
+                </tr>
               )}
             </tbody>
           </table>
@@ -224,103 +226,119 @@ export default function AdminBookingsPage() {
 
       {/* Detail Drawer */}
       {selected && (
-        <div style={{ position:"fixed", inset:0, zIndex:50, display:"flex" }}>
-          <div style={{ flex:1, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(3px)" }} onClick={()=>setSelected(null)} />
-          <div style={{ width:"100%", maxWidth:420, background:"#fff", display:"flex", flexDirection:"column", boxShadow:"-4px 0 24px rgba(0,0,0,0.15)" }}>
-            {/* Drawer header */}
-            <div style={{ padding:"20px 24px", borderBottom:"1px solid #edf0f7" }}>
-              <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
-                <div>
-                  <p style={{ fontFamily:"monospace", fontSize:11, color:"#94a3b8", margin:"0 0 5px", fontWeight:700 }}>{selected.id}</p>
-                  <h2 style={{ color:"#0d1e4a", fontSize:17, fontWeight:900, margin:0 }}>{selected.customerName}</h2>
-                  <p style={{ color:"#94a3b8", fontSize:13, margin:"4px 0 0" }}>{selected.service}</p>
-                </div>
-                <button onClick={()=>setSelected(null)} style={{ background:"none", border:"none", cursor:"pointer", color:"#94a3b8", marginTop:2 }}>
-                  <X style={{width:18,height:18}}/>
-                </button>
+        <div className="fixed inset-0 z-50 flex justify-end">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSelected(null)} />
+          <div className="relative z-10 w-full max-w-md bg-white h-full shadow-2xl flex flex-col justify-between animate-fadeIn">
+            {/* Drawer Header */}
+            <div className="p-6 border-b border-slate-100 flex items-start justify-between">
+              <div>
+                <p className="font-mono text-xs text-slate-400 font-bold mb-1">{selected.id}</p>
+                <h2 className="text-xl font-black text-slate-900">{selected.customerName}</h2>
+                <p className="text-xs text-slate-500 mt-0.5">{selected.service}</p>
               </div>
+              <button onClick={() => setSelected(null)} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
             </div>
 
-            <div style={{ flex:1, overflowY:"auto", padding:"20px 24px" }}>
-              {/* Status selector */}
-              <p style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.14em", color:"#94a3b8", margin:"0 0 10px" }}>Update Status</p>
-              <div style={{ display:"flex", gap:6, flexWrap:"wrap", marginBottom:24 }}>
-                {(["pending","confirmed","completed","cancelled"] as BookingStatus[]).map(s => {
-                  const m = STATUS[s]; const active = selected.status === s;
-                  return (
-                    <button key={s} onClick={()=>changeStatus(selected.id, s)}
-                      style={{
-                        display:"flex", alignItems:"center", gap:6,
-                        padding:"5px 12px", borderRadius:8, border:`1px solid ${active ? m.dot : "#e8edf5"}`,
-                        fontSize:12, fontWeight:700, cursor:"pointer", textTransform:"capitalize",
-                        background: active ? m.bg : "#fff",
-                        color: active ? m.text : "#64748b",
-                        boxShadow: active ? `0 0 0 2px ${m.border}` : "none",
-                        transition:"all 0.12s",
-                      }}
+            {/* Drawer Body */}
+            <div className="p-6 space-y-6 flex-1 overflow-y-auto">
+              {/* Status Selector */}
+              <div>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Update Status</p>
+                <div className="flex gap-2 flex-wrap">
+                  {(["pending", "confirmed", "completed", "cancelled"] as BookingStatus[]).map(s => {
+                    const m = STATUS[s];
+                    const active = selected.status === s;
+                    return (
+                      <button
+                        key={s}
+                        onClick={() => changeStatus(selected.id, s)}
+                        className={`px-3 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 capitalize transition-all ${
+                          active
+                            ? "border-slate-900 bg-slate-900 text-white shadow-xs"
+                            : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                        }`}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: active ? "#ffffff" : m.dot }} />
+                        {s}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Contact Info */}
+              <div>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Contact</p>
+                <div className="space-y-2">
+                  {[
+                    { icon: Phone, v: selected.phone, href: `tel:${selected.phone}` },
+                    { icon: Mail, v: selected.email, href: `mailto:${selected.email}` },
+                    {
+                      icon: MapPin,
+                      v: `${selected.address}, ${selected.city}, ${selected.state} ${selected.zip}`,
+                      href: `https://maps.google.com/?q=${encodeURIComponent(selected.address + " " + selected.city)}`
+                    },
+                  ].map(({ icon: Icon, v, href }) => (
+                    <a
+                      key={href}
+                      href={href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-start gap-2.5 text-xs text-blue-600 font-bold hover:underline"
                     >
-                      <span style={{ width:6,height:6,borderRadius:"50%",background:m.dot,display:"inline-block" }} />
-                      {s}
-                    </button>
-                  );
-                })}
+                      <Icon className="w-4 h-4 text-slate-400 flex-shrink-0 mt-0.5" />
+                      <span className="flex-1">{v}</span>
+                      <ArrowUpRight className="w-3.5 h-3.5 text-slate-400 flex-shrink-0 mt-0.5" />
+                    </a>
+                  ))}
+                </div>
               </div>
 
-              {/* Contact */}
-              <p style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.14em", color:"#94a3b8", margin:"0 0 10px" }}>Contact</p>
-              <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:24 }}>
-                {[
-                  { icon:Phone, v:selected.phone,  href:`tel:${selected.phone}` },
-                  { icon:Mail,  v:selected.email,  href:`mailto:${selected.email}` },
-                  { icon:MapPin,v:`${selected.address}, ${selected.city}, ${selected.state} ${selected.zip}`,
-                    href:`https://maps.google.com/?q=${encodeURIComponent(selected.address+" "+selected.city)}` },
-                ].map(({icon:Icon,v,href})=>(
-                  <a key={href} href={href} target="_blank" rel="noopener noreferrer"
-                    style={{ display:"flex", alignItems:"flex-start", gap:9, fontSize:13, color:"#1557b8", textDecoration:"none" }}>
-                    <Icon style={{width:14,height:14,marginTop:1,color:"#94a3b8",flexShrink:0}}/>
-                    <span style={{ flex:1 }}>{v}</span>
-                    <ArrowUpRight style={{width:12,height:12,marginTop:1,flexShrink:0,color:"#94a3b8"}}/>
-                  </a>
-                ))}
-              </div>
-
-              {/* Service details */}
-              <p style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.14em", color:"#94a3b8", margin:"0 0 10px" }}>Service Details</p>
-              <div style={{ background:"#fafbfd", borderRadius:10, padding:"14px 16px", marginBottom:16 }}>
-                {[
-                  ["Service",   selected.service],
-                  ["Plan",      selected.plan],
-                  ["Price",     `$${selected.price}`],
-                  ["Property",  `${selected.sqFt.toLocaleString()} sq ft`],
-                  ["Date",      new Date(selected.scheduledDate).toLocaleDateString("en-US",{weekday:"short",month:"long",day:"numeric",year:"numeric"})],
-                  ["Time",      selected.scheduledTime],
-                ].map(([label,value])=>(
-                  <div key={label} style={{ display:"flex", gap:12, marginBottom:8 }}>
-                    <span style={{ color:"#94a3b8", fontSize:12, fontWeight:600, width:56, flexShrink:0 }}>{label}</span>
-                    <span style={{ color:"#0d1e4a", fontSize:13, fontWeight:600 }}>{value}</span>
-                  </div>
-                ))}
+              {/* Service Details */}
+              <div>
+                <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest mb-2">Service Details</p>
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200/80 space-y-2 text-xs">
+                  {[
+                    ["Service", selected.service],
+                    ["Plan", selected.plan],
+                    ["Price", `$${selected.price}`],
+                    ["Property", `${selected.sqFt.toLocaleString()} sq ft`],
+                    ["Date", new Date(selected.scheduledDate).toLocaleDateString("en-US", { weekday: "short", month: "long", day: "numeric", year: "numeric" })],
+                    ["Time", selected.scheduledTime],
+                  ].map(([label, value]) => (
+                    <div key={label} className="flex justify-between">
+                      <span className="text-slate-500 font-semibold">{label}</span>
+                      <span className="font-bold text-slate-900">{value}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
 
               {selected.notes && (
-                <div style={{ background:"#fffbeb", border:"1px solid #fde68a", borderRadius:10, padding:"12px 14px" }}>
-                  <p style={{ fontSize:11, fontWeight:700, color:"#92400e", margin:"0 0 4px", textTransform:"uppercase", letterSpacing:"0.1em" }}>Notes</p>
-                  <p style={{ color:"#374151", fontSize:13, margin:0, lineHeight:1.6 }}>{selected.notes}</p>
+                <div className="bg-amber-50 border border-amber-200/80 rounded-xl p-3.5">
+                  <p className="text-[10px] font-extrabold text-amber-800 uppercase tracking-widest mb-1">Notes</p>
+                  <p className="text-xs text-slate-800 leading-relaxed font-medium">{selected.notes}</p>
                 </div>
               )}
             </div>
 
-            {/* Footer */}
-            <div style={{ padding:"16px 24px", borderTop:"1px solid #edf0f7" }}>
-              <a href={buildWA(selected)} target="_blank" rel="noopener noreferrer"
-                style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10, height:44, background:"#16a34a", color:"#fff", borderRadius:10, fontSize:14, fontWeight:700, textDecoration:"none" }}>
-                <MessageCircle style={{width:16,height:16}}/>
-                Send to Technician via WhatsApp
+            {/* Footer Action */}
+            <div className="p-4 border-t border-slate-100">
+              <a
+                href={buildWA(selected)}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition-all"
+              >
+                <MessageSquare className="w-4 h-4" /> Dispatch to Tech via WhatsApp
               </a>
             </div>
           </div>
         </div>
       )}
+
     </div>
   );
 }
