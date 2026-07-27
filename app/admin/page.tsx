@@ -2,7 +2,8 @@
 
 import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import { Eye, EyeOff, AlertCircle, CheckCircle2, ArrowRight, ArrowLeft, Home } from "lucide-react";
 
 /* ─── PestIQ Logo (inline SVG, matches favicon) ─── */
 function PestIQLogo({ size = 38 }: { size?: number }) {
@@ -111,295 +112,253 @@ function AdminLoginForm() {
   };
 
   const inputStyle: React.CSSProperties = {
-    width: "100%", height: 48, paddingLeft: 14, paddingRight: 14,
+    width: "100%", height: 50, padding: "0 14px",
     background: "#f8fafc", border: "1.5px solid #e2e8f0",
-    borderRadius: 10, fontSize: 14, outline: "none", color: "#0f172a",
+    borderRadius: 11, fontSize: 15, outline: "none", color: "#0f172a",
     fontWeight: 600, boxSizing: "border-box", transition: "border-color 0.15s, background 0.15s",
     fontFamily: "inherit",
   };
 
   return (
     <>
-      {/* Global styles for full-screen and mobile */}
       <style>{`
         html, body { margin: 0; padding: 0; height: 100%; }
-        * { box-sizing: border-box; }
+        *, *::before, *::after { box-sizing: border-box; }
         @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
 
-        .admin-login-root {
-          display: flex;
+        .admin-bg-wrapper {
           min-height: 100dvh;
-          height: 100%;
-          font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
-        }
-
-        /* LEFT hero panel */
-        .admin-hero-panel {
-          flex: 0 0 44%;
+          width: 100%;
           position: relative;
+          display: flex;
+          flex-direction: column;
           background-image: url('/images/admin_ops_hero.jpg');
           background-size: cover;
           background-position: center;
-          display: flex;
-          flex-direction: column;
-          justify-content: space-between;
-          padding: 40px 44px;
-          overflow: hidden;
-          min-height: 100dvh;
+          font-family: var(--font-sans), system-ui, -apple-system, sans-serif;
         }
-        .admin-hero-panel::before {
-          content: '';
+
+        /* Dark watermark overlay */
+        .admin-bg-overlay {
           position: absolute;
           inset: 0;
           background: linear-gradient(
-            170deg,
-            rgba(7, 27, 77, 0.82) 0%,
-            rgba(5, 18, 55, 0.45) 50%,
-            rgba(7, 27, 77, 0.90) 100%
+            135deg,
+            rgba(7, 27, 77, 0.88) 0%,
+            rgba(15, 23, 42, 0.82) 50%,
+            rgba(7, 27, 77, 0.92) 100%
           );
+          backdrop-filter: blur(4px);
+          z-index: 1;
         }
 
-        /* RIGHT form panel */
-        .admin-form-panel {
-          flex: 1;
+        /* Content container above overlay */
+        .admin-content {
+          position: relative;
+          z-index: 2;
           display: flex;
           flex-direction: column;
-          justify-content: center;
-          padding: 56px 60px;
-          background: #ffffff;
           min-height: 100dvh;
-          overflow-y: auto;
+          width: 100%;
         }
 
-        /* Mobile: stack vertically, hide hero */
-        @media (max-width: 768px) {
-          .admin-login-root { flex-direction: column; }
-          .admin-hero-panel {
-            flex: none;
-            min-height: 220px;
-            height: 220px;
-            padding: 28px 28px;
-          }
-          .admin-form-panel {
-            flex: 1;
-            min-height: auto;
-            padding: 40px 28px 48px;
-          }
+        /* Top Bar */
+        .admin-header {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          padding: 24px 40px;
+          width: 100%;
         }
 
-        @media (max-width: 480px) {
-          .admin-form-panel { padding: 32px 20px 40px; }
-          .admin-hero-panel { height: 180px; min-height: 180px; padding: 22px 20px; }
+        /* Centered Card Wrapper */
+        .admin-card-container {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          padding: 20px 24px 48px;
         }
 
-        /* Input focus ring */
+        .admin-card {
+          max-width: 440px;
+          width: 100%;
+          background: #ffffff;
+          border-radius: 20px;
+          box-shadow: 0 20px 40px rgba(0, 0, 0, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.1);
+          padding: 44px 40px;
+          animation: fadeUp 0.35s ease-out;
+        }
+
         .admin-input:focus {
           border-color: #1557b8 !important;
           background: #ffffff !important;
         }
+
+        @media (max-width: 640px) {
+          .admin-header { padding: 18px 20px; }
+          .admin-card { padding: 32px 24px; border-radius: 16px; }
+          .admin-card-container { padding: 12px 16px 36px; }
+        }
       `}</style>
 
-      <div className="admin-login-root">
+      <div className="admin-bg-wrapper">
+        <div className="admin-bg-overlay" />
 
-        {/* ── LEFT: Hero Panel ── */}
-        <div className="admin-hero-panel">
-          {/* Brand Mark */}
-          <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: 12 }}>
-            <PestIQLogo size={40} />
-            <div>
-              <span style={{ color: "#ffffff", fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em", display: "block", lineHeight: 1 }}>PestIQ</span>
-              <span style={{ color: "#FACC15", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>Admin Console</span>
+        <div className="admin-content">
+          {/* Top Bar */}
+          <header className="admin-header">
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <PestIQLogo size={42} />
+              <div>
+                <span style={{ color: "#ffffff", fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em", display: "block", lineHeight: 1.1 }}>PestIQ</span>
+                <span style={{ color: "#FACC15", fontSize: 10, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.1em" }}>Admin Console</span>
+              </div>
             </div>
-          </div>
 
-          {/* Bottom caption */}
-          <div style={{ position: "relative", zIndex: 2 }}>
-            <p style={{ color: "#ffffff", fontSize: 22, fontWeight: 900, lineHeight: 1.3, margin: "0 0 6px", letterSpacing: "-0.02em" }}>
-              Smart Dispatch &amp;<br />Customer Intelligence
-            </p>
-            <p style={{ color: "#FACC15", fontSize: 12, fontWeight: 700, margin: 0 }}>
-              Enterprise Fleet &amp; Operations Platform
-            </p>
-          </div>
-        </div>
+            <Link href="/" style={{ display: "flex", alignItems: "center", gap: 8, color: "#ffffff", fontSize: 14, fontWeight: 700, textDecoration: "none", padding: "8px 16px", borderRadius: 10, background: "rgba(255, 255, 255, 0.15)", border: "1px solid rgba(255, 255, 255, 0.25)", backdropFilter: "blur(10px)", transition: "all 0.2s" }}>
+              <Home size={15} /> Back to site
+            </Link>
+          </header>
 
-        {/* ── RIGHT: Form Panel ── */}
-        <div className="admin-form-panel">
-          <div style={{ maxWidth: 400, width: "100%", margin: "0 auto" }}>
+          {/* Centered Login Card */}
+          <main className="admin-card-container">
+            <div className="admin-card">
 
-            {/* Header */}
-            <div style={{ marginBottom: 32 }}>
+              {/* Header inside Card */}
+              <div style={{ marginBottom: 28 }}>
+                {viewMode === "login" && (
+                  <>
+                    <h2 style={{ color: "#0f172a", fontSize: 28, fontWeight: 900, margin: 0, letterSpacing: "-0.035em" }}>
+                      Welcome Back
+                    </h2>
+                    <p style={{ color: "#64748b", fontSize: 14, margin: "6px 0 0" }}>
+                      Sign in to access the admin operations console
+                    </p>
+                  </>
+                )}
+                {viewMode === "forgot" && (
+                  <>
+                    <button onClick={() => { setViewMode("login"); setError(""); setSuccessMsg(""); }}
+                      style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, padding: 0, marginBottom: 16 }}>
+                      <ArrowLeft size={14} /> Back to Sign In
+                    </button>
+                    <h2 style={{ color: "#0f172a", fontSize: 26, fontWeight: 900, margin: 0 }}>Reset Password</h2>
+                    <p style={{ color: "#64748b", fontSize: 14, margin: "6px 0 0" }}>
+                      Enter your staff email to receive a password reset link
+                    </p>
+                  </>
+                )}
+                {viewMode === "reset" && (
+                  <>
+                    <h2 style={{ color: "#0f172a", fontSize: 26, fontWeight: 900, margin: 0 }}>Set New Password</h2>
+                    <p style={{ color: "#64748b", fontSize: 14, margin: "6px 0 0" }}>
+                      Create a new password for your admin account
+                    </p>
+                  </>
+                )}
+              </div>
+
+              {/* Alerts */}
+              {successMsg && (
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10, background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, padding: "12px 14px", color: "#065f46", marginBottom: 20 }}>
+                  <CheckCircle2 size={18} color="#10b981" style={{ flexShrink: 0, marginTop: 1 }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>{successMsg}</span>
+                </div>
+              )}
+              {error && (
+                <div style={{ display: "flex", alignItems: "flex-start", gap: 10, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "12px 14px", color: "#991b1b", marginBottom: 20 }}>
+                  <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0, marginTop: 1 }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.5 }}>{error}</span>
+                </div>
+              )}
+
+              {/* Form A: Login */}
               {viewMode === "login" && (
-                <h1 style={{ color: "#0f172a", fontSize: 28, fontWeight: 900, margin: 0, letterSpacing: "-0.035em" }}>
-                  Welcome Back
-                </h1>
-              )}
-              {viewMode === "forgot" && (
-                <>
-                  <button
-                    onClick={() => { setViewMode("login"); setError(""); setSuccessMsg(""); }}
-                    style={{ background: "none", border: "none", color: "#64748b", cursor: "pointer", fontSize: 13, fontWeight: 700, display: "flex", alignItems: "center", gap: 6, padding: 0, marginBottom: 16 }}
-                  >
-                    <ArrowLeft size={14} /> Back to Sign In
+                <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <label style={{ display: "block", color: "#334155", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Email Address</label>
+                    <input className="admin-input" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                      placeholder="admin@pestiq.com" required style={inputStyle} />
+                  </div>
+
+                  <div>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                      <label style={{ color: "#334155", fontSize: 13, fontWeight: 700 }}>Password</label>
+                      <button type="button" onClick={() => { setViewMode("forgot"); setError(""); setSuccessMsg(""); }}
+                        style={{ background: "none", border: "none", color: "#1557b8", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }}>
+                        Forgot password?
+                      </button>
+                    </div>
+                    <div style={{ position: "relative" }}>
+                      <input className="admin-input" type={showPassword ? "text" : "password"} value={password}
+                        onChange={e => { setPassword(e.target.value); setError(""); }} placeholder="Enter your password" required
+                        style={{ ...inputStyle, paddingRight: 46 }} />
+                      <button type="button" onClick={() => setShowPassword(v => !v)}
+                        style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 4, display: "flex" }}>
+                        {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                      </button>
+                    </div>
+                  </div>
+
+                  <label style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", fontSize: 13, color: "#475569", fontWeight: 600, userSelect: "none" }}>
+                    <input type="checkbox" checked={rememberMe} onChange={e => setRememberMe(e.target.checked)}
+                      style={{ width: 16, height: 16, accentColor: "#1557b8", cursor: "pointer" }} />
+                    Remember this session
+                  </label>
+
+                  <button type="submit" disabled={loading || !password || !email}
+                    style={{
+                      height: 52, borderRadius: 12, border: "none",
+                      background: loading || !password || !email ? "#94a3b8" : "linear-gradient(135deg, #071b4d 0%, #1557b8 100%)",
+                      color: "#ffffff", fontSize: 15, fontWeight: 800,
+                      cursor: loading || !password || !email ? "not-allowed" : "pointer",
+                      boxShadow: loading ? "none" : "0 6px 24px rgba(21, 87, 184, 0.28)",
+                      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
+                      transition: "all 0.15s", marginTop: 4, fontFamily: "inherit",
+                    }}>
+                    {loading ? (
+                      <><div style={{ width: 18, height: 18, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} /> Authenticating...</>
+                    ) : (
+                      <>Log In <ArrowRight size={16} /></>
+                    )}
                   </button>
-                  <h1 style={{ color: "#0f172a", fontSize: 26, fontWeight: 900, margin: 0 }}>Forgot Password?</h1>
-                </>
+                </form>
               )}
+
+              {/* Form B: Forgot Password */}
+              {viewMode === "forgot" && (
+                <form onSubmit={handleForgotPassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <label style={{ display: "block", color: "#334155", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Staff Email Address</label>
+                    <input className="admin-input" type="email" value={email} onChange={e => { setEmail(e.target.value); setError(""); }}
+                      placeholder="admin@pestiq.com" required style={inputStyle} />
+                  </div>
+                  <button type="submit" disabled={loading || !email}
+                    style={{ height: 52, borderRadius: 12, border: "none", background: "#1557b8", color: "#ffffff", fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 6px 24px rgba(21, 87, 184, 0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>
+                    {loading ? "Sending..." : "Send Reset Link"}
+                  </button>
+                </form>
+              )}
+
+              {/* Form C: Reset Password */}
               {viewMode === "reset" && (
-                <h1 style={{ color: "#0f172a", fontSize: 26, fontWeight: 900, margin: 0 }}>Set New Password</h1>
+                <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+                  <div>
+                    <label style={{ display: "block", color: "#334155", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>New Password</label>
+                    <input className="admin-input" type="password" value={newPassword} onChange={e => { setNewPassword(e.target.value); setError(""); }}
+                      placeholder="Minimum 6 characters" required style={inputStyle} />
+                  </div>
+                  <button type="submit" disabled={loading || !newPassword}
+                    style={{ height: 52, borderRadius: 12, border: "none", background: "#10b981", color: "#ffffff", fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 6px 24px rgba(16, 185, 129, 0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}>
+                    {loading ? "Saving..." : "Save New Password"}
+                  </button>
+                </form>
               )}
+
             </div>
-
-            {/* Alerts */}
-            {successMsg && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#ecfdf5", border: "1px solid #a7f3d0", borderRadius: 10, padding: "12px 14px", color: "#065f46", marginBottom: 20 }}>
-                <CheckCircle2 size={18} color="#10b981" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{successMsg}</span>
-              </div>
-            )}
-            {error && (
-              <div style={{ display: "flex", alignItems: "center", gap: 10, background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 10, padding: "12px 14px", color: "#991b1b", marginBottom: 20 }}>
-                <AlertCircle size={18} color="#ef4444" style={{ flexShrink: 0 }} />
-                <span style={{ fontSize: 13, fontWeight: 600 }}>{error}</span>
-              </div>
-            )}
-
-            {/* ── Form A: Login ── */}
-            {viewMode === "login" && (
-              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <div>
-                  <label style={{ display: "block", color: "#475569", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Email</label>
-                  <input
-                    className="admin-input"
-                    type="email"
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); setError(""); }}
-                    placeholder="admin@pestiq.com"
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-
-                <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
-                    <label style={{ color: "#475569", fontSize: 13, fontWeight: 700 }}>Password</label>
-                    <button
-                      type="button"
-                      onClick={() => { setViewMode("forgot"); setError(""); setSuccessMsg(""); }}
-                      style={{ background: "none", border: "none", color: "#1557b8", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }}
-                    >
-                      Forgot password?
-                    </button>
-                  </div>
-                  <div style={{ position: "relative" }}>
-                    <input
-                      className="admin-input"
-                      type={showPassword ? "text" : "password"}
-                      value={password}
-                      onChange={e => { setPassword(e.target.value); setError(""); }}
-                      placeholder="••••••••••••"
-                      required
-                      style={{ ...inputStyle, paddingRight: 46 }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(v => !v)}
-                      style={{ position: "absolute", right: 13, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#94a3b8", padding: 4, display: "flex" }}
-                    >
-                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
-                    </button>
-                  </div>
-                </div>
-
-                <label style={{ display: "flex", alignItems: "center", gap: 9, cursor: "pointer", fontSize: 13, color: "#475569", fontWeight: 600, userSelect: "none" }}>
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={e => setRememberMe(e.target.checked)}
-                    style={{ width: 16, height: 16, accentColor: "#1557b8", cursor: "pointer" }}
-                  />
-                  Remember this session
-                </label>
-
-                <button
-                  type="submit"
-                  disabled={loading || !password}
-                  style={{
-                    height: 50, borderRadius: 11, border: "none",
-                    background: loading || !password
-                      ? "#94a3b8"
-                      : "linear-gradient(135deg, #071b4d 0%, #1557b8 100%)",
-                    color: "#ffffff", fontSize: 15, fontWeight: 800,
-                    cursor: loading || !password ? "not-allowed" : "pointer",
-                    boxShadow: loading || !password ? "none" : "0 6px 24px rgba(21, 87, 184, 0.28)",
-                    display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    transition: "all 0.15s", marginTop: 4,
-                    fontFamily: "inherit",
-                  }}
-                >
-                  {loading ? (
-                    <>
-                      <div style={{ width: 17, height: 17, border: "2.5px solid rgba(255,255,255,0.3)", borderTopColor: "#fff", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
-                      Authenticating...
-                    </>
-                  ) : (
-                    <> Log In <ArrowRight size={16} /> </>
-                  )}
-                </button>
-              </form>
-            )}
-
-            {/* ── Form B: Forgot Password ── */}
-            {viewMode === "forgot" && (
-              <form onSubmit={handleForgotPassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <div>
-                  <label style={{ display: "block", color: "#475569", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>Staff Email Address</label>
-                  <input
-                    className="admin-input"
-                    type="email"
-                    value={email}
-                    onChange={e => { setEmail(e.target.value); setError(""); }}
-                    placeholder="admin@pestiq.com"
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading || !email}
-                  style={{ height: 50, borderRadius: 11, border: "none", background: "#1557b8", color: "#ffffff", fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 6px 24px rgba(21,87,184,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}
-                >
-                  {loading ? "Sending..." : "Send Reset Link"}
-                </button>
-              </form>
-            )}
-
-            {/* ── Form C: Reset Password ── */}
-            {viewMode === "reset" && (
-              <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
-                <div>
-                  <label style={{ display: "block", color: "#475569", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>New Password</label>
-                  <input
-                    className="admin-input"
-                    type="password"
-                    value={newPassword}
-                    onChange={e => { setNewPassword(e.target.value); setError(""); }}
-                    placeholder="Minimum 6 characters"
-                    required
-                    style={inputStyle}
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading || !newPassword}
-                  style={{ height: 50, borderRadius: 11, border: "none", background: "#10b981", color: "#ffffff", fontSize: 15, fontWeight: 800, cursor: loading ? "not-allowed" : "pointer", boxShadow: "0 6px 24px rgba(16,185,129,0.25)", display: "flex", alignItems: "center", justifyContent: "center", fontFamily: "inherit" }}
-                >
-                  {loading ? "Saving..." : "Save New Password"}
-                </button>
-              </form>
-            )}
-
-          </div>
+          </main>
         </div>
       </div>
     </>
