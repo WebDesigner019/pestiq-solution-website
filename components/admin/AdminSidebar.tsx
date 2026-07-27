@@ -4,14 +4,28 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  LayoutDashboard, CalendarDays, Users, ClipboardList, LogOut, Bug, X, Menu,
+  LayoutDashboard, CalendarDays, Users, ClipboardList, LogOut, X, Menu,
 } from "lucide-react";
+
+/* ─── PestIQ Logo SVG ─── */
+function PestIQLogo({ size = 32 }: { size?: number }) {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width={size} height={size} style={{ display: "block", flexShrink: 0 }}>
+      <rect width="200" height="200" rx="36" fill="#0a2540" />
+      <path d="M100 32 L160 82 V152 H40 V82 Z" fill="none" stroke="#ffffff" strokeWidth="12" strokeLinejoin="round" strokeLinecap="round" />
+      <path d="M138 52 V38 H152 V64" fill="none" stroke="#ffffff" strokeWidth="10" strokeLinejoin="round" strokeLinecap="round" />
+      <circle cx="95" cy="110" r="42" fill="none" stroke="#0066cc" strokeWidth="18" />
+      <path d="M125 140 L158 172" stroke="#0066cc" strokeWidth="18" strokeLinecap="round" />
+      <circle cx="95" cy="110" r="12" fill="#ffc400" />
+    </svg>
+  );
+}
 
 const NAV = [
   { href: "/admin/overview",  label: "Overview",  icon: LayoutDashboard },
-  { href: "/admin/bookings",  label: "Bookings",  icon: ClipboardList,  badge: 4 },
-  { href: "/admin/customers", label: "Customers", icon: Users           },
-  { href: "/admin/calendar",  label: "Calendar",  icon: CalendarDays    },
+  { href: "/admin/bookings",  label: "Bookings",  icon: ClipboardList, badge: 4 },
+  { href: "/admin/customers", label: "Customers", icon: Users },
+  { href: "/admin/calendar",  label: "Calendar",  icon: CalendarDays },
 ];
 
 interface Props { isOpen: boolean; onToggle: () => void; }
@@ -22,101 +36,81 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
 
   const logout = () => {
     sessionStorage.removeItem("pestiq_admin_auth");
+    localStorage.removeItem("pestiq_admin_auth");
     router.push("/admin");
   };
 
   return (
-    <div style={{ width: 220, height: "100%", display: "flex", flexDirection: "column" }}>
-      {/* Brand */}
-      <div style={{
-        height: 58, display: "flex", alignItems: "center", gap: 10,
-        padding: "0 16px", flexShrink: 0,
-        borderBottom: "1px solid rgba(255,255,255,0.07)",
-      }}>
-        <div style={{
-          width: 30, height: 30, borderRadius: 9, background: "#FACC15",
-          display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0,
-        }}>
-          <Bug style={{ width: 15, height: 15, color: "#071b4d" }} />
+    <aside className="w-64 h-full bg-white border-r border-slate-200 flex flex-col justify-between">
+      <div>
+        {/* Brand */}
+        <div className="h-16 px-6 border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <PestIQLogo size={34} />
+            <div>
+              <span className="font-black text-xl text-slate-900 tracking-tight block leading-none">PestIQ</span>
+              <span className="text-[10px] font-extrabold text-[#2563eb] uppercase tracking-widest">Admin Console</span>
+            </div>
+          </div>
+          {onClose && (
+            <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600">
+              <X className="w-5 h-5" />
+            </button>
+          )}
         </div>
-        <div style={{ flex: 1 }}>
-          <p style={{ color: "#fff", fontWeight: 900, fontSize: 15, margin: 0, letterSpacing: "-0.025em" }}>PestIQ</p>
-          <p style={{ color: "#5878a8", fontWeight: 600, fontSize: 9, margin: 0, textTransform: "uppercase", letterSpacing: "0.14em" }}>Admin Portal</p>
-        </div>
-        {/* Mobile close */}
-        {onClose && (
-          <button onClick={onClose} style={{ background: "none", border: "none", cursor: "pointer", color: "#5878a8", padding: 4 }}>
-            <X style={{ width: 16, height: 16 }} />
-          </button>
-        )}
+
+        {/* Nav section */}
+        <nav className="p-4 space-y-1">
+          <p className="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest px-3 mb-2">Management</p>
+
+          {NAV.map(({ href, label, icon: Icon, badge }) => {
+            const active = pathname === href || pathname.startsWith(href + "/");
+            return (
+              <Link
+                key={href}
+                href={href}
+                onClick={onClose}
+                className={`w-full flex items-center justify-between px-4 py-3 rounded-xl font-bold text-sm transition-all ${
+                  active
+                    ? "bg-[#2563eb] text-white shadow-md shadow-blue-500/20"
+                    : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className={`w-5 h-5 ${active ? "text-white" : "text-slate-400"}`} />
+                  <span>{label}</span>
+                </div>
+                {badge && (
+                  <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full ${
+                    active ? "bg-white text-blue-700" : "bg-blue-100 text-blue-700"
+                  }`}>
+                    {badge}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
+        </nav>
       </div>
-
-      {/* Nav section */}
-      <nav style={{ flex: 1, padding: "14px 8px 0", overflowY: "auto" }}>
-        <p style={{
-          color: "#3d5580", fontSize: 10, fontWeight: 700, textTransform: "uppercase",
-          letterSpacing: "0.16em", padding: "0 10px 8px", margin: 0,
-        }}>Management</p>
-
-        {NAV.map(({ href, label, icon: Icon, badge }) => {
-          const active = pathname === href || pathname.startsWith(href + "/");
-          return (
-            <Link key={href} href={href} onClick={onClose}
-              style={{
-                display: "flex", alignItems: "center", gap: 10,
-                padding: "9px 12px", borderRadius: 9,
-                textDecoration: "none", fontSize: 13.5,
-                fontWeight: active ? 700 : 400,
-                whiteSpace: "nowrap", marginBottom: 2,
-                transition: "background 0.15s",
-                background: active ? "rgba(255,255,255,0.1)" : "transparent",
-                color: active ? "#fff" : "#8fa8d0",
-                borderLeft: `2px solid ${active ? "#FACC15" : "transparent"}`,
-              }}
-            >
-              <Icon style={{ width: 16, height: 16, flexShrink: 0, color: active ? "#FACC15" : "#4a6494" }} />
-              <span style={{ flex: 1 }}>{label}</span>
-              {badge && (
-                <span style={{
-                  fontSize: 10, fontWeight: 800, padding: "1px 7px", borderRadius: 999,
-                  background: active ? "#FACC15" : "rgba(255,255,255,0.08)",
-                  color: active ? "#071b4d" : "#8fa8d0",
-                }}>{badge}</span>
-              )}
-            </Link>
-          );
-        })}
-      </nav>
 
       {/* User footer */}
-      <div style={{ padding: "10px 8px", borderTop: "1px solid rgba(255,255,255,0.07)", flexShrink: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 9, padding: "6px 12px", marginBottom: 4 }}>
-          <div style={{
-            width: 30, height: 30, borderRadius: "50%",
-            background: "rgba(250,204,21,0.12)", border: "1.5px solid rgba(250,204,21,0.3)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            color: "#FACC15", fontSize: 11, fontWeight: 900, flexShrink: 0,
-          }}>A</div>
-          <div style={{ minWidth: 0 }}>
-            <p style={{ color: "#fff", fontSize: 13, fontWeight: 700, margin: 0, overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>Administrator</p>
-            <p style={{ color: "#4a6494", fontSize: 10, margin: 0 }}>PestIQ Solutions</p>
+      <div className="p-4 border-t border-slate-100">
+        <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-full bg-[#071b4d] text-white flex items-center justify-center font-bold text-sm">
+              AD
+            </div>
+            <div>
+              <p className="text-xs font-extrabold text-slate-900 leading-snug">Administrator</p>
+              <p className="text-[11px] text-slate-500 font-medium">Ops Dispatch</p>
+            </div>
           </div>
+          <button onClick={logout} title="Log Out" className="text-slate-400 hover:text-rose-600 transition-colors p-1">
+            <LogOut className="w-4 h-4" />
+          </button>
         </div>
-        <button onClick={logout}
-          style={{
-            width: "100%", display: "flex", alignItems: "center", gap: 9,
-            padding: "8px 12px", borderRadius: 9, border: "none",
-            background: "transparent", cursor: "pointer",
-            color: "#5878a8", fontSize: 13, fontWeight: 500, whiteSpace: "nowrap",
-          }}
-          onMouseEnter={e => { e.currentTarget.style.background = "rgba(255,255,255,0.06)"; e.currentTarget.style.color = "#fff"; }}
-          onMouseLeave={e => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = "#5878a8"; }}
-        >
-          <LogOut style={{ width: 14, height: 14, color: "#3d5580", flexShrink: 0 }} />
-          Log Out
-        </button>
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -125,60 +119,28 @@ export default function AdminSidebar({ isOpen, onToggle }: Props) {
 
   return (
     <>
-      {/* Mobile hamburger (shows when sidebar is closed on mobile) */}
-      <button
-        onClick={() => setMobileOpen(true)}
-        className="lg:hidden"
-        style={{
-          position: "fixed", top: 13, left: 14, zIndex: 60,
-          width: 32, height: 32, borderRadius: 8,
-          background: "#0f2052", border: "none", cursor: "pointer",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          color: "#fff", boxShadow: "0 2px 8px rgba(0,0,0,0.25)",
-        }}
-      >
-        <Menu style={{ width: 16, height: 16 }} />
-      </button>
-
-      {/* Mobile overlay */}
-      {mobileOpen && (
-        <div
-          className="lg:hidden"
-          onClick={() => setMobileOpen(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.55)", zIndex: 50, backdropFilter: "blur(2px)" }}
-        />
-      )}
-
-      {/* Mobile drawer */}
-      <div
-        className="lg:hidden"
-        style={{
-          position: "fixed", top: 0, left: 0, bottom: 0,
-          width: 220, background: "#0d1e4a", zIndex: 55,
-          transform: mobileOpen ? "translateX(0)" : "translateX(-100%)",
-          transition: "transform 0.28s ease",
-        }}
-      >
-        <SidebarContent onClose={() => setMobileOpen(false)} />
+      {/* Desktop Sidebar */}
+      <div className={`hidden lg:block ${isOpen ? "w-64" : "w-0"} transition-all duration-200 flex-shrink-0`}>
+        {isOpen && <SidebarContent />}
       </div>
 
-      {/* Desktop sidebar */}
-      <aside
-        className="hidden lg:block"
-        style={{
-          width: isOpen ? 220 : 0,
-          minWidth: isOpen ? 220 : 0,
-          overflow: "hidden",
-          flexShrink: 0,
-          background: "#0d1e4a",
-          height: "100vh",
-          position: "sticky",
-          top: 0,
-          transition: "width 0.25s cubic-bezier(0.4,0,0.2,1), min-width 0.25s cubic-bezier(0.4,0,0.2,1)",
-        }}
+      {/* Mobile Trigger */}
+      <button
+        onClick={() => setMobileOpen(true)}
+        className="lg:hidden fixed top-3.5 left-4 z-40 p-2 bg-[#071b4d] text-white rounded-lg shadow-md"
       >
-        <SidebarContent />
-      </aside>
+        <Menu className="w-5 h-5" />
+      </button>
+
+      {/* Mobile Drawer */}
+      {mobileOpen && (
+        <div className="lg:hidden fixed inset-0 z-50 flex">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setMobileOpen(false)} />
+          <div className="relative z-10">
+            <SidebarContent onClose={() => setMobileOpen(false)} />
+          </div>
+        </div>
+      )}
     </>
   );
 }

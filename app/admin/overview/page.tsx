@@ -5,25 +5,21 @@ import Link from "next/link";
 import {
   ClipboardList, Users, CalendarCheck, DollarSign,
   ArrowRight, MessageCircle, TrendingUp, TrendingDown,
+  CheckCircle2, Clock, AlertCircle
 } from "lucide-react";
 import { MOCK_BOOKINGS, MOCK_CUSTOMERS, type BookingStatus } from "@/lib/adminMockData";
 
-const STATUS: Record<BookingStatus, { dot: string; text: string; bg: string }> = {
-  pending:   { dot: "#f59e0b", text: "#92400e", bg: "#fffbeb" },
-  confirmed: { dot: "#3b82f6", text: "#1e40af", bg: "#eff6ff" },
-  completed: { dot: "#10b981", text: "#065f46", bg: "#ecfdf5" },
-  cancelled: { dot: "#ef4444", text: "#991b1b", bg: "#fef2f2" },
+const STATUS: Record<BookingStatus, { text: string; bg: string; color: string }> = {
+  pending:   { text: "Pending Review", bg: "#fef3c7", color: "#92400e" },
+  confirmed: { text: "Confirmed",      bg: "#dbeafe", color: "#1e40af" },
+  completed: { text: "Completed",      bg: "#dcfce7", color: "#166534" },
+  cancelled: { text: "Cancelled",      bg: "#fee2e2", color: "#991b1b" },
 };
 
 function buildWA(b: (typeof MOCK_BOOKINGS)[0]) {
-  const msg = `🛡️ *PestIQ — Service Assignment*\n\n*Booking:* ${b.id}\n*Customer:* ${b.customerName}\n*Phone:* ${b.phone}\n*Address:* ${b.address}, ${b.city}, ${b.state} ${b.zip}\n*Service:* ${b.service} (${b.plan})\n*Date:* ${new Date(b.scheduledDate).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}\n*Time:* ${b.scheduledTime}\n*Notes:* ${b.notes||"None"}\n\nPlease confirm. — PestIQ Admin`;
+  const msg = `PestIQ Service Assignment\n\nBooking: ${b.id}\nCustomer: ${b.customerName}\nPhone: ${b.phone}\nAddress: ${b.address}, ${b.city}, ${b.state} ${b.zip}\nService: ${b.service} (${b.plan})\nDate: ${new Date(b.scheduledDate).toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}\nTime: ${b.scheduledTime}\nNotes: ${b.notes||"None"}\n\nPlease confirm arrival.`;
   return `https://wa.me/?text=${encodeURIComponent(msg)}`;
 }
-
-const GRADS = [
-  "#1d4ed8,#3b82f6","#7c3aed,#a78bfa","#059669,#34d399",
-  "#dc2626,#f87171","#d97706,#fbbf24","#0284c7,#38bdf8",
-];
 
 export default function AdminOverviewPage() {
   const pending   = MOCK_BOOKINGS.filter(b => b.status === "pending").length;
@@ -34,10 +30,10 @@ export default function AdminOverviewPage() {
   const total     = MOCK_BOOKINGS.length;
 
   const stats = [
-    { label:"Total Bookings",      value:total,                         sub:`${pending} pending review`, icon:ClipboardList, color:"#3b82f6", bg:"#eff6ff", trend:"+12% vs last mo", up:true },
-    { label:"Active Customers",    value:MOCK_CUSTOMERS.length,        sub:"All time records",          icon:Users,         color:"#8b5cf6", bg:"#f5f3ff", trend:"+18% growth",      up:true },
-    { label:"Revenue Collected",   value:`$${revenue.toLocaleString()}`, sub:`${completed} jobs completed`,    icon:DollarSign,    color:"#10b981", bg:"#ecfdf5", trend:"+24% vs target",   up:true },
-    { label:"Confirmed This Week", value:confirmed,                    sub:"Upcoming appointments",     icon:CalendarCheck, color:"#f59e0b", bg:"#fffbeb", trend:`${confirmed} scheduled`,   up:confirmed>0 },
+    { label:"Total Bookings",      value:total,                         sub:`${pending} pending review`, icon:ClipboardList, color:"#2563eb", bg:"#dbeafe", trend:"+12% vs last mo", up:true },
+    { label:"Active Customers",    value:MOCK_CUSTOMERS.length,        sub:"All time records",          icon:Users,         color:"#8b5cf6", bg:"#f3e8ff", trend:"+18% growth",      up:true },
+    { label:"Revenue Collected",   value:`$${revenue.toLocaleString()}`, sub:`${completed} jobs completed`,    icon:DollarSign,    color:"#10b981", bg:"#dcfce7", trend:"+24% vs target",   up:true },
+    { label:"Confirmed This Week", value:confirmed,                    sub:"Scheduled appointments",    icon:CalendarCheck, color:"#f59e0b", bg:"#fef3c7", trend:`${confirmed} active`,      up:confirmed>0 },
   ];
 
   const breakdown = (["pending","confirmed","completed","cancelled"] as BookingStatus[]).map(s => ({
@@ -45,137 +41,151 @@ export default function AdminOverviewPage() {
   }));
 
   return (
-    <div style={{ padding:"24px 28px", maxWidth:1280, margin:"0 auto" }}>
-      <div style={{ marginBottom:22 }}>
-        <h1 style={{ color:"#0d1e4a", fontSize:20, fontWeight:900, margin:0, letterSpacing:"-0.025em" }}>Dashboard Overview</h1>
-        <p style={{ color:"#94a3b8", fontSize:13, margin:"4px 0 0" }}>
-          {new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})}
-        </p>
+    <div className="p-6 md:p-8 max-w-6xl w-full mx-auto space-y-6">
+
+      {/* PAGE TITLE */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-black text-slate-900 tracking-tight">Dashboard Overview</h1>
+          <p className="text-slate-500 text-xs mt-1">
+            {new Date().toLocaleDateString("en-US",{weekday:"long",month:"long",day:"numeric",year:"numeric"})} • PestIQ Dispatch Operations
+          </p>
+        </div>
+
+        <Link
+          href="/admin/bookings"
+          className="px-4 py-2 bg-[#2563eb] hover:bg-blue-700 text-white font-bold text-xs rounded-xl shadow-md shadow-blue-500/20 transition-all flex items-center gap-2"
+        >
+          Manage All Bookings <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
-      {/* Stats grid */}
-      <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))", gap:14, marginBottom:20 }}>
+      {/* KPI METRICS GRID */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {stats.map(({ label, value, sub, icon:Icon, color, bg, trend, up }) => (
-          <div key={label} style={{
-            background:"#fff", borderRadius:14, padding:"18px 20px",
-            border:"1px solid #edf0f7", boxShadow:"0 1px 3px rgba(15,30,74,0.05)",
-          }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"flex-start", marginBottom:14 }}>
-              <div style={{ width:36, height:36, borderRadius:10, background:bg, display:"flex", alignItems:"center", justifyContent:"center" }}>
-                <Icon style={{ width:16, height:16, color }} />
+          <div key={label} className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-between">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-10 h-10 rounded-xl flex items-center justify-center" style={{ backgroundColor: bg, color }}>
+                <Icon className="w-5 h-5" />
               </div>
-              <span style={{
-                display:"flex", alignItems:"center", gap:3,
-                fontSize:11, fontWeight:700, padding:"2px 8px", borderRadius:999,
-                background: up ? "#ecfdf5" : "#f8fafc",
-                color: up ? "#065f46" : "#64748b",
-              }}>
-                {up ? <TrendingUp style={{width:10,height:10}}/> : <TrendingDown style={{width:10,height:10}}/>}
+              <span className="inline-flex items-center gap-1 text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">
+                {up ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
                 {trend}
               </span>
             </div>
-            <p style={{ color:"#0d1e4a", fontSize:26, fontWeight:900, margin:0, letterSpacing:"-0.04em" }}>{value}</p>
-            <p style={{ color:"#374151", fontSize:13, fontWeight:600, margin:"4px 0 2px" }}>{label}</p>
-            <p style={{ color:"#94a3b8", fontSize:12, margin:0 }}>{sub}</p>
+            <div>
+              <p className="text-2xl font-black text-slate-900 tracking-tight">{value}</p>
+              <p className="text-xs font-bold text-slate-700 mt-1">{label}</p>
+              <p className="text-[11px] text-slate-400 font-medium">{sub}</p>
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Main row */}
-      <div style={{ display:"grid", gridTemplateColumns:"1fr 320px", gap:16, alignItems:"start" }}>
+      {/* MAIN TWO-COLUMN GRID */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-        {/* Recent bookings */}
-        <div style={{ background:"#fff", borderRadius:14, border:"1px solid #edf0f7", boxShadow:"0 1px 3px rgba(15,30,74,0.05)", overflow:"hidden" }}>
-          <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"16px 20px", borderBottom:"1px solid #f8fafc" }}>
-            <div>
-              <p style={{ color:"#0d1e4a", fontSize:14, fontWeight:800, margin:0 }}>Recent Bookings</p>
-              <p style={{ color:"#94a3b8", fontSize:12, margin:"3px 0 0" }}>Latest service requests</p>
+        {/* RECENT BOOKINGS TABLE (2 COLUMNS) */}
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
+          <div>
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-base font-black text-slate-900">Recent Service Bookings</h3>
+                <p className="text-slate-500 text-xs">Latest customer appointments requiring dispatch</p>
+              </div>
+              <Link href="/admin/bookings" className="text-xs font-bold text-blue-600 hover:underline">
+                View all →
+              </Link>
             </div>
-            <Link href="/admin/bookings" style={{ display:"flex", alignItems:"center", gap:4, fontSize:12, fontWeight:700, color:"#1557b8", textDecoration:"none" }}>
-              View all <ArrowRight style={{width:13,height:13}}/>
+
+            <div className="space-y-3">
+              {recent.map((b) => {
+                const m = STATUS[b.status];
+                return (
+                  <div key={b.id} className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-300 transition-all">
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-[#071b4d] text-white flex items-center justify-center font-black text-xs flex-shrink-0">
+                        {b.customerName.split(" ").map(n => n[0]).join("").slice(0,2)}
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <span className="font-extrabold text-xs text-slate-900">{b.customerName}</span>
+                          <span className="text-[11px] text-slate-400 font-medium">• {b.id}</span>
+                        </div>
+                        <p className="text-xs text-slate-600 mt-0.5">{b.service} ({b.plan})</p>
+                        <p className="text-[11px] text-slate-400">{b.city}, {b.state} • {b.scheduledDate}</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 justify-end">
+                      <span
+                        className="px-2.5 py-1 rounded-full text-[11px] font-extrabold"
+                        style={{ color: m.color, backgroundColor: m.bg }}
+                      >
+                        {m.text}
+                      </span>
+                      <a
+                        href={buildWA(b)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        title="Dispatch via WhatsApp"
+                        className="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200 flex items-center justify-center transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" />
+                      </a>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* STATUS BREAKDOWN & SYSTEM SUMMARY (1 COLUMN) */}
+        <div className="space-y-6">
+
+          {/* Status Distribution */}
+          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
+            <h3 className="text-base font-black text-slate-900 mb-4">Status Breakdown</h3>
+
+            <div className="space-y-3">
+              {breakdown.map(({ s, count, m }) => {
+                const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                return (
+                  <div key={s} className="space-y-1">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="font-bold text-slate-700 capitalize">{s}</span>
+                      <span className="font-black text-slate-900">{count} ({pct}%)</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-slate-100 overflow-hidden">
+                      <div
+                        className="h-full rounded-full transition-all duration-500"
+                        style={{ width: `${pct}%`, backgroundColor: m.color }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* Quick System Actions */}
+          <div className="bg-slate-900 text-white rounded-2xl p-6 shadow-lg">
+            <h4 className="font-black text-sm text-white mb-1">Fleet Operations Active</h4>
+            <p className="text-xs text-slate-300 mb-4">4 lead technicians currently dispatched across NJ &amp; NYC.</p>
+
+            <Link
+              href="/admin/calendar"
+              className="w-full py-2.5 bg-[#FACC15] hover:bg-yellow-400 text-[#071b4d] font-black rounded-xl text-xs flex items-center justify-center gap-2 transition-all shadow-md"
+            >
+              Open Calendar Schedule
             </Link>
           </div>
-          {recent.map((b,i) => {
-            const m = STATUS[b.status];
-            const grad = GRADS[i % GRADS.length];
-            return (
-              <div key={b.id} style={{
-                display:"flex", alignItems:"center", gap:12,
-                padding:"12px 20px", borderBottom:"1px solid #f8fafc",
-              }}>
-                <div style={{
-                  width:32, height:32, borderRadius:"50%", flexShrink:0,
-                  background:`linear-gradient(135deg,${grad})`,
-                  display:"flex", alignItems:"center", justifyContent:"center",
-                  color:"#fff", fontSize:11, fontWeight:900,
-                }}>
-                  {b.customerName.split(" ").map(n=>n[0]).join("").slice(0,2)}
-                </div>
-                <div style={{ flex:1, minWidth:0 }}>
-                  <p style={{ color:"#0d1e4a", fontSize:13, fontWeight:700, margin:0, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{b.customerName}</p>
-                  <p style={{ color:"#94a3b8", fontSize:12, margin:"2px 0 0", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{b.service} · {b.city}</p>
-                </div>
-                <span style={{
-                  fontSize:11, fontWeight:700, padding:"3px 10px", borderRadius:999,
-                  background:m.bg, color:m.text, whiteSpace:"nowrap",
-                }}>{b.status}</span>
-                <a href={buildWA(b)} target="_blank" rel="noopener noreferrer"
-                  style={{ width:28, height:28, borderRadius:8, background:"#f0fdf4", display:"flex", alignItems:"center", justifyContent:"center", textDecoration:"none", flexShrink:0 }}>
-                  <MessageCircle style={{width:13,height:13,color:"#16a34a"}}/>
-                </a>
-              </div>
-            );
-          })}
+
         </div>
 
-        {/* Right column */}
-        <div style={{ display:"flex", flexDirection:"column", gap:14 }}>
-
-          {/* Status bars */}
-          <div style={{ background:"#fff", borderRadius:14, border:"1px solid #edf0f7", boxShadow:"0 1px 3px rgba(15,30,74,0.05)", padding:"18px 20px" }}>
-            <p style={{ color:"#0d1e4a", fontSize:14, fontWeight:800, margin:"0 0 16px" }}>Status Breakdown</p>
-            {breakdown.map(({ s, count, m }) => {
-              const pct = total > 0 ? Math.round((count/total)*100) : 0;
-              return (
-                <div key={s} style={{ marginBottom:12 }}>
-                  <div style={{ display:"flex", justifyContent:"space-between", marginBottom:6 }}>
-                    <div style={{ display:"flex", alignItems:"center", gap:6 }}>
-                      <span style={{ width:8, height:8, borderRadius:"50%", background:m.dot, display:"inline-block" }} />
-                      <span style={{ color:"#374151", fontSize:13, fontWeight:600, textTransform:"capitalize" }}>{s}</span>
-                    </div>
-                    <span style={{ color:"#0d1e4a", fontSize:13, fontWeight:800 }}>{count}</span>
-                  </div>
-                  <div style={{ height:5, borderRadius:999, background:"#f1f5f9" }}>
-                    <div style={{ height:"100%", borderRadius:999, background:m.dot, width:`${pct}%`, transition:"width 0.7s" }} />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-          {/* Quick actions */}
-          <div style={{ background:"#fff", borderRadius:14, border:"1px solid #edf0f7", boxShadow:"0 1px 3px rgba(15,30,74,0.05)", padding:"18px 20px" }}>
-            <p style={{ color:"#0d1e4a", fontSize:14, fontWeight:800, margin:"0 0 10px" }}>Quick Actions</p>
-            {[
-              { href:"/admin/bookings",  label:"Manage Bookings",      icon:ClipboardList, color:"#3b82f6", bg:"#eff6ff" },
-              { href:"/admin/customers", label:"Customer CRM",         icon:Users,         color:"#8b5cf6", bg:"#f5f3ff" },
-              { href:"/admin/calendar",  label:"Appointment Calendar", icon:CalendarCheck, color:"#10b981", bg:"#ecfdf5" },
-            ].map(({ href, label, icon:Icon, color, bg }) => (
-              <Link key={href} href={href}
-                style={{ display:"flex", alignItems:"center", gap:10, padding:"9px 10px", borderRadius:9, textDecoration:"none", marginBottom:4 }}
-                onMouseEnter={e => (e.currentTarget.style.background="#f8fafc")}
-                onMouseLeave={e => (e.currentTarget.style.background="transparent")}
-              >
-                <div style={{ width:28, height:28, borderRadius:8, background:bg, display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0 }}>
-                  <Icon style={{width:13,height:13,color}}/>
-                </div>
-                <span style={{ flex:1, color:"#0d1e4a", fontSize:13, fontWeight:600 }}>{label}</span>
-                <ArrowRight style={{width:13,height:13,color:"#d1d5db"}}/>
-              </Link>
-            ))}
-          </div>
-        </div>
       </div>
+
     </div>
   );
 }

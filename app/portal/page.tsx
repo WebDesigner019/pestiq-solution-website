@@ -14,19 +14,11 @@ import {
   Send,
   ShieldCheck,
   Search,
-  ChevronDown,
-  ChevronUp,
   Download,
-  User,
-  LifeBuoy,
-  CreditCard,
   History,
-  PlusCircle,
   LogOut,
-  Sparkles,
-  ArrowRight,
   PhoneCall,
-  Check
+  CalendarCheck
 } from "lucide-react";
 
 /* ─── PestIQ Logo SVG ─── */
@@ -44,94 +36,44 @@ function PestIQLogo({ size = 32 }: { size?: number }) {
 }
 
 export default function CustomerPortal() {
-  const [activeTab, setActiveTab] = useState<"dashboard" | "tickets" | "plan" | "history">("dashboard");
+  const [activeTab, setActiveTab] = useState<"dashboard" | "plan" | "history">("dashboard");
 
-  // Ticket Creation Form State
-  const [requestType, setRequestType] = useState("Pest Sighting & Re-treatment");
-  const [propertyArea, setPropertyArea] = useState("Kitchen & Dining");
-  const [priorityLevel, setPriorityLevel] = useState("Standard Dispatch (24-48h)");
-  const [preferredDate, setPreferredDate] = useState("2026-08-05");
-  const [remarks, setRemarks] = useState("");
-  const [ticketSubmitted, setTicketSubmitted] = useState(false);
+  // Modals
+  const [sightingModal, setSightingModal] = useState(false);
+  const [rescheduleModal, setRescheduleModal] = useState(false);
 
-  // FAQ Accordion State
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
+  // Form states
+  const [sightingType, setSightingType] = useState("Ants (Kitchen / Indoors)");
+  const [sightingNotes, setSightingNotes] = useState("");
+  const [sightingSuccess, setSightingSuccess] = useState(false);
 
-  // Recent Tickets Data
-  const [tickets, setTickets] = useState([
-    {
-      id: "SR#136354726",
-      type: "Re-treatment Request",
-      date: "20 Jan 2026",
-      status: "In Progress",
-      statusColor: "#8b5cf6",
-      statusBg: "#f3e8ff",
-      technician: "Dave Smith (Lead Tech)",
-      details: "Ant activity reported along rear kitchen patio door.",
-    },
-    {
-      id: "SR#136354745",
-      type: "Routine Seasonal Visit",
-      date: "25 Jan 2026",
-      status: "Approved",
-      statusColor: "#10b981",
-      statusBg: "#dcfce7",
-      technician: "Marcus Vance",
-      details: "Exterior barrier application & perimeter inspection completed.",
-    },
-    {
-      id: "SR#136354787",
-      type: "Inspection & Audit",
-      date: "23 Jan 2026",
-      status: "Submitted",
-      statusColor: "#2563eb",
-      statusBg: "#dbeafe",
-      technician: "Pending Assignment",
-      details: "Annual termite station monitor check & report.",
-    },
-  ]);
+  const [rescheduleDate, setRescheduleDate] = useState("2026-08-10");
+  const [rescheduleWindow, setRescheduleWindow] = useState("09:00 AM - 11:00 AM");
+  const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
 
-  const handleSubmitTicket = (e: React.FormEvent) => {
+  const handleLogSighting = (e: React.FormEvent) => {
     e.preventDefault();
-    const newId = `SR#${Math.floor(100000000 + Math.random() * 900000000)}`;
-    const newTicket = {
-      id: newId,
-      type: requestType,
-      date: new Date().toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" }),
-      status: "Submitted",
-      statusColor: "#2563eb",
-      statusBg: "#dbeafe",
-      technician: "Dispatch Pending",
-      details: remarks || `${requestType} in ${propertyArea}`,
-    };
-
-    setTickets([newTicket, ...tickets]);
-    setTicketSubmitted(true);
+    setSightingSuccess(true);
     setTimeout(() => {
-      setTicketSubmitted(false);
-      setRemarks("");
-    }, 3000);
+      setSightingSuccess(false);
+      setSightingModal(false);
+      setSightingNotes("");
+    }, 2500);
   };
 
-  const faqs = [
-    {
-      q: "How do free emergency re-treatments work?",
-      a: "Under your active Complete Protection Plan, if pests return between scheduled quarterly visits, simply log a sighting ticket here. A certified PestIQ technician will be dispatched to re-treat your property at $0 additional cost.",
-    },
-    {
-      q: "Can I reschedule my upcoming service visit?",
-      a: "Yes. You can select your preferred arrival date and 2-hour arrival window directly from this portal or by submitting a schedule change ticket at least 24 hours prior.",
-    },
-    {
-      q: "Where can I download my inspection reports and invoices?",
-      a: "All completed service reports, chemical application logs, and digital receipts are automatically stored under the 'Service History & Reports' section.",
-    },
-  ];
+  const handleRescheduleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setRescheduleSuccess(true);
+    setTimeout(() => {
+      setRescheduleSuccess(false);
+      setRescheduleModal(false);
+    }, 2000);
+  };
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex font-sans">
 
-      {/* ══ LEFT SIDEBAR (TripSunnah / Modern Portal Style) ══ */}
+      {/* ══ LEFT SIDEBAR ══ */}
       <aside className="w-64 bg-white border-r border-slate-200 flex-shrink-0 flex flex-col justify-between hidden md:flex sticky top-0 h-screen z-20">
         <div>
           {/* Logo Header */}
@@ -147,7 +89,6 @@ export default function CustomerPortal() {
           <nav className="p-4 space-y-1">
             {[
               { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
-              { id: "tickets", label: "Support & Tickets", icon: LifeBuoy },
               { id: "plan", label: "My Plan & Coverage", icon: ShieldCheck },
               { id: "history", label: "Service History", icon: History },
             ].map((item) => {
@@ -195,7 +136,6 @@ export default function CustomerPortal() {
 
         {/* TOP BAR */}
         <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10">
-          {/* Mobile Logo / Search */}
           <div className="flex items-center gap-4 flex-1 max-w-md">
             <div className="md:hidden flex items-center gap-2">
               <PestIQLogo size={30} />
@@ -204,16 +144,14 @@ export default function CustomerPortal() {
               <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search ticket, technician, or report..."
+                placeholder="Search visits, reports, or plan..."
                 className="w-full h-9 pl-9 pr-4 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 outline-none focus:border-blue-500 focus:bg-white transition-all"
               />
             </div>
           </div>
 
-          {/* Right Status Actions */}
           <div className="flex items-center gap-3">
             <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700">
-              <CreditCard className="w-3.5 h-3.5 text-slate-400" />
               <span>Plan Rate: <strong className="text-slate-900">$69/mo</strong></span>
             </div>
 
@@ -224,228 +162,329 @@ export default function CustomerPortal() {
           </div>
         </header>
 
-        {/* MAIN BODY AREA */}
+        {/* MAIN BODY */}
         <main className="p-6 md:p-8 max-w-6xl w-full mx-auto space-y-6">
 
           {/* PAGE HEADING */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
             <div>
-              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Support Ticket &amp; Service Portal</h1>
-              <p className="text-slate-500 text-xs mt-1">When customers have issues or need re-treatments, open support tickets below.</p>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Welcome back, John Smith!</h1>
+              <p className="text-slate-500 text-xs mt-1">Manage your active protection plan, upcoming technician visits, and service history.</p>
             </div>
             <Link href="/" className="text-xs font-bold text-blue-600 hover:text-blue-800 flex items-center gap-1">
               Back to main site →
             </Link>
           </div>
 
-          {/* ══ SECTION 1: CREATE NEW TICKET CARD (Matching 4th Screenshot Style) ══ */}
-          <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 md:p-8">
-            <div className="mb-6">
-              <h2 className="text-lg font-black text-slate-900">Create New Service Ticket</h2>
-              <p className="text-slate-500 text-xs mt-0.5">Fill out the information below, then click submit button for priority dispatch.</p>
-            </div>
-
-            {ticketSubmitted ? (
-              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-6 text-center animate-fadeIn">
-                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
-                <h3 className="text-base font-black text-emerald-950">Ticket Submitted Successfully!</h3>
-                <p className="text-emerald-700 text-xs mt-1">
-                  Your ticket has been routed to lead technician Dave Smith. Dispatch confirmation details sent to your registered email.
-                </p>
-              </div>
-            ) : (
-              <form onSubmit={handleSubmitTicket} className="space-y-5">
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Select Request Type */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Select Request Type *</label>
-                    <select
-                      value={requestType}
-                      onChange={(e) => setRequestType(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-blue-600 focus:bg-white"
-                    >
-                      <option value="Re-treatment Request">Re-treatment Request (Free)</option>
-                      <option value="Pest Sighting Ticket">Pest Sighting Ticket</option>
-                      <option value="Reschedule Visit">Reschedule Visit</option>
-                      <option value="Billing & Account Request">Billing &amp; Account Request</option>
-                    </select>
-                  </div>
-
-                  {/* Target Area */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Target Area / Room</label>
-                    <select
-                      value={propertyArea}
-                      onChange={(e) => setPropertyArea(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-blue-600 focus:bg-white"
-                    >
-                      <option value="Kitchen & Dining">Kitchen &amp; Dining</option>
-                      <option value="Exterior Perimeter & Patio">Exterior Perimeter &amp; Patio</option>
-                      <option value="Basement & Crawlspace">Basement &amp; Crawlspace</option>
-                      <option value="Attic / Roofline">Attic / Roofline</option>
-                      <option value="Whole Property">Whole Property</option>
-                    </select>
-                  </div>
-
-                  {/* Passenger / Customer Name (from screenshot design) */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Customer Name</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value="John Smith"
-                      className="w-full h-10 px-3 bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 cursor-not-allowed"
-                    />
-                  </div>
-
-                  {/* Account / Ticket Reference Number */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Account ID</label>
-                    <input
-                      type="text"
-                      readOnly
-                      value="ACC-8849201"
-                      className="w-full h-10 px-3 bg-slate-100 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 cursor-not-allowed"
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                  {/* Priority Level */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Priority Dispatch</label>
-                    <select
-                      value={priorityLevel}
-                      onChange={(e) => setPriorityLevel(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-blue-600 focus:bg-white"
-                    >
-                      <option value="Standard Dispatch (24-48h)">Standard Dispatch (24-48h)</option>
-                      <option value="Urgent Same-Day (100% Free)">Urgent Same-Day (100% Free)</option>
-                    </select>
-                  </div>
-
-                  {/* Preferred Date */}
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Preferred Visit Date</label>
-                    <input
-                      type="date"
-                      value={preferredDate}
-                      onChange={(e) => setPreferredDate(e.target.value)}
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs font-semibold text-slate-800 outline-none focus:border-blue-600 focus:bg-white"
-                    />
-                  </div>
-
-                  {/* Remarks / Details (Spans 2 columns) */}
-                  <div className="lg:col-span-2">
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5">Remarks / Sighting Description</label>
-                    <input
-                      type="text"
-                      value={remarks}
-                      onChange={(e) => setRemarks(e.target.value)}
-                      placeholder="Write your notes here e.g. noticed ant trail near sink..."
-                      className="w-full h-10 px-3 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 outline-none focus:border-blue-600 focus:bg-white"
-                    />
-                  </div>
-                </div>
-
-                <div>
-                  <button
-                    type="submit"
-                    className="px-6 py-2.5 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-lg text-xs shadow-md shadow-blue-500/20 transition-all flex items-center gap-2"
-                  >
-                    Submit Ticket
-                  </button>
-                </div>
-              </form>
-            )}
-          </div>
-
-          {/* ══ SECTION 2: GRID SPLIT (LATEST SUPPORT HISTORY + FAQ) ══ */}
+          {/* ══ TOP ROW: UPCOMING SERVICE + PRIORITY PEST SIGHTING ══ */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
-            {/* LEFT 2 COLUMNS: LATEST SUPPORT HISTORY */}
-            <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm p-6 flex flex-col justify-between">
-              <div>
-                <div className="flex items-center justify-between mb-4">
-                  <div>
-                    <h3 className="text-base font-black text-slate-900">Latest Support History</h3>
-                    <p className="text-slate-500 text-xs">Here is your most recent service history</p>
+            {/* Next Scheduled Visit Card */}
+            <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col justify-between">
+              <div className="p-6 border-b border-slate-100 flex items-center justify-between">
+                <div>
+                  <span className="text-[11px] font-extrabold text-blue-600 uppercase tracking-wider block">Upcoming Service</span>
+                  <h2 className="text-lg font-black text-slate-900 mt-0.5">Routine Exterior Barrier &amp; Inspection</h2>
+                </div>
+                <span className="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 text-xs font-extrabold rounded-full">
+                  CONFIRMED
+                </span>
+              </div>
+
+              <div className="p-6 space-y-4">
+                <p className="text-xs text-slate-500 font-medium">
+                  Assigned Lead Technician: <strong className="text-slate-800 font-bold">Dave Smith (Senior Specialist)</strong>
+                </p>
+
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-2 text-slate-900 font-black text-sm">
+                      <Calendar className="w-4 h-4 text-[#2563eb]" />
+                      Tuesday, August 5, 2026
+                    </div>
+                    <div className="flex items-center gap-2 text-slate-600 text-xs font-medium">
+                      <Clock className="w-4 h-4 text-slate-400" />
+                      Arrival Window: 09:00 AM - 11:00 AM (Eastern)
+                    </div>
                   </div>
-                  <button className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg bg-slate-50 hover:bg-white transition-all">
-                    <Download className="w-3.5 h-3.5" /> Export
-                  </button>
+
+                  <div className="flex items-center gap-2 w-full sm:w-auto">
+                    <button
+                      onClick={() => setRescheduleModal(true)}
+                      className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-white text-xs transition-all"
+                    >
+                      Reschedule
+                    </button>
+                    <a
+                      href="https://wa.me/?text=Hello%20PestIQ%2C%20confirming%20my%20service%20visit%20on%20Aug%205."
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" /> Confirm Visit
+                    </a>
+                  </div>
                 </div>
+              </div>
+            </div>
 
-                {/* History List Table */}
-                <div className="space-y-3">
-                  {tickets.map((t) => (
-                    <div key={t.id} className="p-4 bg-slate-50/70 border border-slate-200/80 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:border-slate-300 transition-all">
-                      <div>
-                        <div className="flex items-center gap-2.5">
-                          <span className="font-extrabold text-xs text-slate-900">{t.id}</span>
-                          <span className="text-xs font-semibold text-slate-700">• {t.type}</span>
-                        </div>
-                        <p className="text-xs text-slate-500 mt-1">{t.details}</p>
-                        <p className="text-[11px] text-slate-400 mt-0.5">Technician: {t.technician}</p>
-                      </div>
+            {/* Report Pest Activity Card */}
+            <div className="bg-[#071b4d] rounded-2xl p-6 text-white flex flex-col justify-between shadow-lg relative overflow-hidden">
+              <div className="space-y-3 z-10 relative">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-[#FACC15] border border-amber-400/30 text-xs font-extrabold">
+                  <AlertTriangle className="w-3.5 h-3.5" /> Priority Response Guaranteed
+                </div>
+                <h3 className="text-xl font-black text-white leading-snug">Noticed Pest Activity?</h3>
+                <p className="text-xs text-slate-300 leading-relaxed">
+                  Don't wait for your next routine visit. Under your Complete Protection Plan, emergency re-treatments are 100% free.
+                </p>
+              </div>
 
-                      <div className="flex sm:flex-col items-end justify-between sm:justify-center gap-1">
-                        <span className="text-[11px] text-slate-400 font-semibold">{t.date}</span>
-                        <span
-                          className="px-2.5 py-0.5 rounded-full text-[11px] font-extrabold"
-                          style={{ color: t.statusColor, backgroundColor: t.statusBg }}
-                        >
-                          {t.status}
+              <button
+                onClick={() => setSightingModal(true)}
+                className="w-full mt-6 py-3 bg-[#FACC15] hover:bg-yellow-400 text-[#071b4d] font-black rounded-xl transition-all shadow-md text-xs flex items-center justify-center gap-2 z-10"
+              >
+                Log Sighting for Priority Dispatch
+              </button>
+            </div>
+
+          </div>
+
+          {/* ══ MIDDLE ROW: PLAN & COVERAGE SUMMARY ══ */}
+          <div id="plan">
+            <h2 className="text-lg font-black text-slate-900 mb-3">Plan &amp; Coverage Summary</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#2563eb] flex items-center justify-center flex-shrink-0">
+                  <ShieldCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Active Plan</p>
+                  <p className="font-black text-slate-900 text-sm">Complete Protection</p>
+                  <p className="text-[11px] text-emerald-600 font-bold">100% Satisfaction Warranty</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                  <DollarSign className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Monthly Rate</p>
+                  <p className="font-black text-slate-900 text-sm">$69.00 / month</p>
+                  <p className="text-[11px] text-slate-500">Auto-renews monthly</p>
+                </div>
+              </div>
+
+              <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                  <CalendarCheck className="w-6 h-6" />
+                </div>
+                <div>
+                  <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Next Billing Cycle</p>
+                  <p className="font-black text-slate-900 text-sm">August 22, 2026</p>
+                  <p className="text-[11px] text-slate-500">Receipt sent to email</p>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          {/* ══ BOTTOM ROW: SERVICE HISTORY & INSPECTION REPORTS ══ */}
+          <div id="history">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-lg font-black text-slate-900">Service History &amp; Inspection Reports</h2>
+              <button className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg bg-white shadow-sm transition-all">
+                <Download className="w-3.5 h-3.5" /> Export All Reports
+              </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="w-full text-left text-xs">
+                  <thead className="bg-slate-50/80 text-slate-500 border-b border-slate-200 font-bold uppercase tracking-wider">
+                    <tr>
+                      <th className="px-6 py-3.5">Date</th>
+                      <th className="px-6 py-3.5">Service Type</th>
+                      <th className="px-6 py-3.5">Technician</th>
+                      <th className="px-6 py-3.5">Status</th>
+                      <th className="px-6 py-3.5 text-right">Inspection Report</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-700">
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-900">May 10, 2026</td>
+                      <td className="px-6 py-4 font-semibold text-slate-900">Spring Barrier &amp; Ant Spray</td>
+                      <td className="px-6 py-4 text-slate-600">Dave Smith</td>
+                      <td className="px-6 py-4">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                          Completed
                         </span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button className="text-blue-600 font-bold hover:underline">View PDF Report</button>
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-900">Feb 14, 2026</td>
+                      <td className="px-6 py-4 font-semibold text-slate-900">Winter Rodent Defense</td>
+                      <td className="px-6 py-4 text-slate-600">Marcus Vance</td>
+                      <td className="px-6 py-4">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                          Completed
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button className="text-blue-600 font-bold hover:underline">View PDF Report</button>
+                      </td>
+                    </tr>
+
+                    <tr className="hover:bg-slate-50/60 transition-colors">
+                      <td className="px-6 py-4 font-bold text-slate-900">Nov 02, 2025</td>
+                      <td className="px-6 py-4 font-semibold text-slate-900">Fall Wasp &amp; Perimeter Inspection</td>
+                      <td className="px-6 py-4 text-slate-600">Dave Smith</td>
+                      <td className="px-6 py-4">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                          Completed
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 text-right">
+                        <button className="text-blue-600 font-bold hover:underline">View PDF Report</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
-
-            {/* RIGHT 1 COLUMN: FREQUENTLY ASKED QUESTIONS */}
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-              <h3 className="text-base font-black text-slate-900 mb-4">Frequently Asked Questions</h3>
-
-              <div className="space-y-3">
-                {faqs.map((faq, idx) => {
-                  const isOpen = openFaq === idx;
-                  return (
-                    <div key={idx} className="border border-slate-200 rounded-xl overflow-hidden">
-                      <button
-                        onClick={() => setOpenFaq(isOpen ? null : idx)}
-                        className="w-full p-3.5 text-left font-bold text-xs text-slate-900 flex items-center justify-between bg-slate-50 hover:bg-slate-100 transition-colors"
-                      >
-                        <span>{faq.q}</span>
-                        {isOpen ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
-                      </button>
-                      {isOpen && (
-                        <div className="p-3.5 bg-white text-xs text-slate-600 border-t border-slate-100 leading-relaxed">
-                          {faq.a}
-                        </div>
-                      )}
-                    </div>
-                  );
-                })}
-              </div>
-
-              <div className="mt-6 p-4 bg-blue-50/60 border border-blue-100 rounded-xl text-center">
-                <p className="text-xs font-extrabold text-[#071b4d]">Need urgent phone support?</p>
-                <p className="text-[11px] text-slate-500 mt-0.5">Call our dedicated Ocean County dispatch line</p>
-                <a
-                  href="tel:18005557378"
-                  className="mt-2 inline-flex items-center gap-1.5 text-xs font-black text-blue-700 hover:underline"
-                >
-                  <PhoneCall className="w-3.5 h-3.5" /> +1 (800) 555-PEST
-                </a>
-              </div>
-            </div>
-
           </div>
 
         </main>
       </div>
+
+      {/* ══ MODAL A: LOG PEST SIGHTING ══ */}
+      {sightingModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSightingModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10 animate-fadeIn">
+            <button onClick={() => setSightingModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center flex-shrink-0">
+                <AlertTriangle className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-slate-900">Log Pest Activity</h3>
+                <p className="text-slate-500 text-xs">Priority dispatch for active subscribers</p>
+              </div>
+            </div>
+
+            {sightingSuccess ? (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5 text-center">
+                <CheckCircle2 className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+                <h4 className="text-base font-black text-emerald-950">Priority Request Logged!</h4>
+                <p className="text-emerald-700 text-xs mt-1">A dispatch coordinator will contact you within 30 minutes to confirm technician arrival.</p>
+              </div>
+            ) : (
+              <form onSubmit={handleLogSighting} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Pest Type Observed</label>
+                  <select
+                    value={sightingType}
+                    onChange={e => setSightingType(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-slate-300 text-xs font-semibold text-slate-900 bg-white"
+                  >
+                    <option value="Ants (Kitchen / Indoors)">Ants (Kitchen / Indoors)</option>
+                    <option value="Mice / Rodents">Mice / Rodents</option>
+                    <option value="German Cockroaches">German Cockroaches</option>
+                    <option value="Bed Bugs">Bed Bugs</option>
+                    <option value="Wasps / Hornets Exterior">Wasps / Hornets Exterior</option>
+                    <option value="Other Pest">Other Pest</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Location &amp; Details</label>
+                  <textarea
+                    rows={3}
+                    value={sightingNotes}
+                    onChange={e => setSightingNotes(e.target.value)}
+                    placeholder="e.g., Noticed small black ants along kitchen counter near sink..."
+                    required
+                    className="w-full p-3 rounded-lg border border-slate-300 text-xs text-slate-900 bg-white outline-none focus:border-blue-600"
+                  />
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full h-11 bg-[#071b4d] hover:bg-blue-900 text-white font-bold rounded-xl shadow-lg flex items-center justify-center gap-2 text-xs"
+                >
+                  <Send className="w-3.5 h-3.5 text-[#FACC15]" /> Submit Priority Callback Request
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ══ MODAL B: RESCHEDULE VISIT ══ */}
+      {rescheduleModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setRescheduleModal(false)} />
+          <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10 animate-fadeIn">
+            <button onClick={() => setRescheduleModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+              <X className="w-5 h-5" />
+            </button>
+
+            <h3 className="text-lg font-black text-slate-900 mb-1">Reschedule Visit</h3>
+            <p className="text-slate-500 text-xs mb-4">Select preferred date &amp; arrival window</p>
+
+            {rescheduleSuccess ? (
+              <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-4 text-center">
+                <CheckCircle2 className="w-8 h-8 text-emerald-600 mx-auto mb-1" />
+                <p className="text-emerald-800 font-bold text-xs">Reschedule Request Sent!</p>
+              </div>
+            ) : (
+              <form onSubmit={handleRescheduleSubmit} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">New Visit Date</label>
+                  <input
+                    type="date"
+                    value={rescheduleDate}
+                    onChange={e => setRescheduleDate(e.target.value)}
+                    required
+                    className="w-full h-10 px-3 rounded-lg border border-slate-300 text-xs font-semibold text-slate-900 bg-white"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-700 uppercase mb-1">Arrival Window</label>
+                  <select
+                    value={rescheduleWindow}
+                    onChange={e => setRescheduleWindow(e.target.value)}
+                    className="w-full h-10 px-3 rounded-lg border border-slate-300 text-xs font-semibold text-slate-900 bg-white"
+                  >
+                    <option value="09:00 AM - 11:00 AM">09:00 AM - 11:00 AM</option>
+                    <option value="11:00 AM - 01:00 PM">11:00 AM - 01:00 PM</option>
+                    <option value="01:00 PM - 03:00 PM">01:00 PM - 03:00 PM</option>
+                    <option value="03:00 PM - 05:00 PM">03:00 PM - 05:00 PM</option>
+                  </select>
+                </div>
+
+                <button
+                  type="submit"
+                  className="w-full h-10 bg-[#2563eb] hover:bg-blue-700 text-white font-bold rounded-xl shadow flex items-center justify-center text-xs"
+                >
+                  Confirm New Schedule
+                </button>
+              </form>
+            )}
+          </div>
+        </div>
+      )}
 
     </div>
   );
