@@ -4,9 +4,7 @@ import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import {
   ShieldCheck, Eye, EyeOff, AlertCircle, Lock,
-  CheckCircle2, Sparkles, MessageCircle,
-  Users, ArrowRight, Shield, Zap, Mail, KeyRound,
-  ArrowLeft
+  CheckCircle2, ArrowRight, ArrowLeft
 } from "lucide-react";
 
 function AdminLoginForm() {
@@ -59,7 +57,7 @@ function AdminLoginForm() {
         if (rememberMe) localStorage.setItem("pestiq_admin_auth", "1");
         router.push("/admin/overview");
       } else {
-        setError(data.error || "Invalid credentials. Please try again.");
+        setError(data.error || "Invalid credentials. Please check your admin password.");
         setLoading(false);
       }
     } catch (err: any) {
@@ -131,167 +129,87 @@ function AdminLoginForm() {
   return (
     <div style={{
       minHeight: "100vh",
-      background: "radial-gradient(ellipse at top, #0f1c3f 0%, #030816 70%, #01040d 100%)",
+      background: "linear-gradient(135deg, #eef2f6 0%, #e2e8f0 100%)",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      padding: "24px 16px",
+      padding: "32px 16px",
       fontFamily: "var(--font-sans), system-ui, -apple-system, sans-serif",
       position: "relative",
-      overflow: "hidden",
     }}>
 
-      {/* Ambient Lighting Spheres */}
-      <div style={{
-        position: "absolute", top: "10%", left: "15%", width: 500, height: 500,
-        background: "radial-gradient(circle, rgba(21,87,184,0.2) 0%, transparent 70%)",
-        borderRadius: "50%", filter: "blur(80px)", pointerEvents: "none",
-      }} />
-      <div style={{
-        position: "absolute", bottom: "10%", right: "15%", width: 450, height: 450,
-        background: "radial-gradient(circle, rgba(250,204,21,0.12) 0%, transparent 70%)",
-        borderRadius: "50%", filter: "blur(90px)", pointerEvents: "none",
-      }} />
-
-      {/* MAIN FLOATING CONTAINER CARD (Inspired by E Spurt & Smart AI Dribbble layouts) */}
+      {/* FLOATING CARD CONTAINER (Exact Nucleus Dribbble Layout) */}
       <div style={{
         width: "100%",
-        maxWidth: 1040,
-        background: "rgba(10, 22, 53, 0.75)",
-        backdropFilter: "blur(24px)",
-        WebkitBackdropFilter: "blur(24px)",
-        borderRadius: 28,
-        border: "1px solid rgba(255, 255, 255, 0.12)",
-        boxShadow: "0 30px 80px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.15)",
+        maxWidth: 920,
+        background: "#ffffff",
+        borderRadius: 24,
+        boxShadow: "0 20px 60px rgba(7, 27, 77, 0.12), 0 1px 3px rgba(0, 0, 0, 0.05)",
         display: "flex",
         overflow: "hidden",
         position: "relative",
         zIndex: 10,
+        border: "1px solid rgba(226, 232, 240, 0.8)",
       }}>
 
-        {/* LEFT PANEL — Visual Showcase Banner */}
+        {/* LEFT PANEL — High-Resolution Photographic Hero Showcase */}
         <div className="hidden md:flex" style={{
-          flex: 1.1,
+          flex: "0 0 42%",
           position: "relative",
-          background: "linear-gradient(135deg, #071b4d 0%, #0d286d 50%, #05143a 100%)",
-          padding: "48px 48px",
+          backgroundImage: `url('/images/admin_hero.jpg')`,
+          backgroundSize: "cover",
+          backgroundPosition: "center 20%",
+          padding: "40px 36px",
           flexDirection: "column",
           justifyContent: "space-between",
-          borderRight: "1px solid rgba(255, 255, 255, 0.08)",
           overflow: "hidden",
         }}>
-
-          {/* Background Vector Shield Watermark */}
+          {/* Dark Overlay Gradient for maximum contrast */}
           <div style={{
             position: "absolute",
-            right: "-40px",
-            bottom: "-40px",
-            opacity: 0.04,
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(7, 27, 77, 0.75) 0%, rgba(7, 27, 77, 0.3) 40%, rgba(7, 27, 77, 0.88) 100%)",
             pointerEvents: "none",
-            userSelect: "none",
-            transform: "rotate(-10deg)",
-          }}>
-            <Shield style={{ width: 480, height: 480, color: "#ffffff" }} />
-          </div>
+          }} />
 
           {/* Top Brand Tag */}
-          <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ position: "relative", zIndex: 2, display: "flex", alignItems: "center", gap: 10 }}>
             <div style={{
-              width: 44, height: 44, borderRadius: 14,
+              width: 38, height: 38, borderRadius: 10,
               background: "linear-gradient(135deg, #FACC15 0%, #eab308 100%)",
               display: "flex", alignItems: "center", justifyContent: "center",
-              boxShadow: "0 8px 24px rgba(250, 204, 21, 0.35)",
+              boxShadow: "0 6px 18px rgba(250, 204, 21, 0.35)",
             }}>
-              <ShieldCheck style={{ width: 24, height: 24, color: "#071b4d" }} />
+              <ShieldCheck style={{ width: 20, height: 20, color: "#071b4d" }} />
             </div>
             <div>
-              <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                <span style={{ color: "#ffffff", fontWeight: 900, fontSize: 22, letterSpacing: "-0.03em" }}>PestIQ</span>
-                <span style={{ background: "rgba(250, 204, 21, 0.15)", color: "#FACC15", border: "1px solid rgba(250, 204, 21, 0.3)", padding: "2px 8px", borderRadius: 999, fontSize: 10, fontWeight: 800, textTransform: "uppercase" }}>Enterprise</span>
-              </div>
-              <p style={{ color: "#94a3b8", fontSize: 11, fontWeight: 700, margin: 0, letterSpacing: "0.1em", textTransform: "uppercase" }}>Solutions &amp; Dispatch Console</p>
+              <span style={{ color: "#ffffff", fontWeight: 900, fontSize: 20, letterSpacing: "-0.03em" }}>PestIQ</span>
             </div>
           </div>
 
-          {/* Center Showcase Content */}
-          <div style={{ position: "relative", zIndex: 2, margin: "40px 0" }}>
-            <div style={{
-              display: "inline-flex", alignItems: "center", gap: 8,
-              padding: "6px 14px", borderRadius: 999,
-              background: "rgba(255, 255, 255, 0.08)", border: "1px solid rgba(255, 255, 255, 0.15)",
-              marginBottom: 20,
+          {/* Bottom Testimonial Quote (Nucleus Style) */}
+          <div style={{ position: "relative", zIndex: 2 }}>
+            <p style={{
+              color: "#ffffff", fontSize: 17, fontWeight: 700,
+              lineHeight: 1.45, margin: "0 0 12px", textShadow: "0 2px 8px rgba(0,0,0,0.3)"
             }}>
-              <Sparkles style={{ width: 14, height: 14, color: "#FACC15" }} />
-              <span style={{ color: "#e2e8f0", fontSize: 12, fontWeight: 700 }}>Simplify operations with our CRM</span>
-            </div>
-
-            <h1 style={{
-              color: "#ffffff", fontSize: "clamp(30px, 2.6vw, 42px)", fontWeight: 900,
-              lineHeight: 1.15, letterSpacing: "-0.03em", margin: "0 0 16px"
-            }}>
-              Precision Dispatch &amp;<br />
-              <span style={{ background: "linear-gradient(90deg, #FACC15, #38bdf8)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent" }}>
-                Customer Intelligence
-              </span>
-            </h1>
-
-            <p style={{ color: "#94a3b8", fontSize: 14, lineHeight: 1.6, maxWidth: 440, margin: "0 0 28px" }}>
-              Unified management console for dispatch coordinators and field technicians across NY, NJ &amp; CT.
+              “Simply all the dispatch &amp; customer tools that our operations team needs every day.”
             </p>
-
-            {/* Feature Pills */}
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
-              {[
-                { icon: Zap, title: "Live Booking Queue", desc: "Real-time orders" },
-                { icon: MessageCircle, title: "WhatsApp Alerts", desc: "1-click dispatch" },
-                { icon: Users, title: "Customer History", desc: "Subscriptions & notes" },
-                { icon: Shield, title: "Rate Limit Shield", desc: "Anti-brute force" },
-              ].map(({ icon: Icon, title, desc }) => (
-                <div key={title} style={{
-                  background: "rgba(255, 255, 255, 0.04)",
-                  border: "1px solid rgba(255, 255, 255, 0.08)",
-                  borderRadius: 12, padding: "12px 14px",
-                  display: "flex", alignItems: "flex-start", gap: 10,
-                }}>
-                  <div style={{
-                    width: 28, height: 28, borderRadius: 8,
-                    background: "rgba(250, 204, 21, 0.12)", display: "flex", alignItems: "center", justifyContent: "center",
-                    flexShrink: 0, marginTop: 1,
-                  }}>
-                    <Icon style={{ width: 14, height: 14, color: "#FACC15" }} />
-                  </div>
-                  <div>
-                    <p style={{ color: "#ffffff", fontSize: 12, fontWeight: 700, margin: "0 0 2px" }}>{title}</p>
-                    <p style={{ color: "#64748b", fontSize: 10, margin: 0 }}>{desc}</p>
-                  </div>
-                </div>
-              ))}
+            <div>
+              <p style={{ color: "#FACC15", fontSize: 13, fontWeight: 800, margin: "0 0 2px" }}>Marcus Vance</p>
+              <p style={{ color: "#cbd5e1", fontSize: 11, fontWeight: 600, margin: 0 }}>VP of Operations &amp; Dispatch</p>
             </div>
-          </div>
-
-          {/* Bottom Security Footer */}
-          <div style={{
-            position: "relative", zIndex: 2,
-            display: "flex", alignItems: "center", justifyContent: "space-between",
-            paddingTop: 18, borderTop: "1px solid rgba(255, 255, 255, 0.08)",
-          }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-              <span style={{ width: 8, height: 8, borderRadius: "50%", background: "#10b981", boxShadow: "0 0 10px #10b981" }} />
-              <span style={{ color: "#cbd5e1", fontSize: 12, fontWeight: 600 }}>All Systems Operational</span>
-            </div>
-            <span style={{ color: "#64748b", fontSize: 11 }}>SSL 256-Bit Encrypted</span>
           </div>
         </div>
 
-        {/* RIGHT PANEL — Sleek White Authentication Card */}
+        {/* RIGHT PANEL — Clean White Authentication Form */}
         <div style={{
           flex: 1,
-          maxWidth: 480,
-          background: "#ffffff",
-          padding: "48px 40px",
+          padding: "48px 44px",
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          background: "#ffffff",
         }}>
 
           <div>
@@ -299,18 +217,11 @@ function AdminLoginForm() {
             <div style={{ marginBottom: 28 }}>
               {viewMode === "login" && (
                 <>
-                  <div style={{
-                    display: "inline-flex", alignItems: "center", gap: 6,
-                    padding: "4px 10px", borderRadius: 6, background: "#eff6ff",
-                    color: "#1557b8", fontSize: 11, fontWeight: 800, marginBottom: 12,
-                  }}>
-                    <Lock style={{ width: 12, height: 12 }} /> Protected Access
-                  </div>
-                  <h2 style={{ color: "#0f172a", fontSize: 26, fontWeight: 900, margin: 0, letterSpacing: "-0.03em" }}>
-                    Welcome Back
+                  <h2 style={{ color: "#0f172a", fontSize: 26, fontWeight: 900, margin: "0 0 6px", letterSpacing: "-0.03em" }}>
+                    Welcome Back to PestIQ
                   </h2>
-                  <p style={{ color: "#64748b", fontSize: 13, margin: "4px 0 0", lineHeight: 1.5 }}>
-                    Sign in to access your unified dispatch console.
+                  <p style={{ color: "#64748b", fontSize: 13, margin: 0, lineHeight: 1.5 }}>
+                    Sign in to your account to access the master dispatch console.
                   </p>
                 </>
               )}
@@ -326,28 +237,28 @@ function AdminLoginForm() {
                   >
                     <ArrowLeft style={{ width: 14, height: 14 }} /> Back to Sign In
                   </button>
-                  <h2 style={{ color: "#0f172a", fontSize: 24, fontWeight: 900, margin: 0 }}>
+                  <h2 style={{ color: "#0f172a", fontSize: 24, fontWeight: 900, margin: "0 0 6px" }}>
                     Forgot Password?
                   </h2>
-                  <p style={{ color: "#64748b", fontSize: 13, margin: "4px 0 0" }}>
-                    Enter your staff email address and we'll send a password authorization link.
+                  <p style={{ color: "#64748b", fontSize: 13, margin: 0 }}>
+                    Enter your staff email address and we'll send a reset authorization link.
                   </p>
                 </>
               )}
 
               {viewMode === "reset" && (
                 <>
-                  <h2 style={{ color: "#0f172a", fontSize: 24, fontWeight: 900, margin: 0 }}>
+                  <h2 style={{ color: "#0f172a", fontSize: 24, fontWeight: 900, margin: "0 0 6px" }}>
                     Set New Password
                   </h2>
-                  <p style={{ color: "#64748b", fontSize: 13, margin: "4px 0 0" }}>
+                  <p style={{ color: "#64748b", fontSize: 13, margin: 0 }}>
                     Enter your new secure master password below.
                   </p>
                 </>
               )}
             </div>
 
-            {/* Success Alert Banner */}
+            {/* Success Alert */}
             {successMsg && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 10,
@@ -355,11 +266,11 @@ function AdminLoginForm() {
                 borderRadius: 10, padding: "12px 14px", color: "#065f46", marginBottom: 20,
               }}>
                 <CheckCircle2 style={{ width: 18, height: 18, flexShrink: 0, color: "#10b981" }} />
-                <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4 }}>{successMsg}</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{successMsg}</span>
               </div>
             )}
 
-            {/* Error Alert Banner */}
+            {/* Error Alert */}
             {error && (
               <div style={{
                 display: "flex", alignItems: "center", gap: 10,
@@ -367,66 +278,62 @@ function AdminLoginForm() {
                 borderRadius: 10, padding: "12px 14px", color: "#991b1b", marginBottom: 20,
               }}>
                 <AlertCircle style={{ width: 18, height: 18, flexShrink: 0, color: "#ef4444" }} />
-                <span style={{ fontSize: 13, fontWeight: 600, lineHeight: 1.4 }}>{error}</span>
+                <span style={{ fontSize: 13, fontWeight: 600 }}>{error}</span>
               </div>
             )}
 
             {/* FORM A: SIGN IN */}
             {viewMode === "login" && (
-              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+              <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: 20 }}>
                 <div>
-                  <label style={{ display: "block", color: "#0f172a", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
-                    Staff Email
+                  <label style={{ display: "block", color: "#334155", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
+                    Email
                   </label>
-                  <div style={{ position: "relative" }}>
-                    <Mail style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#94a3b8" }} />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                      placeholder="admin@pestiq.com"
-                      required
-                      style={{
-                        width: "100%", height: 46, paddingLeft: 42, paddingRight: 14,
-                        background: "#f8fafc", border: "1.5px solid #e2e8f0",
-                        borderRadius: 10, fontSize: 14, outline: "none", color: "#0f172a",
-                        fontWeight: 600, boxSizing: "border-box", transition: "all 0.15s",
-                      }}
-                      onFocus={e => { e.target.style.borderColor = "#1557b8"; e.target.style.background = "#ffffff"; }}
-                      onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}
-                    />
-                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    placeholder="alex.jordan@gmail.com"
+                    required
+                    style={{
+                      width: "100%", height: 46, paddingLeft: 14, paddingRight: 14,
+                      background: "#f8fafc", border: "1.5px solid #e2e8f0",
+                      borderRadius: 10, fontSize: 14, outline: "none", color: "#0f172a",
+                      fontWeight: 600, boxSizing: "border-box", transition: "all 0.15s",
+                    }}
+                    onFocus={e => { e.target.style.borderColor = "#2563eb"; e.target.style.background = "#ffffff"; }}
+                    onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}
+                  />
                 </div>
 
                 <div>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-                    <label style={{ color: "#0f172a", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em" }}>
-                      Master Password / PIN
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+                    <label style={{ color: "#334155", fontSize: 13, fontWeight: 700 }}>
+                      Password
                     </label>
                     <button
                       type="button"
                       onClick={() => { setViewMode("forgot"); setError(""); setSuccessMsg(""); }}
-                      style={{ background: "none", border: "none", color: "#1557b8", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }}
+                      style={{ background: "none", border: "none", color: "#2563eb", fontSize: 12, fontWeight: 700, cursor: "pointer", padding: 0 }}
                     >
                       Forgot password?
                     </button>
                   </div>
 
                   <div style={{ position: "relative" }}>
-                    <KeyRound style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#94a3b8" }} />
                     <input
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => { setPassword(e.target.value); setError(""); }}
-                      placeholder="Enter admin password (PIN: pestiq2025)"
+                      placeholder="••••••••••••"
                       required
                       style={{
-                        width: "100%", height: 46, paddingLeft: 42, paddingRight: 44,
+                        width: "100%", height: 46, paddingLeft: 14, paddingRight: 44,
                         background: "#f8fafc", border: "1.5px solid #e2e8f0",
                         borderRadius: 10, fontSize: 14, outline: "none", color: "#0f172a",
                         fontWeight: 600, boxSizing: "border-box", transition: "all 0.15s",
                       }}
-                      onFocus={e => { e.target.style.borderColor = "#1557b8"; e.target.style.background = "#ffffff"; }}
+                      onFocus={e => { e.target.style.borderColor = "#2563eb"; e.target.style.background = "#ffffff"; }}
                       onBlur={e => { e.target.style.borderColor = "#e2e8f0"; e.target.style.background = "#f8fafc"; }}
                     />
                     <button
@@ -448,9 +355,9 @@ function AdminLoginForm() {
                       type="checkbox"
                       checked={rememberMe}
                       onChange={e => setRememberMe(e.target.checked)}
-                      style={{ borderRadius: 4, accentColor: "#1557b8", width: 16, height: 16 }}
+                      style={{ borderRadius: 4, accentColor: "#2563eb", width: 16, height: 16 }}
                     />
-                    Remember this session
+                    Remember sign in details
                   </label>
                   <span style={{ fontSize: 11, color: "#94a3b8" }}>PIN: pestiq2025</span>
                 </div>
@@ -459,14 +366,14 @@ function AdminLoginForm() {
                   type="submit"
                   disabled={loading || !password}
                   style={{
-                    height: 48, borderRadius: 10, border: "none",
-                    background: "linear-gradient(135deg, #071b4d 0%, #1557b8 100%)",
+                    height: 46, borderRadius: 10, border: "none",
+                    background: "linear-gradient(135deg, #1d4ed8 0%, #2563eb 100%)",
                     color: "#ffffff", fontSize: 14, fontWeight: 800,
                     cursor: loading || !password ? "not-allowed" : "pointer",
                     opacity: loading || !password ? 0.65 : 1,
-                    boxShadow: "0 6px 20px rgba(7, 27, 77, 0.25)",
+                    boxShadow: "0 4px 16px rgba(37, 99, 235, 0.3)",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
-                    marginTop: 6, transition: "all 0.15s",
+                    marginTop: 4, transition: "all 0.15s",
                   }}
                 >
                   {loading ? (
@@ -476,7 +383,7 @@ function AdminLoginForm() {
                     </>
                   ) : (
                     <>
-                      Sign In to Console <ArrowRight style={{ width: 16, height: 16 }} />
+                      Log In <ArrowRight style={{ width: 16, height: 16 }} />
                     </>
                   )}
                 </button>
@@ -487,39 +394,36 @@ function AdminLoginForm() {
             {viewMode === "forgot" && (
               <form onSubmit={handleForgotPassword} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 <div>
-                  <label style={{ display: "block", color: "#0f172a", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                  <label style={{ display: "block", color: "#334155", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
                     Staff Email Address
                   </label>
-                  <div style={{ position: "relative" }}>
-                    <Mail style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", width: 16, height: 16, color: "#94a3b8" }} />
-                    <input
-                      type="email"
-                      value={email}
-                      onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                      placeholder="admin@pestiq.com"
-                      required
-                      style={{
-                        width: "100%", height: 46, paddingLeft: 42, paddingRight: 14,
-                        background: "#f8fafc", border: "1.5px solid #e2e8f0",
-                        borderRadius: 10, fontSize: 14, outline: "none", color: "#0f172a",
-                        fontWeight: 600, boxSizing: "border-box",
-                      }}
-                    />
-                  </div>
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                    placeholder="admin@pestiq.com"
+                    required
+                    style={{
+                      width: "100%", height: 46, paddingLeft: 14, paddingRight: 14,
+                      background: "#f8fafc", border: "1.5px solid #e2e8f0",
+                      borderRadius: 10, fontSize: 14, outline: "none", color: "#0f172a",
+                      fontWeight: 600, boxSizing: "border-box",
+                    }}
+                  />
                 </div>
 
                 <button
                   type="submit"
                   disabled={loading || !email}
                   style={{
-                    height: 48, borderRadius: 10, border: "none",
-                    background: "#1557b8", color: "#ffffff", fontSize: 14, fontWeight: 800,
+                    height: 46, borderRadius: 10, border: "none",
+                    background: "#2563eb", color: "#ffffff", fontSize: 14, fontWeight: 800,
                     cursor: loading || !email ? "not-allowed" : "pointer",
-                    boxShadow: "0 6px 20px rgba(21, 87, 184, 0.25)",
+                    boxShadow: "0 4px 16px rgba(37, 99, 235, 0.3)",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   }}
                 >
-                  {loading ? "Sending..." : "Send Password Reset Link"}
+                  {loading ? "Sending..." : "Send Reset Link"}
                 </button>
               </form>
             )}
@@ -528,7 +432,7 @@ function AdminLoginForm() {
             {viewMode === "reset" && (
               <form onSubmit={handleResetPassword} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
                 <div>
-                  <label style={{ display: "block", color: "#0f172a", fontSize: 12, fontWeight: 800, textTransform: "uppercase", letterSpacing: "0.05em", marginBottom: 6 }}>
+                  <label style={{ display: "block", color: "#334155", fontSize: 13, fontWeight: 700, marginBottom: 8 }}>
                     New Password
                   </label>
                   <input
@@ -550,10 +454,10 @@ function AdminLoginForm() {
                   type="submit"
                   disabled={loading || !newPassword}
                   style={{
-                    height: 48, borderRadius: 10, border: "none",
+                    height: 46, borderRadius: 10, border: "none",
                     background: "#10b981", color: "#ffffff", fontSize: 14, fontWeight: 800,
                     cursor: loading || !newPassword ? "not-allowed" : "pointer",
-                    boxShadow: "0 6px 20px rgba(16, 185, 129, 0.25)",
+                    boxShadow: "0 4px 16px rgba(16, 185, 129, 0.3)",
                     display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
                   }}
                 >
@@ -563,8 +467,8 @@ function AdminLoginForm() {
             )}
           </div>
 
-          {/* Bottom Security Assurance Badge */}
-          <div style={{ marginTop: 32, paddingTop: 20, borderTop: "1px solid #f1f5f9", textAlign: "center" }}>
+          {/* Bottom Security Note */}
+          <div style={{ marginTop: 28, paddingTop: 16, borderTop: "1px solid #f1f5f9", textAlign: "center" }}>
             <div style={{ display: "inline-flex", alignItems: "center", gap: 6, color: "#64748b", fontSize: 12, fontWeight: 600 }}>
               <CheckCircle2 style={{ width: 14, height: 14, color: "#10b981" }} />
               <span>Anti-Brute Force Protection Active (Max 5 attempts)</span>
@@ -581,8 +485,8 @@ function AdminLoginForm() {
 export default function AdminLoginPage() {
   return (
     <Suspense fallback={
-      <div style={{ minHeight: "100vh", background: "#071b4d", display: "flex", alignItems: "center", justifyContent: "center" }}>
-        <div style={{ width: 32, height: 32, border: "3px solid rgba(250,204,21,0.3)", borderTopColor: "#FACC15", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
+      <div style={{ minHeight: "100vh", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <div style={{ width: 32, height: 32, border: "3px solid #cbd5e1", borderTopColor: "#2563eb", borderRadius: "50%", animation: "spin 0.8s linear infinite" }} />
         <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     }>
