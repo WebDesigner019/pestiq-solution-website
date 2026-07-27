@@ -6,7 +6,7 @@ import AdminSidebar from "@/components/admin/AdminSidebar";
 import AdminTopBar from "@/components/admin/AdminTopBar";
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
-  const router   = useRouter();
+  const router = useRouter();
   const pathname = usePathname();
   const [checked, setChecked] = useState(false);
   const [sidebarOpen, setSidebarOpen] = useState(true);
@@ -16,8 +16,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       setChecked(true);
       return;
     }
-    const auth = sessionStorage.getItem("pestiq_admin_auth");
-    if (auth !== "1") {
+    const sessionAuth = sessionStorage.getItem("pestiq_admin_auth");
+    const localAuth = localStorage.getItem("pestiq_admin_auth");
+    if (sessionAuth !== "1" && localAuth !== "1") {
       router.replace("/admin");
     } else {
       setChecked(true);

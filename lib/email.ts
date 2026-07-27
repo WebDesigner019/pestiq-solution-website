@@ -90,3 +90,58 @@ export async function sendOrderConfirmationEmail(params: OrderEmailParams) {
     console.log("Resend API key omitted — logged confirmation email payload for testing:", referenceCode);
   }
 }
+
+export async function sendPasswordResetEmail(params: { toEmail: string; resetToken: string; resetUrl: string }) {
+  const { toEmail, resetToken, resetUrl } = params;
+
+  const htmlContent = `
+    <div style="font-family: Arial, sans-serif; color: #071b4d; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px;">
+      <div style="background: #071b4d; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
+        <h1 style="color: #FACC15; margin: 0; font-size: 24px;">PestIQ Enterprise Security</h1>
+        <p style="color: #ffffff; margin: 4px 0 0; font-size: 12px; text-transform: uppercase; letter-spacing: 2px;">Password Reset Authorization</p>
+      </div>
+
+      <div style="padding: 24px 0;">
+        <h2 style="color: #071b4d; font-size: 18px; margin-top: 0;">Admin Password Reset Request</h2>
+        <p style="color: #475569; font-size: 14px; line-height: 1.6;">
+          We received a request to reset the master admin password for <strong>${toEmail}</strong> on the PestIQ Dispatch Console.
+        </p>
+
+        <div style="background: #f8fafc; border-left: 4px solid #1557b8; padding: 16px; margin: 20px 0; border-radius: 4px;">
+          <p style="margin: 0 0 6px; font-size: 11px; color: #64748b; font-weight: bold; text-transform: uppercase;">Security Authorization Code</p>
+          <p style="margin: 0; font-size: 22px; font-family: monospace; font-weight: bold; color: #1557b8; letter-spacing: 3px;">${resetToken.slice(0, 8).toUpperCase()}</p>
+        </div>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${resetUrl}" style="background: #071b4d; color: #FACC15; padding: 14px 28px; text-decoration: none; font-weight: bold; border-radius: 8px; font-size: 14px; display: inline-block;">
+            Reset Admin Password →
+          </a>
+        </div>
+
+        <p style="color: #94a3b8; font-size: 12px; line-height: 1.5;">
+          This link will expire in 30 minutes. If you did not initiate this request, please contact PestIQ System Security immediately.
+        </p>
+      </div>
+
+      <div style="border-top: 1px solid #e2e8f0; padding-top: 16px; text-align: center; color: #94a3b8; font-size: 11px;">
+        <p style="margin: 0;">PestIQ Solutions Enterprise Security Console</p>
+      </div>
+    </div>
+  `;
+
+  if (resend) {
+    try {
+      await resend.emails.send({
+        from: process.env.EMAIL_FROM || "PestIQ Security <security@pestiq.com>",
+        to: [toEmail],
+        subject: `[PestIQ Security] Admin Password Reset Authorization`,
+        html: htmlContent,
+      });
+      console.log(`Password reset email sent to ${toEmail}`);
+    } catch (err) {
+      console.warn("Failed to dispatch password reset email via Resend:", err);
+    }
+  } else {
+    console.log(`[TEST MODE] Password reset email link for ${toEmail}: ${resetUrl}`);
+  }
+}
