@@ -50,6 +50,18 @@ export default function CustomerPortal() {
   const [rescheduleWindow, setRescheduleWindow] = useState("09:00 AM - 11:00 AM");
   const [rescheduleSuccess, setRescheduleSuccess] = useState(false);
 
+  const handleTabClick = (tabId: "dashboard" | "plan" | "history") => {
+    setActiveTab(tabId);
+    if (tabId === "dashboard") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } else {
+      const el = document.getElementById(tabId);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
+    }
+  };
+
   const handleLogSighting = (e: React.FormEvent) => {
     e.preventDefault();
     setSightingSuccess(true);
@@ -80,11 +92,11 @@ export default function CustomerPortal() {
             <PestIQLogo size={36} />
             <div>
               <span className="font-black text-xl text-slate-900 tracking-tight block leading-none">PestIQ</span>
-              <span className="text-[10px] font-extrabold text-[#2563eb] uppercase tracking-widest">Customer Portal</span>
+              <span className="text-[10px] font-extrabold text-[#071b4d] uppercase tracking-widest">Customer Portal</span>
             </div>
           </div>
 
-          {/* Navigation Links */}
+          {/* Fully Functional Navigation Links */}
           <nav className="p-4 space-y-1">
             {[
               { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -96,8 +108,8 @@ export default function CustomerPortal() {
               return (
                 <button
                   key={item.id}
-                  onClick={() => setActiveTab(item.id as any)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all text-left ${
+                  onClick={() => handleTabClick(item.id as any)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-bold text-sm transition-all text-left cursor-pointer ${
                     isActive
                       ? "bg-[#071b4d] text-white shadow-md shadow-slate-900/10"
                       : "text-slate-600 hover:bg-slate-50 hover:text-slate-900"
@@ -133,8 +145,8 @@ export default function CustomerPortal() {
       {/* ══ RIGHT CONTENT AREA ══ */}
       <div className="flex-1 flex flex-col min-w-0">
 
-        {/* TOP BAR */}
-        <header className="h-16 bg-white border-b border-slate-200 px-6 flex items-center justify-between sticky top-0 z-10">
+        {/* TOP BAR — High z-index (z-30) and clean layout prevents overlap/clashing */}
+        <header className="min-h-[64px] bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-30 shadow-xs gap-4 flex-wrap sm:flex-nowrap">
           <div className="flex items-center gap-4 flex-1 max-w-md">
             <div className="md:hidden flex items-center gap-2">
               <PestIQLogo size={30} />
@@ -149,20 +161,20 @@ export default function CustomerPortal() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700">
+          <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+            <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs font-bold text-slate-700 whitespace-nowrap">
               <span>Plan Rate: <strong className="text-slate-900">$69/mo</strong></span>
             </div>
 
-            <div className="flex items-center gap-2 px-3.5 py-1.5 bg-emerald-50 border border-emerald-200 rounded-full text-xs font-extrabold text-emerald-800">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-[#17824b]/10 border border-[#17824b]/30 rounded-full text-xs font-extrabold text-[#17824b] whitespace-nowrap">
+              <span className="w-2 h-2 rounded-full bg-[#17824b] animate-pulse" />
               Complete Protection Active
             </div>
           </div>
         </header>
 
         {/* MAIN BODY */}
-        <main className="p-6 md:p-8 max-w-6xl w-full mx-auto space-y-6">
+        <main className="p-6 md:p-8 max-w-6xl w-full mx-auto space-y-8">
 
           {/* PAGE HEADING */}
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -210,7 +222,7 @@ export default function CustomerPortal() {
                   <div className="flex items-center gap-2 w-full sm:w-auto">
                     <button
                       onClick={() => setRescheduleModal(true)}
-                      className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-white text-xs transition-all"
+                      className="flex-1 sm:flex-none px-4 py-2 border border-slate-300 text-slate-700 font-bold rounded-lg hover:bg-white text-xs transition-all cursor-pointer"
                     >
                       Reschedule
                     </button>
@@ -218,7 +230,7 @@ export default function CustomerPortal() {
                       href="https://wa.me/?text=Hello%20PestIQ%2C%20confirming%20my%20service%20visit%20on%20Aug%205."
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex-1 sm:flex-none px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
+                      className="flex-1 sm:flex-none px-4 py-2 bg-[#17824b] hover:bg-[#146b3f] text-white font-bold rounded-lg text-xs transition-all shadow-sm flex items-center justify-center gap-1.5"
                     >
                       <CheckCircle2 className="w-3.5 h-3.5" /> Confirm Visit
                     </a>
@@ -227,10 +239,10 @@ export default function CustomerPortal() {
               </div>
             </div>
 
-            {/* Report Pest Activity Card */}
+            {/* Report Pest Activity Card — Contained cleanly with overflow-hidden */}
             <div className="bg-[#071b4d] rounded-2xl p-6 text-white flex flex-col justify-between shadow-lg relative overflow-hidden">
-              <div className="space-y-3 z-10 relative">
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-400/20 text-[#FACC15] border border-amber-400/30 text-xs font-extrabold">
+              <div className="space-y-3">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#ffc400]/20 text-[#ffc400] border border-[#ffc400]/30 text-xs font-extrabold w-fit">
                   <AlertCircle className="w-3.5 h-3.5" /> Priority Response Guaranteed
                 </div>
                 <h3 className="text-xl font-black text-white leading-snug">Noticed Pest Activity?</h3>
@@ -241,7 +253,7 @@ export default function CustomerPortal() {
 
               <button
                 onClick={() => setSightingModal(true)}
-                className="w-full mt-6 py-3 bg-[#FACC15] hover:bg-yellow-400 text-[#071b4d] font-black rounded-xl transition-all shadow-md text-xs flex items-center justify-center gap-2 z-10"
+                className="w-full mt-6 py-3 bg-[#FACC15] hover:bg-yellow-400 text-[#071b4d] font-black rounded-xl transition-all shadow-md text-xs flex items-center justify-center gap-2 cursor-pointer"
               >
                 Log Sighting for Priority Dispatch
               </button>
@@ -250,23 +262,23 @@ export default function CustomerPortal() {
           </div>
 
           {/* ══ MIDDLE ROW: PLAN & COVERAGE SUMMARY ══ */}
-          <div id="plan">
+          <div id="plan" className="scroll-mt-24">
             <h2 className="text-lg font-black text-slate-900 mb-3">Plan &amp; Coverage Summary</h2>
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-blue-50 text-[#071b4d] flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#eef1f8] text-[#071b4d] flex items-center justify-center flex-shrink-0">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <div>
                   <p className="text-[11px] text-slate-400 font-bold uppercase tracking-wider">Active Plan</p>
                   <p className="font-black text-slate-900 text-sm">Complete Protection</p>
-                  <p className="text-[11px] text-emerald-600 font-bold">100% Satisfaction Warranty</p>
+                  <p className="text-[11px] text-[#17824b] font-bold">100% Satisfaction Warranty</p>
                 </div>
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#eef1f8] text-[#071b4d] flex items-center justify-center flex-shrink-0">
                   <DollarSign className="w-6 h-6" />
                 </div>
                 <div>
@@ -277,7 +289,7 @@ export default function CustomerPortal() {
               </div>
 
               <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
-                <div className="w-12 h-12 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center flex-shrink-0">
+                <div className="w-12 h-12 rounded-xl bg-[#eef1f8] text-[#071b4d] flex items-center justify-center flex-shrink-0">
                   <CalendarCheck className="w-6 h-6" />
                 </div>
                 <div>
@@ -291,10 +303,10 @@ export default function CustomerPortal() {
           </div>
 
           {/* ══ BOTTOM ROW: SERVICE HISTORY & INSPECTION REPORTS ══ */}
-          <div id="history">
+          <div id="history" className="scroll-mt-24">
             <div className="flex items-center justify-between mb-3">
               <h2 className="text-lg font-black text-slate-900">Service History &amp; Inspection Reports</h2>
-              <button className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg bg-white shadow-sm transition-all">
+              <button className="flex items-center gap-1.5 text-xs font-bold text-slate-600 hover:text-slate-900 border border-slate-200 px-3 py-1.5 rounded-lg bg-white shadow-sm transition-all cursor-pointer">
                 <Download className="w-3.5 h-3.5" /> Export All Reports
               </button>
             </div>
@@ -317,12 +329,12 @@ export default function CustomerPortal() {
                       <td className="px-6 py-4 font-semibold text-slate-900">Spring Barrier &amp; Ant Spray</td>
                       <td className="px-6 py-4 text-slate-600">Dave Smith</td>
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[#dcfce7] text-[#166534]">
                           Completed
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-blue-600 font-bold hover:underline">View PDF Report</button>
+                        <button className="text-[#1557b8] font-bold hover:underline cursor-pointer">View PDF Report</button>
                       </td>
                     </tr>
 
@@ -331,12 +343,12 @@ export default function CustomerPortal() {
                       <td className="px-6 py-4 font-semibold text-slate-900">Winter Rodent Defense</td>
                       <td className="px-6 py-4 text-slate-600">Marcus Vance</td>
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[#dcfce7] text-[#166534]">
                           Completed
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-blue-600 font-bold hover:underline">View PDF Report</button>
+                        <button className="text-[#1557b8] font-bold hover:underline cursor-pointer">View PDF Report</button>
                       </td>
                     </tr>
 
@@ -345,12 +357,12 @@ export default function CustomerPortal() {
                       <td className="px-6 py-4 font-semibold text-slate-900">Fall Wasp &amp; Perimeter Inspection</td>
                       <td className="px-6 py-4 text-slate-600">Dave Smith</td>
                       <td className="px-6 py-4">
-                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800">
+                        <span className="px-2.5 py-1 rounded-full text-[11px] font-extrabold bg-[#dcfce7] text-[#166534]">
                           Completed
                         </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <button className="text-blue-600 font-bold hover:underline">View PDF Report</button>
+                        <button className="text-[#1557b8] font-bold hover:underline cursor-pointer">View PDF Report</button>
                       </td>
                     </tr>
                   </tbody>
@@ -367,7 +379,7 @@ export default function CustomerPortal() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setSightingModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 z-10 animate-fadeIn border border-slate-200">
-            <button onClick={() => setSightingModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setSightingModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-5 h-5" />
             </button>
 
@@ -419,7 +431,7 @@ export default function CustomerPortal() {
 
                 <button
                   type="submit"
-                  className="w-full h-11 bg-[#071b4d] hover:bg-slate-900 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 text-xs transition-all"
+                  className="w-full h-11 bg-[#071b4d] hover:bg-slate-900 text-white font-bold rounded-xl shadow-md flex items-center justify-center gap-2 text-xs transition-all cursor-pointer"
                 >
                   <Send className="w-3.5 h-3.5 text-[#FACC15]" /> Submit Priority Callback Request
                 </button>
@@ -434,7 +446,7 @@ export default function CustomerPortal() {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setRescheduleModal(false)} />
           <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-sm p-6 z-10 animate-fadeIn border border-slate-200">
-            <button onClick={() => setRescheduleModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600">
+            <button onClick={() => setRescheduleModal(false)} className="absolute top-4 right-4 text-slate-400 hover:text-slate-600 cursor-pointer">
               <X className="w-5 h-5" />
             </button>
 
@@ -475,7 +487,7 @@ export default function CustomerPortal() {
 
                 <button
                   type="submit"
-                  className="w-full h-10 bg-[#071b4d] hover:bg-slate-900 text-white font-bold rounded-xl shadow flex items-center justify-center text-xs transition-all"
+                  className="w-full h-10 bg-[#071b4d] hover:bg-slate-900 text-white font-bold rounded-xl shadow flex items-center justify-center text-xs transition-all cursor-pointer"
                 >
                   Confirm New Schedule
                 </button>

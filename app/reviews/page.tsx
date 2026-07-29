@@ -4,6 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { Star, ShieldCheck, MapPin, CheckCircle } from "lucide-react";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+
 export default function ReviewsPage() {
   const reviews = [
     {
@@ -49,8 +52,11 @@ export default function ReviewsPage() {
   ];
 
   return (
-    <div className="w-full bg-white font-sans py-12 px-4 sm:px-8">
-      <div className="max-w-[1000px] mx-auto">
+    <div className="site-shell site-v3 min-h-screen bg-white font-sans">
+      <Header />
+      <main className="w-full bg-white py-12 px-4 sm:px-8">
+        <div className="max-w-[1000px] mx-auto">
+
         
         {/* Header Block */}
         <header className="mb-12 text-center max-w-2xl mx-auto">
@@ -140,7 +146,10 @@ export default function ReviewsPage() {
           ))}
         </section>
 
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
+

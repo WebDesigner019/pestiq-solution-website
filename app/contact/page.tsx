@@ -3,6 +3,9 @@
 import React, { useState } from "react";
 import { Phone, Mail, Clock, MapPin, Send, CheckCircle2 } from "lucide-react";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+
 export default function ContactPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -22,7 +25,10 @@ export default function ContactPage() {
   };
 
   return (
-    <div className="w-full bg-white font-sans py-12 px-4 sm:px-8">
+    <div className="site-shell site-v3 min-h-screen bg-white font-sans">
+      <Header />
+      <main className="w-full bg-white py-12 px-4 sm:px-8">
+
       <div className="max-w-[1100px] mx-auto">
         
         {/* Header Block */}
@@ -172,8 +178,9 @@ export default function ContactPage() {
           </div>
 
         </div>
-
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }

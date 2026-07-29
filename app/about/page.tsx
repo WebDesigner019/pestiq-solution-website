@@ -9,7 +9,9 @@ import { ShieldCheck, Award, FileText, CheckCircle } from "lucide-react";
 
 export default function AboutPage() {
   return (
-    <div className="min-h-screen flex flex-col bg-white font-sans">
+    <div className="site-shell site-v3 min-h-screen flex flex-col bg-white font-sans">
+
+
       <Header />
       
       <main className="flex-grow py-12 px-4 sm:px-8">
@@ -17,7 +19,7 @@ export default function AboutPage() {
           
           {/* Header Block */}
           <header className="mb-10 text-center max-w-2xl mx-auto">
-            <span className="text-[12px] uppercase tracking-widest font-extrabold text-[#1a7a3c]">Operating Standards</span>
+            <span className="text-[12px] uppercase tracking-widest font-extrabold text-[#17824b]">Operating Standards</span>
             <h1 className="text-[34px] sm:text-[40px] font-extrabold text-[#071b4d] mt-1 leading-tight">
               Built on trust, safety, and local coordination.
             </h1>
@@ -57,7 +59,7 @@ export default function AboutPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               
               <div className="flex flex-col items-center text-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-[#1a7a3c]">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-[#17824b]">
                   <ShieldCheck className="w-6 h-6" />
                 </div>
                 <strong className="text-[16px] text-[#071b4d] font-bold">Property Safety First</strong>
@@ -67,7 +69,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex flex-col items-center text-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-[#1a7a3c]">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-[#17824b]">
                   <Award className="w-6 h-6" />
                 </div>
                 <strong className="text-[16px] text-[#071b4d] font-bold">Licensed Technicians</strong>
@@ -77,7 +79,7 @@ export default function AboutPage() {
               </div>
 
               <div className="flex flex-col items-center text-center gap-3">
-                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-[#1a7a3c]">
+                <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center border border-gray-200 text-[#17824b]">
                   <FileText className="w-6 h-6" />
                 </div>
                 <strong className="text-[16px] text-[#071b4d] font-bold">Detailed written sheets</strong>
@@ -98,14 +100,14 @@ export default function AboutPage() {
 
             <div className="flex flex-col sm:flex-row gap-4">
               <div className="flex-1 bg-white border border-gray-200 p-4 rounded flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-[#1a7a3c] flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#17824b] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-[14px] text-zinc-800 block">NYS DEC Registered</strong>
                   <span className="text-[12px] text-zinc-500 block mt-0.5">Licensed for Category 7A (Structural and Rodent Pest Control) services.</span>
                 </div>
               </div>
               <div className="flex-1 bg-white border border-gray-200 p-4 rounded flex items-start gap-3">
-                <CheckCircle className="w-5 h-5 text-[#1a7a3c] flex-shrink-0 mt-0.5" />
+                <CheckCircle className="w-5 h-5 text-[#17824b] flex-shrink-0 mt-0.5" />
                 <div>
                   <strong className="text-[14px] text-zinc-800 block">Fully Insured & Bonded</strong>
                   <span className="text-[12px] text-zinc-500 block mt-0.5">Comprehensive liability coverage ensures secure operations on residential properties.</span>

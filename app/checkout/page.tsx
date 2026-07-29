@@ -78,13 +78,16 @@ export default function CheckoutPage() {
   };
 
   const planName = cartItem?.planName || "PestFree365+ Plan";
-  const monthlyRate = cartItem?.monthlyPrice || "$54.99";
-  const initialFee = cartItem?.initialFee || "$149.00";
+  const rawMonthlyRate = cartItem?.monthlyPrice || "64.99";
+  const rawInitialFee = cartItem?.initialFee || "149.00";
+
+  const monthlyRate = rawMonthlyRate.startsWith("$") ? rawMonthlyRate : `$${rawMonthlyRate}`;
+  const initialFee = rawInitialFee.startsWith("$") ? rawInitialFee : `$${rawInitialFee}`;
 
   return (
-    <div className="site-shell site-v3">
+    <div className="site-shell site-v3 min-h-screen bg-[#f8fafc]">
       <Header />
-      <main className="checkout-page">
+      <main className="checkout-page py-8 sm:py-12">
         {step === 4 ? (
           <div className="flex justify-center items-center py-16 px-4">
             <div className="bg-white rounded-2xl shadow-2xl border border-gray-100 max-w-2xl w-full overflow-hidden">
@@ -142,147 +145,169 @@ export default function CheckoutPage() {
             </div>
           </div>
         ) : (
-          <div className="header-container checkout-layout">
-            <div className="checkout-steps">
-              <div className={step > 1 ? "done" : step === 1 ? "active" : ""}>
-                <span>{step > 1 ? "✓" : "1"}</span>
-                <p><strong>Customer Info</strong><small>Contact details</small></p>
+          <div className="header-container checkout-layout max-w-6xl mx-auto px-4 sm:px-6">
+
+            {/* Left Steps Bar — Readable font sizes */}
+            <div className="checkout-steps space-y-6">
+              <div className={`flex items-center gap-3.5 ${step > 1 ? "done" : step === 1 ? "active" : ""}`}>
+                <span className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base border-2 ${step === 1 ? "border-[#ffc400] bg-[#071b4d] text-white" : step > 1 ? "border-[#17824b] bg-[#17824b] text-white" : "border-slate-300 text-slate-500"}`}>
+                  {step > 1 ? "✓" : "1"}
+                </span>
+                <div>
+                  <strong className="text-base font-extrabold text-[#071b4d] block leading-tight">Customer Info</strong>
+                  <small className="text-xs text-slate-500 font-semibold block mt-0.5">Contact details</small>
+                </div>
               </div>
-              <i />
-              <div className={step > 2 ? "done" : step === 2 ? "active" : ""}>
-                <span>{step > 2 ? "✓" : "2"}</span>
-                <p><strong>Schedule</strong><small>Time & access</small></p>
+
+              <div className={`flex items-center gap-3.5 ${step > 2 ? "done" : step === 2 ? "active" : ""}`}>
+                <span className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base border-2 ${step === 2 ? "border-[#ffc400] bg-[#071b4d] text-white" : step > 2 ? "border-[#17824b] bg-[#17824b] text-white" : "border-slate-300 text-slate-500"}`}>
+                  {step > 2 ? "✓" : "2"}
+                </span>
+                <div>
+                  <strong className="text-base font-extrabold text-[#071b4d] block leading-tight">Schedule</strong>
+                  <small className="text-xs text-slate-500 font-semibold block mt-0.5">Time &amp; access</small>
+                </div>
               </div>
-              <i />
-              <div className={step === 3 ? "active" : ""}>
-                <span>3</span>
-                <p><strong>Payment</strong><small>Secure checkout</small></p>
+
+              <div className={`flex items-center gap-3.5 ${step === 3 ? "active" : ""}`}>
+                <span className={`w-10 h-10 rounded-full flex items-center justify-center font-black text-base border-2 ${step === 3 ? "border-[#ffc400] bg-[#071b4d] text-white" : "border-slate-300 text-slate-500"}`}>
+                  3
+                </span>
+                <div>
+                  <strong className="text-base font-extrabold text-[#071b4d] block leading-tight">Payment</strong>
+                  <small className="text-xs text-slate-500 font-semibold block mt-0.5">Secure checkout</small>
+                </div>
               </div>
             </div>
             
+            {/* Center Form Area — Default comfortable font sizing */}
             <div className="checkout-form-area">
               {step === 1 && (
-                <form className="review-panel shadow-sm rounded-lg" onSubmit={handleNext}>
-                  <header>
-                    <p>Step 1 of 3</p>
-                    <h1>Let's get started</h1>
-                    <span>Please provide your contact information.</span>
+                <form className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 sm:p-10 space-y-6" onSubmit={handleNext}>
+                  <header className="mb-6">
+                    <p className="text-xs sm:text-sm font-black text-[#1557b8] uppercase tracking-wider mb-1">Step 1 of 3</p>
+                    <h1 className="text-2xl sm:text-3xl font-black text-[#071b4d] tracking-tight mb-1">Let's get started</h1>
+                    <span className="text-sm sm:text-base text-slate-600 font-medium">Please provide your contact information.</span>
                   </header>
-                  <div className="checkout-form-grid">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label>First Name</label>
-                      <input type="text" required />
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">First Name</label>
+                      <input type="text" required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
                     <div>
-                      <label>Last Name</label>
-                      <input type="text" required />
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Last Name</label>
+                      <input type="text" required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
-                    <div className="wide">
-                      <label>Email Address</label>
-                      <input type="email" required />
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Email Address</label>
+                      <input type="email" required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
-                    <div className="wide">
-                      <label>Phone Number</label>
-                      <input type="tel" required />
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Phone Number</label>
+                      <input type="tel" required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
-                    <div className="wide">
-                      <label>Service Address</label>
-                      <input type="text" defaultValue={streetAddress || ""} required />
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Service Address</label>
+                      <input type="text" defaultValue={streetAddress || ""} required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
-                    <div className="wide">
-                      <label>Property Type</label>
-                      <select required>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Property Type</label>
+                      <select required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all">
                         <option value="single">Single Family Home</option>
                         <option value="condo">Condo/Apartment</option>
                         <option value="townhouse">Townhouse</option>
                         <option value="multi">Multi-Family</option>
                       </select>
                     </div>
-                    <div className="wide">
-                      <label>Pest concern (optional)</label>
-                      <textarea rows={3} placeholder="Tell us what you're seeing..."></textarea>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Pest concern (optional)</label>
+                      <textarea rows={3} placeholder="Tell us what you're seeing..." className="w-full p-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
                   </div>
-                  <div className="checkout-button-row" style={{ justifyContent: "flex-end" }}>
-                    <button type="submit" className="checkout-next hover:bg-[#e6af00] transition-colors shadow-md">
-                      Continue to Schedule <ArrowRightIcon />
+
+                  <div className="flex justify-end pt-4 border-t border-slate-200">
+                    <button type="submit" className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-black text-sm sm:text-base px-8 py-3.5 rounded-full shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                      Continue to Schedule <ArrowRightIcon className="w-5 h-5" />
                     </button>
                   </div>
                 </form>
               )}
 
               {step === 2 && (
-                <form className="review-panel shadow-sm rounded-lg" onSubmit={handleNext}>
-                  <header>
-                    <p>Step 2 of 3</p>
-                    <h1>When works best for you?</h1>
-                    <span>Choose a preferred date for your initial service.</span>
+                <form className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 sm:p-10 space-y-6" onSubmit={handleNext}>
+                  <header className="mb-6">
+                    <p className="text-xs sm:text-sm font-black text-[#1557b8] uppercase tracking-wider mb-1">Step 2 of 3</p>
+                    <h1 className="text-2xl sm:text-3xl font-black text-[#071b4d] tracking-tight mb-1">When works best for you?</h1>
+                    <span className="text-sm sm:text-base text-slate-600 font-medium">Choose a preferred date for your initial service.</span>
                   </header>
-                  <div className="checkout-form-grid">
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                     <div>
-                      <label>Preferred Date</label>
-                      <input type="date" required />
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Preferred Date</label>
+                      <input type="date" required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
                     <div>
-                      <label>Arrival Window</label>
-                      <select required>
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Arrival Window</label>
+                      <select required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all">
                         <option value="8-12">8am - 12pm</option>
                         <option value="12-4">12pm - 4pm</option>
                         <option value="4-6">4pm - 6pm</option>
                         <option value="flexible">Flexible</option>
                       </select>
                     </div>
-                    <div className="wide">
-                      <label>Alternate Date (Optional)</label>
-                      <input type="date" />
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Alternate Date (Optional)</label>
+                      <input type="date" className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
-                    <div className="wide">
-                      <label>Access Notes</label>
-                      <textarea rows={3} placeholder="Gate codes, dogs in yard, etc."></textarea>
+                    <div className="sm:col-span-2">
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Access Notes</label>
+                      <textarea rows={3} placeholder="Gate codes, dogs in yard, etc." className="w-full p-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
                   </div>
-                  <div className="checkout-button-row">
-                    <button type="button" onClick={() => setStep(1)} className="hover:text-[#0b2a66]">← Back</button>
-                    <button type="submit" className="checkout-next hover:bg-[#e6af00] transition-colors shadow-md">
-                      Continue to Payment <ArrowRightIcon />
+
+                  <div className="flex items-center justify-between pt-4 border-t border-slate-200">
+                    <button type="button" onClick={() => setStep(1)} className="text-sm font-bold text-[#1557b8] hover:underline cursor-pointer">← Back</button>
+                    <button type="submit" className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-black text-sm sm:text-base px-8 py-3.5 rounded-full shadow-md transition-all flex items-center gap-2 cursor-pointer">
+                      Continue to Payment <ArrowRightIcon className="w-5 h-5" />
                     </button>
                   </div>
                 </form>
               )}
 
               {step === 3 && (
-                <form className="review-panel shadow-sm rounded-lg" onSubmit={handleProcessPayment}>
-                  <header>
-                    <p>Step 3 of 3</p>
-                    <h1>Complete your subscription</h1>
-                    <span>Your first service is {initialFee}. Recurring monthly rate: {monthlyRate}/month after first service. Cancel anytime.</span>
+                <form className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 sm:p-10 space-y-6" onSubmit={handleProcessPayment}>
+                  <header className="mb-6">
+                    <p className="text-xs sm:text-sm font-black text-[#1557b8] uppercase tracking-wider mb-1">Step 3 of 3</p>
+                    <h1 className="text-2xl sm:text-3xl font-black text-[#071b4d] tracking-tight mb-1">Complete your subscription</h1>
+                    <span className="text-sm sm:text-base text-slate-600 font-medium">Your first service is {initialFee}. Recurring monthly rate: {monthlyRate}/month after first service. Cancel anytime.</span>
                   </header>
                   
-                  <div className="border border-gray-300 rounded-lg p-6 bg-gray-50 relative mb-8 shadow-inner">
-                    <div className="absolute top-4 right-4 flex items-center gap-1 text-gray-500 text-xs font-semibold">
-                      <LockIcon /> Powered by Stripe
+                  <div className="border border-slate-300 rounded-2xl p-6 bg-slate-50/80 relative mb-6 shadow-inner">
+                    <div className="absolute top-4 right-4 flex items-center gap-1.5 text-slate-500 text-xs font-bold">
+                      <LockIcon className="w-4 h-4 text-[#17824b]" /> Powered by Stripe
                     </div>
                     
-                    <div className="checkout-form-grid mt-4">
-                      <div className="wide">
-                        <label>Card Number</label>
-                        <input type="text" placeholder="4242 4242 4242 4242" required className="font-mono tracking-widest text-lg" />
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mt-4">
+                      <div className="sm:col-span-2">
+                        <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Card Number</label>
+                        <input type="text" placeholder="4242 4242 4242 4242" required className="w-full h-12 px-4 rounded-xl border border-slate-300 font-mono tracking-widest text-base font-bold text-slate-900 bg-white outline-none focus:border-[#1557b8] transition-all" />
                       </div>
                       <div>
-                        <label>Expiration (MM/YY)</label>
-                        <input type="text" placeholder="MM/YY" required className="font-mono tracking-widest" />
+                        <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Expiration (MM/YY)</label>
+                        <input type="text" placeholder="MM/YY" required className="w-full h-12 px-4 rounded-xl border border-slate-300 font-mono tracking-widest text-base font-bold text-slate-900 bg-white outline-none focus:border-[#1557b8] transition-all" />
                       </div>
                       <div>
-                        <label>CVC</label>
-                        <input type="text" placeholder="123" required className="font-mono tracking-widest" />
+                        <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">CVC</label>
+                        <input type="text" placeholder="123" required className="w-full h-12 px-4 rounded-xl border border-slate-300 font-mono tracking-widest text-base font-bold text-slate-900 bg-white outline-none focus:border-[#1557b8] transition-all" />
                       </div>
-                      <div className="wide">
-                        <label>Cardholder Name</label>
-                        <input type="text" placeholder="Name on card" required />
+                      <div className="sm:col-span-2">
+                        <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Cardholder Name</label>
+                        <input type="text" placeholder="Name on card" required className="w-full h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-white outline-none focus:border-[#1557b8] transition-all" />
                       </div>
-                      <div className="wide">
-                        <label>Billing ZIP</label>
-                        <input type="text" placeholder="ZIP code" required />
+                      <div className="sm:col-span-2">
+                        <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Billing ZIP</label>
+                        <input type="text" placeholder="ZIP code" required className="w-full h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-white outline-none focus:border-[#1557b8] transition-all" />
                       </div>
                     </div>
                   </div>
@@ -290,7 +315,7 @@ export default function CheckoutPage() {
                   <button 
                     type="submit" 
                     disabled={isProcessing}
-                    className={`w-full text-white py-4 rounded-full font-bold text-lg flex justify-center items-center gap-3 transition-all shadow-md ${isProcessing ? 'bg-gray-400 cursor-not-allowed' : 'bg-[#1a7a3c] hover:bg-[#15612f]'}`}
+                    className={`w-full text-white py-4 rounded-full font-extrabold text-base sm:text-lg flex justify-center items-center gap-3 transition-all shadow-md cursor-pointer ${isProcessing ? 'bg-slate-400 cursor-not-allowed' : 'bg-[#17824b] hover:bg-[#146b3f]'}`}
                   >
                     {isProcessing ? (
                       <>
@@ -300,79 +325,82 @@ export default function CheckoutPage() {
                       `Subscribe — ${monthlyRate}/month`
                     )}
                   </button>
-                  <p className="text-center text-xs text-gray-500 mt-4 flex items-center justify-center gap-1">
-                    <LockIcon className="w-3 h-3 text-[#1a7a3c]" /> Your payment info is encrypted and secure. You can cancel anytime from your portal.
+                  <p className="text-center text-xs sm:text-sm text-slate-600 mt-4 flex items-center justify-center gap-1 font-medium">
+                    <LockIcon className="w-4 h-4 text-[#17824b]" /> Your payment info is encrypted and secure. You can cancel anytime from your portal.
                   </p>
 
-                  <div className="checkout-button-row">
-                    <button type="button" onClick={() => setStep(2)} disabled={isProcessing} className="hover:text-[#0b2a66]">← Back</button>
+                  <div className="flex justify-start pt-2">
+                    <button type="button" onClick={() => setStep(2)} disabled={isProcessing} className="text-sm font-bold text-[#1557b8] hover:underline cursor-pointer">← Back</button>
                   </div>
                 </form>
               )}
             </div>
             
-            <aside className="order-summary rounded-xl">
-              <div className="mb-6 flex items-center gap-2 text-[#071b4d]">
-                <ShieldIcon /> <span className="font-bold text-lg tracking-tight">PestIQ</span>
+            {/* Right Order Summary Sidebar — High legibility font sizes */}
+            <aside className="bg-white border border-slate-200 shadow-sm rounded-2xl p-6 space-y-6 sticky top-6">
+              <div className="flex items-center gap-2 text-[#071b4d] border-b border-slate-100 pb-4">
+                <ShieldIcon className="w-6 h-6 text-[#071b4d]" /> <span className="font-black text-xl tracking-tight">PestIQ</span>
               </div>
               
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-2 block">Your Order</span>
-              <h2 className="text-xl font-bold text-[#071b4d] mb-4">{planName}</h2>
-              
-              <div className="text-sm text-gray-600 mb-6 leading-relaxed">
-                {streetAddress ? (
-                  <p>{streetAddress}</p>
-                ) : (
-                  <p>Address not provided</p>
-                )}
-                <p className="mt-1 font-medium">{propertySqFt ? `${propertySqFt} sq ft` : 'TBD'}</p>
-              </div>
-
-              <div className="border-t border-gray-200 py-4 space-y-3">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Initial Service Fee</span>
-                  <strong className="text-[#071b4d]">{initialFee}</strong>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-500">Monthly Rate</span>
-                  <strong className="text-[#071b4d]">{monthlyRate}</strong>
+              <div>
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-1 block">Your Order</span>
+                <h2 className="text-xl sm:text-2xl font-black text-[#071b4d]">{planName}</h2>
+                
+                <div className="text-sm text-slate-700 mt-2 font-medium leading-relaxed">
+                  {streetAddress ? (
+                    <p className="font-bold">{streetAddress}</p>
+                  ) : (
+                    <p className="text-slate-400">Address not provided</p>
+                  )}
+                  <p className="text-xs text-slate-500 font-semibold mt-0.5">{propertySqFt ? `${propertySqFt} sq ft` : 'TBD'}</p>
                 </div>
               </div>
 
-              <div className="bg-[#e9f1fb] border border-[#b9c0ca] rounded-md p-3 mb-6">
-                <div className="flex items-start gap-2">
-                  <CheckCircleIcon className="text-[#1a7a3c] w-5 h-5 flex-shrink-0" />
+              <div className="border-t border-slate-200 pt-4 space-y-3">
+                <div className="flex justify-between text-sm sm:text-base font-semibold">
+                  <span className="text-slate-600">Initial Service Fee</span>
+                  <strong className="text-[#071b4d] font-black">{initialFee}</strong>
+                </div>
+                <div className="flex justify-between text-sm sm:text-base font-semibold">
+                  <span className="text-slate-600">Monthly Rate</span>
+                  <strong className="text-[#071b4d] font-black">{monthlyRate}</strong>
+                </div>
+              </div>
+
+              <div className="bg-[#e9f1fb] border border-[#b9c0ca] rounded-xl p-4">
+                <div className="flex items-start gap-2.5">
+                  <CheckCircleIcon className="text-[#17824b] w-5 h-5 flex-shrink-0 mt-0.5" />
                   <div>
-                    <strong className="text-[#071b4d] text-xs block mb-1">No payment collected today</strong>
-                    <p className="text-gray-600 text-[10px] leading-tight">Your appointment request will be reviewed before confirmation.</p>
+                    <strong className="text-[#071b4d] text-sm font-extrabold block mb-1">No payment collected today</strong>
+                    <p className="text-slate-600 text-xs leading-relaxed">Your appointment request will be reviewed before confirmation.</p>
                   </div>
                 </div>
               </div>
 
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block pt-4 border-t border-gray-200">Your Protection</span>
-              <ul className="space-y-2 mb-6">
-                <li className="flex gap-2 text-xs text-gray-600 font-medium">
-                  <CheckIcon className="text-[#1a7a3c] w-4 h-4 flex-shrink-0" /> PestIQ Guarantee included
-                </li>
-                <li className="flex gap-2 text-xs text-gray-600 font-medium">
-                  <CheckIcon className="text-[#1a7a3c] w-4 h-4 flex-shrink-0" /> Licensed technician dispatched
-                </li>
-                <li className="flex gap-2 text-xs text-gray-600 font-medium">
-                  <CheckIcon className="text-[#1a7a3c] w-4 h-4 flex-shrink-0" /> Service notes provided after each visit
-                </li>
-              </ul>
-
-              <span className="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3 block pt-4 border-t border-gray-200">Trust Signals</span>
-              <div className="flex items-center gap-1 mb-2">
-                <div className="flex text-[#ffc400]">
-                  <StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarHalfIcon />
-                </div>
-                <span className="text-xs font-bold text-gray-700 ml-1">4.5</span>
+              <div className="border-t border-slate-200 pt-4">
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-3 block">Your Protection</span>
+                <ul className="space-y-2.5">
+                  <li className="flex gap-2 text-xs sm:text-sm text-slate-700 font-bold">
+                    <CheckIcon className="text-[#17824b] w-4 h-4 flex-shrink-0 mt-0.5" /> PestIQ Guarantee included
+                  </li>
+                  <li className="flex gap-2 text-xs sm:text-sm text-slate-700 font-bold">
+                    <CheckIcon className="text-[#17824b] w-4 h-4 flex-shrink-0 mt-0.5" /> Licensed technician dispatched
+                  </li>
+                  <li className="flex gap-2 text-xs sm:text-sm text-slate-700 font-bold">
+                    <CheckIcon className="text-[#17824b] w-4 h-4 flex-shrink-0 mt-0.5" /> Service notes provided after each visit
+                  </li>
+                </ul>
               </div>
-              <p className="text-xs text-gray-500 mb-4">Rated by 89,000+ customers</p>
-              
-              <div className="flex items-center justify-center gap-2 py-2 px-3 bg-gray-50 rounded border border-gray-200 text-xs text-gray-600 font-medium">
-                <LockIcon className="w-3 h-3 text-[#1557b8]" /> Secure booking — no payment today
+
+              <div className="border-t border-slate-200 pt-4">
+                <span className="text-xs font-extrabold text-slate-400 uppercase tracking-widest mb-2 block">Trust Signals</span>
+                <div className="flex items-center gap-1.5 mb-1">
+                  <div className="flex text-[#ffc400]">
+                    <StarIcon /><StarIcon /><StarIcon /><StarIcon /><StarHalfIcon />
+                  </div>
+                  <span className="text-sm font-black text-slate-800 ml-1">4.5</span>
+                </div>
+                <p className="text-xs text-slate-500 font-medium">Rated by 89,000+ customers</p>
               </div>
             </aside>
           </div>

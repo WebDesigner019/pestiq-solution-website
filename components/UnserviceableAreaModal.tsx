@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState } from "react";
 import { useLocation } from "@/context/LocationContext";
@@ -71,16 +71,16 @@ export function UnserviceableAreaModal() {
 
           <ul className="text-xs font-semibold text-gray-700 space-y-2 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-200/80">
             <li className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#1a7a3c]" /> New York City (Manhattan, Brooklyn, Queens, Bronx, Staten Island)
+              <ShieldCheck className="w-4 h-4 text-[#17824b]" /> New York City (Manhattan, Brooklyn, Queens, Bronx, Staten Island)
             </li>
             <li className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#1a7a3c]" /> Lower Westchester & Long Island, NY
+              <ShieldCheck className="w-4 h-4 text-[#17824b]" /> Lower Westchester & Long Island, NY
             </li>
             <li className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#1a7a3c]" /> Northern & Central New Jersey (Hudson, Essex, Ocean County)
+              <ShieldCheck className="w-4 h-4 text-[#17824b]" /> Northern & Central New Jersey (Hudson, Essex, Ocean County)
             </li>
             <li className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#1a7a3c]" /> Fairfield County, CT
+              <ShieldCheck className="w-4 h-4 text-[#17824b]" /> Fairfield County, CT
             </li>
           </ul>
 

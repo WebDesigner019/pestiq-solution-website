@@ -132,7 +132,10 @@ function PortalLoginForm() {
         .portal-bg-wrapper {
           min-height: 100dvh;
           width: 100%;
+          max-width: 1440px;
+          margin: 0 auto;
           position: relative;
+
           display: flex;
           flex-direction: column;
           background-image: url('/images/customer_hero.jpg');

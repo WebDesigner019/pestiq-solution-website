@@ -4,6 +4,9 @@ import React from "react";
 import Link from "next/link";
 import { Search, ShieldAlert, Sparkles, ClipboardCheck, ArrowRight, ShieldCheck } from "lucide-react";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+
 export default function HowItWorksPage() {
   const steps = [
     {
@@ -28,24 +31,25 @@ export default function HowItWorksPage() {
       icon: ClipboardCheck,
       num: "04",
       title: "Detailed Reporting",
-      desc: "After finishing, the technician compiles a digital service report detailing active hotspots, treatments applied, and maintenance actions recommended for your home's sanitation or moisture. A copy is instantly delivered to your inbox."
+      desc: "Following treatment, you receive a full digital report detailing findings, product EPA numbers, exclusion work completed, and recommendations to minimize future risk."
     }
   ];
 
   return (
-    <div className="w-full bg-white font-sans py-12 px-4 sm:px-8">
-      <div className="max-w-[1000px] mx-auto">
-        
-        {/* Header Block */}
-        <header className="mb-12 text-center max-w-2xl mx-auto">
-          <span className="text-[12px] uppercase tracking-widest font-extrabold text-primary-green">Service Process</span>
-          <h1 className="text-[34px] sm:text-[40px] font-extrabold text-dark-slate leading-tight mt-1">
-            A planned, documented path to pest elimination.
-          </h1>
-          <p className="text-zinc-500 text-[14.5px] mt-2 leading-relaxed">
-            We follow a clean, disciplined sequence designed to locate, isolate, and block pest activity on your property. Here is what you can expect during our visits.
-          </p>
-        </header>
+    <div className="site-shell site-v3 min-h-screen bg-white font-sans">
+      <Header />
+      <main className="w-full bg-white py-12 px-4 sm:px-8">
+        <div className="max-w-[1000px] mx-auto">
+          <header className="mb-12 text-center max-w-2xl mx-auto">
+            <span className="text-[12px] uppercase tracking-widest font-extrabold text-[#17824b]">Service Process</span>
+            <h1 className="text-[34px] sm:text-[40px] font-extrabold text-[#071b4d] leading-tight mt-1">
+              A planned, documented path to pest elimination.
+            </h1>
+            <p className="text-zinc-500 text-[14.5px] mt-2 leading-relaxed">
+              We follow a clean, disciplined sequence designed to locate, isolate, and block pest activity on your property. Here is what you can expect during our visits.
+            </p>
+          </header>
+
 
         {/* Steps Layout */}
         <section className="flex flex-col gap-8 mb-16">
@@ -102,7 +106,10 @@ export default function HowItWorksPage() {
           </Link>
         </section>
 
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
+

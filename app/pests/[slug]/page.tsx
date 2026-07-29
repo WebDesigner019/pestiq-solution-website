@@ -278,8 +278,9 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-slate-50">
+    <div className="site-shell site-v3 font-sans min-h-screen flex flex-col bg-slate-50">
       <Header />
+
       
       <main className="flex-grow">
         {/* Breadcrumbs */}
@@ -350,7 +351,7 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
               <ul className="space-y-3">
                 {pest.bullets.map((bullet: string, i: number) => (
                   <li key={i} className="flex items-start">
-                    <span className="text-[#1a7a3c] mr-2 text-xl font-bold">✓</span>
+                    <span className="text-[#17824b] mr-2 text-xl font-bold">✓</span>
                     <span className="text-gray-700">{bullet}</span>
                   </li>
                 ))}
@@ -387,7 +388,7 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
                   <div className="mt-auto pt-6 border-t border-gray-100 text-center">
                     {isAddressVerified ? (
                       <div>
-                        <div className="text-3xl font-extrabold text-[#1a7a3c]">${prices.essential}</div>
+                        <div className="text-3xl font-extrabold text-[#17824b]">${prices.essential}</div>
                         <div className="text-xs text-gray-500 mb-4">per month</div>
                         <button 
                           onClick={() => handleAddToCart('essential', 'Essential365 Plan', prices.essential, '149.00', true)}
@@ -409,24 +410,24 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
               </div>
 
               {/* Complete Card */}
-              <div className="border-2 border-[#1a7a3c] rounded-xl bg-white shadow-xl relative flex flex-col z-10 scale-105">
-                <div className="bg-[#1a7a3c] py-3 text-center rounded-t-lg text-sm font-bold text-white uppercase tracking-wider shadow-md">
+              <div className="border-2 border-[#17824b] rounded-xl bg-white shadow-xl relative flex flex-col z-10 scale-105">
+                <div className="bg-[#17824b] py-3 text-center rounded-t-lg text-sm font-bold text-white uppercase tracking-wider shadow-md">
                   Best Protection
                 </div>
                 <div className="p-8 flex-grow flex flex-col">
                   <h3 className="text-3xl font-extrabold text-[#071b4d] mb-4">PestFree365+ Plan</h3>
                   <ul className="space-y-4 mb-8 flex-grow">
-                    <li className="flex items-start"><span className="text-[#1a7a3c] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">Interior and exterior pest inspection</span></li>
-                    <li className="flex items-start"><span className="text-[#1a7a3c] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">Protection from {pest.covered.complete} pests, including 14 pests that may be costly to eliminate</span></li>
-                    <li className="flex items-start"><span className="text-[#1a7a3c] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">Regularly scheduled pest treatments</span></li>
-                    <li className="flex items-start"><span className="text-[#1a7a3c] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost</span></li>
+                    <li className="flex items-start"><span className="text-[#17824b] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">Interior and exterior pest inspection</span></li>
+                    <li className="flex items-start"><span className="text-[#17824b] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">Protection from {pest.covered.complete} pests, including 14 pests that may be costly to eliminate</span></li>
+                    <li className="flex items-start"><span className="text-[#17824b] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">Regularly scheduled pest treatments</span></li>
+                    <li className="flex items-start"><span className="text-[#17824b] font-bold mr-2">✓</span> <span className="text-gray-700 text-sm font-medium">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost</span></li>
                     <li className="flex items-start"><span className="text-[#ffc400] text-xl font-bold mr-2">★</span> <span className="text-gray-900 font-bold text-sm">PLUS unlimited protection from seasonal pests</span></li>
                   </ul>
                   
                   <div className="mt-auto pt-6 border-t border-gray-100 text-center">
                     {isAddressVerified ? (
                       <div>
-                        <div className="text-4xl font-extrabold text-[#1a7a3c]">${prices.complete}</div>
+                        <div className="text-4xl font-extrabold text-[#17824b]">${prices.complete}</div>
                         <div className="text-sm text-gray-500 mb-4 font-medium">per month</div>
                         <button 
                           onClick={() => handleAddToCart('complete', 'PestFree365+ Plan', prices.complete, '149.00', true)}
@@ -463,7 +464,7 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
                   <div className="mt-auto pt-6 border-t border-gray-100 text-center">
                     {isAddressVerified ? (
                       <div>
-                        <div className="text-3xl font-extrabold text-[#1a7a3c]">${prices.onetime}</div>
+                        <div className="text-3xl font-extrabold text-[#17824b]">${prices.onetime}</div>
                         <div className="text-xs text-gray-500 mb-4">one-time payment</div>
                         <button 
                           onClick={() => handleAddToCart('onetime', 'One-time Pest Plan', '0.00', prices.onetime, false)}
@@ -495,7 +496,7 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {pest.tabs.map((tab: string, i: number) => (
                 <div key={i} className="bg-white p-6 rounded-lg shadow border border-gray-100 text-left">
-                  <h4 className="text-xl font-bold text-[#1a7a3c] mb-2">{tab}</h4>
+                  <h4 className="text-xl font-bold text-[#17824b] mb-2">{tab}</h4>
                   <p className="text-gray-600 text-sm">
                     Targeted application focusing on critical points to stop pest progression. Designed specifically for optimal effectiveness against {pest.name.toLowerCase()}s in residential settings.
                   </p>

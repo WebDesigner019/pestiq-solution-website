@@ -96,7 +96,7 @@ export default function GeneralPestControlPage() {
 
         {/* PROMO BANNER */}
         <section className="max-w-7xl mx-auto px-4 md:px-8 relative z-30 -mt-12 md:-mt-24 mb-16">
-          <div className="bg-white shadow-2xl flex flex-col md:flex-row overflow-hidden border-t-4 border-[#1a7a3c]">
+          <div className="bg-white shadow-2xl flex flex-col md:flex-row overflow-hidden border-t-4 border-[#17824b]">
             <div className="p-8 md:p-12 flex-1 flex flex-col justify-center">
               <h2 className="text-2xl md:text-3xl font-black text-[#071b4d] mb-4 uppercase italic tracking-tight">Save $50 on Pest Control!</h2>
               <p className="text-gray-700 font-medium mb-8 text-lg">
@@ -110,7 +110,7 @@ export default function GeneralPestControlPage() {
               </button>
             </div>
             <div className="md:w-[45%] bg-gray-200 relative min-h-[250px]">
-               <div className="absolute top-4 right-4 bg-[#1a7a3c] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest z-10 rounded-sm shadow-sm">
+               <div className="absolute top-4 right-4 bg-[#17824b] text-white text-[10px] font-black px-3 py-1 uppercase tracking-widest z-10 rounded-sm shadow-sm">
                  Summer Savings
                </div>
                <Image src="/images/family-lawn.jpg" alt="Family on lawn" fill className="object-cover" sizes="(max-width: 768px) 100vw, 50vw" />
@@ -175,12 +175,12 @@ export default function GeneralPestControlPage() {
               <h2 className="text-3xl md:text-4xl font-black text-[#071b4d] mb-4">Ongoing pest protection</h2>
               <p className="text-[#1557b8] font-bold text-lg mb-8">Introducing PestFree365 and PestFree365+.</p>
               <div className="flex flex-col md:flex-row items-center justify-center gap-6 max-w-4xl mx-auto text-left md:text-center">
-                <div className="w-24 h-24 shrink-0 rounded-full border-[3px] border-[#1a7a3c] flex flex-col items-center justify-center text-[#1a7a3c]">
+                <div className="w-24 h-24 shrink-0 rounded-full border-[3px] border-[#17824b] flex flex-col items-center justify-center text-[#17824b]">
                   <span className="text-3xl font-black leading-none">365</span>
                   <span className="text-[9px] font-bold tracking-widest uppercase mt-1">Protection</span>
                 </div>
                 <p className="text-gray-600 text-sm font-medium leading-relaxed max-w-2xl text-left">
-                  As a <a href="#" className="text-blue-600 underline">pest control company</a> with over 90 years of experience, we understand the value of protecting your home and family. Introducing PestFree365 — PestIQ's exclusive year-round preventative pest control program that helps keep your home and family protected from many common household pests. Our PestFree365 plans are backed by highly trained, local pest exterminators and cutting-edge technology for peace of mind all year long. What's your pest control plan this year? <a href="#" className="text-[#1a7a3c] font-bold underline">Learn more about PestFree365 ›</a>
+                  As a <a href="#" className="text-blue-600 underline">pest control company</a> with over 90 years of experience, we understand the value of protecting your home and family. Introducing PestFree365 — PestIQ's exclusive year-round preventative pest control program that helps keep your home and family protected from many common household pests. Our PestFree365 plans are backed by highly trained, local pest exterminators and cutting-edge technology for peace of mind all year long. What's your pest control plan this year? <a href="#" className="text-[#17824b] font-bold underline">Learn more about PestFree365 ›</a>
                 </p>
               </div>
             </div>
@@ -195,10 +195,10 @@ export default function GeneralPestControlPage() {
                   <h4 className="text-2xl font-black text-[#071b4d]">PestFree365 Plan</h4>
                 </div>
                 <ul className="space-y-4 mb-10 flex-1">
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Interior and exterior pest inspection</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Protection from 25 common household pests²</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Regularly scheduled pest treatments</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost⁴</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Interior and exterior pest inspection</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Protection from 25 common household pests²</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Regularly scheduled pest treatments</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost⁴</span></li>
                 </ul>
                 <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all">
                   See Pricing
@@ -206,22 +206,18 @@ export default function GeneralPestControlPage() {
               </div>
 
               {/* Card 2 (Featured) */}
-              <div className="bg-white border-[3px] border-[#1a7a3c] p-8 rounded-lg flex flex-col relative shadow-xl transform md:-translate-y-4">
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#1a7a3c] text-white px-4 py-1 font-bold text-[11px] uppercase tracking-widest flex items-center gap-1 shadow-md">
+              <div className="bg-white border-2 border-[#17824b] p-8 rounded-lg flex flex-col relative shadow-2xl">
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 bg-[#071b4d] text-white px-5 py-1.5 font-bold text-[11px] uppercase tracking-widest flex items-center gap-1.5 shadow-md whitespace-nowrap">
                   <Star className="w-3 h-3 fill-current" /> Best Protection
                 </div>
                 <div className="text-center mb-8 mt-2">
                   <h4 className="text-3xl font-black text-[#071b4d]">PestFree365+ Plan</h4>
                 </div>
-                <ul className="space-y-4 mb-10 flex-1 relative pr-4">
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Interior and exterior pest inspection</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Protection from 39 pests,² including 14 pests that may be costly to eliminate⁵</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Regularly scheduled pest treatments</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost⁴</span></li>
-                  {/* Scrollbar mock */}
-                  <div className="absolute right-0 top-0 bottom-0 w-2 bg-gray-100 rounded-full">
-                    <div className="w-full h-1/2 bg-gray-400 rounded-full"></div>
-                  </div>
+                <ul className="space-y-4 mb-10 flex-1">
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Interior and exterior pest inspection</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Protection from 39 pests,² including 14 pests that may be costly to eliminate⁵</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Regularly scheduled pest treatments</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost⁴</span></li>
                 </ul>
                 <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all">
                   See Pricing
@@ -235,9 +231,9 @@ export default function GeneralPestControlPage() {
                   <h4 className="text-2xl font-black text-[#071b4d]">One-time Pest Plan</h4>
                 </div>
                 <ul className="space-y-4 mb-10 flex-1">
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">Interior and exterior inspection</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">One pest treatment</span></li>
-                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#1a7a3c] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back within 30 days of your treatment, so will we — at no additional cost⁶</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Interior and exterior inspection</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">One pest treatment</span></li>
+                  <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back within 30 days of your treatment, so will we — at no additional cost⁶</span></li>
                 </ul>
                 <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all">
                   See Pricing
@@ -253,7 +249,7 @@ export default function GeneralPestControlPage() {
                   <thead>
                     <tr className="bg-gray-100 border-b border-gray-200">
                       <th className="p-4 w-1/2"></th>
-                      <th className="p-4 text-center bg-[#1a7a3c] text-white font-bold border-r border-[#15612f]">PestFree365+</th>
+                      <th className="p-4 text-center bg-[#17824b] text-white font-bold border-r border-[#15612f]">PestFree365+</th>
                       <th className="p-4 text-center text-[#071b4d] border-r border-gray-200">PestFree365</th>
                       <th className="p-4 text-center text-[#071b4d]">One-Time</th>
                     </tr>
@@ -261,19 +257,19 @@ export default function GeneralPestControlPage() {
                   <tbody>
                     <tr className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="p-4 text-gray-800"><strong>Multipoint pest inspection</strong> including the interior and exterior of your home</td>
-                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#1a7a3c] mx-auto" /></td>
-                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#1a7a3c] mx-auto" /></td>
-                      <td className="p-4 text-center"><Check className="w-6 h-6 text-[#1a7a3c] mx-auto" /></td>
+                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#17824b] mx-auto" /></td>
+                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#17824b] mx-auto" /></td>
+                      <td className="p-4 text-center"><Check className="w-6 h-6 text-[#17824b] mx-auto" /></td>
                     </tr>
                     <tr className="border-b border-gray-100 hover:bg-gray-50">
                       <td className="p-4 text-gray-800"><strong>PestIQ Guarantee</strong> — we'll come back between treatments at no cost</td>
-                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#1a7a3c] mx-auto" /></td>
-                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#1a7a3c] mx-auto" /></td>
+                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#17824b] mx-auto" /></td>
+                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#17824b] mx-auto" /></td>
                       <td className="p-4 text-center text-xs text-gray-500">30 days only</td>
                     </tr>
                     <tr className="hover:bg-gray-50">
                       <td className="p-4 text-gray-800"><strong>Protection from 39 pests</strong> including scorpions, wasps, and hornets</td>
-                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#1a7a3c] mx-auto" /></td>
+                      <td className="p-4 text-center border-r border-gray-100"><Check className="w-6 h-6 text-[#17824b] mx-auto" /></td>
                       <td className="p-4 text-center border-r border-gray-100">-</td>
                       <td className="p-4 text-center">-</td>
                     </tr>
@@ -285,7 +281,7 @@ export default function GeneralPestControlPage() {
         </section>
 
         {/* THREATS & REVIEWS */}
-        <section className="bg-[#1a7a3c] text-white">
+        <section className="bg-[#17824b] text-white">
           <div className="max-w-7xl mx-auto pt-16 pb-12 px-4 md:px-8">
             <h2 className="text-3xl md:text-5xl font-black text-center mb-2 tracking-tight">The PestIQ Difference</h2>
             <p className="text-center text-green-100 text-lg font-medium mb-12">Here's what our customers have to say...</p>
@@ -310,22 +306,33 @@ export default function GeneralPestControlPage() {
             </div>
             
             <div className="flex justify-center gap-4 mt-8">
-              <button className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center hover:bg-white hover:text-[#1a7a3c] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
-              <button className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center hover:bg-white hover:text-[#1a7a3c] transition-colors"><ChevronRight className="w-5 h-5" /></button>
+              <button className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center hover:bg-white hover:text-[#17824b] transition-colors"><ChevronLeft className="w-5 h-5" /></button>
+              <button className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center hover:bg-white hover:text-[#17824b] transition-colors"><ChevronRight className="w-5 h-5" /></button>
             </div>
           </div>
         </section>
 
         {/* NEWSLETTER */}
-        <section className="bg-[#071b4d] py-6 px-4">
+        <section className="bg-[#071b4d] py-8 px-4">
           <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6">
             <h3 className="text-white font-bold text-lg md:text-xl text-center md:text-left">Sign up for deals and updates</h3>
-            <div className="flex w-full md:w-auto relative">
-              <input type="email" placeholder="Enter email" className="px-5 py-3 rounded-l-full w-full md:w-72 outline-none text-sm font-medium" />
-              <button className="bg-gray-500 hover:bg-gray-600 text-white px-6 py-3 rounded-r-full font-bold text-sm transition-colors uppercase tracking-widest">Submit</button>
-            </div>
+            <form onSubmit={e => e.preventDefault()} className="flex w-full md:w-auto">
+              <input
+                type="email"
+                placeholder="Enter email"
+                required
+                className="px-5 py-3 rounded-l-md w-full md:w-72 outline-none text-sm font-medium bg-white text-gray-900 placeholder:text-gray-400"
+              />
+              <button
+                type="submit"
+                className="bg-[#17824b] hover:bg-[#136b3d] text-white px-6 py-3 rounded-r-md font-bold text-sm transition-colors uppercase tracking-wider"
+              >
+                Submit
+              </button>
+            </form>
           </div>
         </section>
+
 
         {/* PEST TABS */}
         <section className="py-20 px-4 bg-white">
@@ -339,11 +346,11 @@ export default function GeneralPestControlPage() {
                 <button 
                   key={pest.name}
                   onClick={() => setActivePestTab(pest.name)}
-                  className={`pb-4 px-2 whitespace-nowrap transition-colors relative font-bold text-sm md:text-base ${activePestTab === pest.name ? "text-[#1a7a3c]" : "text-gray-500 hover:text-gray-900"}`}
+                  className={`pb-4 px-2 whitespace-nowrap transition-colors relative font-bold text-sm md:text-base ${activePestTab === pest.name ? "text-[#17824b]" : "text-gray-500 hover:text-gray-900"}`}
                 >
                   {pest.name}
                   {activePestTab === pest.name && (
-                    <span className="absolute bottom-0 left-0 w-full h-1 bg-[#1a7a3c]"></span>
+                    <span className="absolute bottom-0 left-0 w-full h-1 bg-[#17824b]"></span>
                   )}
                 </button>
               ))}
@@ -356,7 +363,7 @@ export default function GeneralPestControlPage() {
               <div className="flex flex-col">
                 <h3 className="text-2xl font-black text-[#1557b8] mb-4">{currentPest.title}</h3>
                 <p className="text-gray-700 font-medium mb-4 leading-relaxed">{currentPest.desc}</p>
-                <a href="#" className="text-[#1a7a3c] font-bold underline mb-8 inline-block hover:text-[#15612f]">Learn more</a>
+                <a href="#" className="text-[#17824b] font-bold underline mb-8 inline-block hover:text-[#15612f]">Learn more</a>
                 
                 <div className="bg-gray-50 p-6 rounded-lg border border-gray-200 mt-auto">
                   <p className="text-xs font-bold text-[#1557b8] uppercase tracking-widest mb-2">Did you know?</p>

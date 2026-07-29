@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -73,7 +73,7 @@ export default function PlansPage() {
               </div>
               <button
                 onClick={() => setIsAddressModalOpen(true)}
-                className="px-4 py-1.5 bg-[#1a7a3c] hover:bg-[#155f2e] text-white rounded font-bold text-[12.5px] transition-all whitespace-nowrap"
+                className="px-4 py-1.5 bg-[#17824b] hover:bg-[#155f2e] text-white rounded font-bold text-[12.5px] transition-all whitespace-nowrap"
               >
                 Verify Address →
               </button>
@@ -88,12 +88,12 @@ export default function PlansPage() {
             <h1>Straightforward protection for your property.</h1>
             <div className="flex flex-col items-center gap-4 mt-2">
               {zipCode ? (
-                <div className="flex flex-col sm:flex-row items-center gap-3 bg-[#e8f5ed] border border-[#1a7a3c]/20 px-6 py-3 rounded-2xl shadow-sm">
-                  <span className="text-sm font-semibold text-[#1a7a3c] flex items-center gap-1.5">
+                <div className="flex flex-col sm:flex-row items-center gap-3 bg-[#e8f5ed] border border-[#17824b]/20 px-6 py-3 rounded-2xl shadow-sm">
+                  <span className="text-sm font-semibold text-[#17824b] flex items-center gap-1.5">
                     📍 Local pricing for: <strong>{serviceArea}</strong>
                   </span>
                   
-                  <div className="flex items-center gap-2 pl-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-[#1a7a3c]/20 pt-2 sm:pt-0">
+                  <div className="flex items-center gap-2 pl-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-[#17824b]/20 pt-2 sm:pt-0">
                     <label className="text-xs font-bold text-gray-700 whitespace-nowrap">Home Size:</label>
                     <input 
                       type="range" 
@@ -102,7 +102,7 @@ export default function PlansPage() {
                       step="100" 
                       value={propertySqFt || 2000} 
                       onChange={(e) => setPropertySqFt(parseInt(e.target.value, 10))}
-                      className="w-28 sm:w-36 accent-[#1a7a3c] cursor-pointer"
+                      className="w-28 sm:w-36 accent-[#17824b] cursor-pointer"
                     />
                     <span className="text-xs font-extrabold text-[#071b4d] bg-white px-2.5 py-1 rounded-md border border-gray-200">
                       {propertySqFt || 2000} sq ft

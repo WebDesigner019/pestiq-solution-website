@@ -130,7 +130,10 @@ function AdminLoginForm() {
         .admin-bg-wrapper {
           min-height: 100dvh;
           width: 100%;
+          max-width: 1440px;
+          margin: 0 auto;
           position: relative;
+
           display: flex;
           flex-direction: column;
           background-image: url('/images/admin_ops_hero.jpg');

@@ -4,10 +4,16 @@ import React from "react";
 import Link from "next/link";
 import { AlertTriangle, Clock, RotateCcw, Calendar, ShieldCheck } from "lucide-react";
 
+import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer";
+
 export default function PoliciesPage() {
   return (
-    <div className="w-full bg-white font-sans py-12 px-4 sm:px-8">
-      <div className="max-w-[900px] mx-auto">
+    <div className="site-shell site-v3 min-h-screen bg-white font-sans">
+      <Header />
+      <main className="w-full bg-white py-12 px-4 sm:px-8">
+        <div className="max-w-[900px] mx-auto">
+
         
         {/* Header Block */}
         <header className="mb-10 text-center max-w-2xl mx-auto">
@@ -108,7 +114,10 @@ export default function PoliciesPage() {
           </div>
         </div>
 
-      </div>
+        </div>
+      </main>
+      <Footer />
     </div>
   );
 }
+

@@ -87,7 +87,7 @@ export function Header() {
             onClick={() => setIsAddressModalOpen(true)}
             className="md:hidden flex items-center gap-1 bg-gray-50 border border-gray-200 px-2 py-1 rounded text-[10px] font-bold text-[#071b4d]"
           >
-            <MapPin className="w-3 h-3 text-[#1a7a3c]" />
+            <MapPin className="w-3 h-3 text-[#17824b]" />
             <span className="truncate max-w-[65px]">{zipCode ? serviceArea.split(",")[0] : "Location"}</span>
           </button>
 
@@ -95,7 +95,7 @@ export function Header() {
             <Phone className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5" />
             <span className="text-[10px] sm:text-xs font-semibold">Call</span>
           </a>
-          <Link href="/cart" className="flex flex-col items-center text-gray-700 hover:text-[#071b4d] relative">
+          <Link href="/checkout" className="flex flex-col items-center text-gray-700 hover:text-[#071b4d] relative">
             <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 mb-0.5" />
             <span className="text-[10px] sm:text-xs font-semibold">Cart</span>
             {cartItem !== null && (
@@ -125,7 +125,7 @@ export function Header() {
         className="hidden md:flex w-full bg-white border-b border-[#e8e8e8] relative px-4 md:px-8 text-sm font-semibold text-gray-800"
       >
         <div className="flex space-x-8 items-center h-14">
-          <Link href="/termites" className="hover:text-[#1a7a3c] flex items-center h-full">
+          <Link href="/termites" className="hover:text-[#17824b] flex items-center h-full">
             Termite Treatment <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
           </Link>
 
@@ -134,7 +134,7 @@ export function Header() {
             onMouseEnter={() => setIsMegaMenuOpen(true)}
             onMouseLeave={() => setIsMegaMenuOpen(false)}
           >
-            <button className="hover:text-[#1a7a3c] flex items-center h-full focus:outline-none">
+            <button className="hover:text-[#17824b] flex items-center h-full focus:outline-none">
               Pest Control Services <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
             </button>
             
@@ -143,55 +143,55 @@ export function Header() {
               <div className="absolute top-full -left-20 md:-left-44 w-[92vw] max-w-[960px] bg-white shadow-2xl rounded-b-xl border border-gray-200 p-6 grid grid-cols-4 md:grid-cols-5 gap-4 z-50 text-[13px]">
                 {/* Column 1 */}
                 <div className="flex flex-col space-y-3">
-                  <Link href="/pests/general" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">General Pest Control</Link>
-                  <Link href="/pests/ants" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Ant Control</Link>
-                  <Link href="/pests/bats" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Bat Control</Link>
-                  <Link href="/pests/bed-bugs" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Bed Bug Control</Link>
+                  <Link href="/pests/general" className="text-gray-600 hover:text-[#17824b] hover:underline">General Pest Control</Link>
+                  <Link href="/pests/ants" className="text-gray-600 hover:text-[#17824b] hover:underline">Ant Control</Link>
+                  <Link href="/pests/bats" className="text-gray-600 hover:text-[#17824b] hover:underline">Bat Control</Link>
+                  <Link href="/pests/bed-bugs" className="text-gray-600 hover:text-[#17824b] hover:underline">Bed Bug Control</Link>
                 </div>
                 {/* Column 2 */}
                 <div className="flex flex-col space-y-3">
-                  <Link href="/pests/birds" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Bird Control</Link>
-                  <Link href="/pests/carpenter-ants" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Carpenter Ant Control</Link>
-                  <Link href="/pests/centipedes-millipedes" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Centipede & Millipede Control</Link>
-                  <Link href="/pests/cockroaches" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Cockroach Control</Link>
+                  <Link href="/pests/birds" className="text-gray-600 hover:text-[#17824b] hover:underline">Bird Control</Link>
+                  <Link href="/pests/carpenter-ants" className="text-gray-600 hover:text-[#17824b] hover:underline">Carpenter Ant Control</Link>
+                  <Link href="/pests/centipedes-millipedes" className="text-gray-600 hover:text-[#17824b] hover:underline">Centipede & Millipede Control</Link>
+                  <Link href="/pests/cockroaches" className="text-gray-600 hover:text-[#17824b] hover:underline">Cockroach Control</Link>
                 </div>
                 {/* Column 3 */}
                 <div className="flex flex-col space-y-3">
-                  <Link href="/pests/crickets" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Cricket Control</Link>
-                  <Link href="/pests/fleas" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Flea Control</Link>
-                  <Link href="/pests/flies" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Fly Control</Link>
-                  <Link href="/pests/mice" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Mice Control</Link>
-                  <Link href="/pests/mosquitoes" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Mosquito Control</Link>
+                  <Link href="/pests/crickets" className="text-gray-600 hover:text-[#17824b] hover:underline">Cricket Control</Link>
+                  <Link href="/pests/fleas" className="text-gray-600 hover:text-[#17824b] hover:underline">Flea Control</Link>
+                  <Link href="/pests/flies" className="text-gray-600 hover:text-[#17824b] hover:underline">Fly Control</Link>
+                  <Link href="/pests/mice" className="text-gray-600 hover:text-[#17824b] hover:underline">Mice Control</Link>
+                  <Link href="/pests/mosquitoes" className="text-gray-600 hover:text-[#17824b] hover:underline">Mosquito Control</Link>
                 </div>
                 {/* Column 4 */}
                 <div className="flex flex-col space-y-3">
-                  <Link href="/pests/moths" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Moth Control</Link>
-                  <Link href="/pests/rats" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Rat Control</Link>
-                  <Link href="/pests/rodents" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Rodent Control Services</Link>
-                  <Link href="/pests/scorpions" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Scorpion Control</Link>
+                  <Link href="/pests/moths" className="text-gray-600 hover:text-[#17824b] hover:underline">Moth Control</Link>
+                  <Link href="/pests/rats" className="text-gray-600 hover:text-[#17824b] hover:underline">Rat Control</Link>
+                  <Link href="/pests/rodents" className="text-gray-600 hover:text-[#17824b] hover:underline">Rodent Control Services</Link>
+                  <Link href="/pests/scorpions" className="text-gray-600 hover:text-[#17824b] hover:underline">Scorpion Control</Link>
                 </div>
                 {/* Column 5 */}
                 <div className="flex flex-col space-y-3">
-                  <Link href="/pests/silverfish" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Silverfish Control</Link>
-                  <Link href="/pests/spiders" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Spider Control</Link>
-                  <Link href="/pests/stinging-pests" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Stinging Pest Control</Link>
-                  <Link href="/pests/ticks" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Tick Control</Link>
-                  <Link href="/pests/wasps" className="text-gray-600 hover:text-[#1a7a3c] hover:underline">Wasp Control</Link>
+                  <Link href="/pests/silverfish" className="text-gray-600 hover:text-[#17824b] hover:underline">Silverfish Control</Link>
+                  <Link href="/pests/spiders" className="text-gray-600 hover:text-[#17824b] hover:underline">Spider Control</Link>
+                  <Link href="/pests/stinging-pests" className="text-gray-600 hover:text-[#17824b] hover:underline">Stinging Pest Control</Link>
+                  <Link href="/pests/ticks" className="text-gray-600 hover:text-[#17824b] hover:underline">Tick Control</Link>
+                  <Link href="/pests/wasps" className="text-gray-600 hover:text-[#17824b] hover:underline">Wasp Control</Link>
                 </div>
               </div>
             )}
           </div>
 
-          <Link href="/home-services" className="hover:text-[#1a7a3c] flex items-center h-full">
+          <Link href="/home-services" className="hover:text-[#17824b] flex items-center h-full">
             Home Services <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
           </Link>
-          <Link href="/research" className="hover:text-[#1a7a3c] flex items-center h-full">
+          <Link href="/research" className="hover:text-[#17824b] flex items-center h-full">
             Pest Research <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
           </Link>
-          <Link href="/about" className="hover:text-[#1a7a3c] flex items-center h-full">
+          <Link href="/about" className="hover:text-[#17824b] flex items-center h-full">
             About PestIQ <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
           </Link>
-          <Link href="/offers" className="hover:text-[#1a7a3c] flex items-center h-full text-red-600">
+          <Link href="/offers" className="hover:text-[#17824b] flex items-center h-full text-red-600">
             Exclusive Offers <ChevronDown className="w-4 h-4 ml-1 opacity-70" />
           </Link>
         </div>

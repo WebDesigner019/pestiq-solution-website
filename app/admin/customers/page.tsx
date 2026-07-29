@@ -4,24 +4,19 @@ import React, { useState } from "react";
 import { Search, MessageCircle, X, Phone, Mail, MapPin, ArrowUpRight, ChevronRight } from "lucide-react";
 import { MOCK_CUSTOMERS, MOCK_BOOKINGS, type Customer } from "@/lib/adminMockData";
 
+// Semantic plan badge styles — brand palette only
 const PLAN: Record<string, { dot:string; text:string; bg:string; border:string }> = {
-  Complete:   { dot:"#3b82f6", text:"#1e40af", bg:"#eff6ff", border:"#bfdbfe" },
-  Essential:  { dot:"#8b5cf6", text:"#5b21b6", bg:"#f5f3ff", border:"#c4b5fd" },
-  "One-Time": { dot:"#f59e0b", text:"#92400e", bg:"#fffbeb", border:"#fde68a" },
+  Complete:   { dot:"#071b4d", text:"#071b4d", bg:"#eef1f8", border:"#c7d2e8" },
+  Essential:  { dot:"#1557b8", text:"#1557b8", bg:"#e8f0fc", border:"#b8d0f8" },
+  "One-Time": { dot:"#d97706", text:"#92400e", bg:"#fef3c7", border:"#fde68a" },
   None:       { dot:"#94a3b8", text:"#475569", bg:"#f8fafc", border:"#e2e8f0" },
 };
 
-const GRADS = [
-  "#1d4ed8,#3b82f6","#7c3aed,#a78bfa","#059669,#34d399",
-  "#dc2626,#f87171","#d97706,#fbbf24","#0284c7,#38bdf8",
-  "#c026d3,#e879f9","#16a34a,#86efac",
-];
-
-const STATUS_STYLE: Record<string,{bg:string;color:string}> = {
-  completed: { bg:"#ecfdf5", color:"#065f46" },
-  confirmed: { bg:"#eff6ff", color:"#1e40af"  },
-  pending:   { bg:"#fffbeb", color:"#92400e"  },
-  cancelled: { bg:"#fef2f2", color:"#991b1b"  },
+const STATUS_STYLE: Record<string,{bg:string;color:string;dot:string}> = {
+  completed: { bg:"#dcfce7", color:"#166534", dot:"#16a34a" },
+  confirmed: { bg:"#dbeafe", color:"#1e40af", dot:"#2563eb" },
+  pending:   { bg:"#fef3c7", color:"#92400e", dot:"#d97706" },
+  cancelled: { bg:"#fee2e2", color:"#991b1b", dot:"#dc2626" },
 };
 
 export default function AdminCustomersPage() {
@@ -39,106 +34,96 @@ export default function AdminCustomersPage() {
   const selBookings = selected ? cx(selected) : [];
 
   return (
-    <div style={{ padding:"24px 28px", maxWidth:1280, margin:"0 auto" }}>
-      {/* Heading + search */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", marginBottom:20, gap:12, flexWrap:"wrap" }}>
+    <div className="p-6 md:p-7 max-w-[1280px] mx-auto">
+
+      {/* Header */}
+      <div className="flex items-center justify-between mb-5 gap-3 flex-wrap">
         <div>
-          <h1 style={{ color:"#0d1e4a", fontSize:20, fontWeight:900, margin:0, letterSpacing:"-0.025em" }}>Customers</h1>
-          <p style={{ color:"#94a3b8", fontSize:13, margin:"4px 0 0" }}>{filtered.length} records</p>
+          <h1 className="text-2xl font-black text-[#071b4d] tracking-tight">Customers</h1>
+          <p className="text-slate-400 text-xs mt-1">{filtered.length} records</p>
         </div>
-        <div style={{ position:"relative", width:260 }}>
-          <Search style={{ position:"absolute", left:11, top:"50%", transform:"translateY(-50%)", width:14, height:14, color:"#94a3b8" }} />
-          <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="Search customers…"
-            style={{
-              width:"100%", height:36, paddingLeft:34, paddingRight:12,
-              background:"#fff", border:"1px solid #e8edf5", borderRadius:9,
-              fontSize:13, outline:"none", color:"#0d1e4a", boxSizing:"border-box",
-            }}
-            onFocus={e=>e.target.style.borderColor="#3b82f6"}
-            onBlur={e=>e.target.style.borderColor="#e8edf5"}
+        <div className="relative w-64">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400" />
+          <input
+            value={search}
+            onChange={e=>setSearch(e.target.value)}
+            placeholder="Search customers…"
+            className="w-full h-9 pl-9 pr-3 bg-white border border-slate-200 rounded-xl text-[13px] outline-none text-[#071b4d] focus:border-[#1557b8] transition-colors"
           />
         </div>
       </div>
 
       {/* Table */}
-      <div style={{ background:"#fff", borderRadius:14, border:"1px solid #edf0f7", boxShadow:"0 1px 3px rgba(15,30,74,0.05)", overflow:"hidden" }}>
-        <div style={{ overflowX:"auto" }}>
-          <table style={{ width:"100%", borderCollapse:"collapse", minWidth:680 }}>
+      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="overflow-x-auto">
+          <table className="w-full border-collapse min-w-[680px]">
             <thead>
-              <tr style={{ background:"#fafbfd", borderBottom:"1px solid #edf0f7" }}>
+              <tr className="bg-slate-50 border-b border-slate-200">
                 {["Customer","Plan","Bookings","Total Spent","Last Service",""].map(h=>(
-                  <th key={h||"x"} style={{
-                    textAlign:"left", padding:"10px 16px",
-                    fontSize:11, fontWeight:700, color:"#94a3b8",
-                    textTransform:"uppercase", letterSpacing:"0.07em", whiteSpace:"nowrap",
-                  }}>{h}</th>
+                  <th key={h||"x"} className="text-left px-4 py-2.5 text-[11px] font-bold text-slate-400 uppercase tracking-[0.07em] whitespace-nowrap">
+                    {h}
+                  </th>
                 ))}
               </tr>
             </thead>
             <tbody>
-              {filtered.map((c, i) => {
+              {filtered.map((c) => {
                 const plan = PLAN[c.plan] ?? PLAN.None;
-                const grad = GRADS[i % GRADS.length];
                 const spendPct = Math.round((c.totalSpent/topSpend)*100);
                 return (
-                  <tr key={c.id}
+                  <tr
+                    key={c.id}
                     onClick={()=>setSelected(c)}
-                    style={{ borderBottom:"1px solid #f8fafc", cursor:"pointer" }}
-                    onMouseEnter={e=>(e.currentTarget.style.background="#fafcff")}
-                    onMouseLeave={e=>(e.currentTarget.style.background="transparent")}
+                    className="border-b border-slate-50 cursor-pointer hover:bg-[#fafcff] transition-colors"
                   >
-                    {/* Customer */}
-                    <td style={{ padding:"12px 16px" }}>
-                      <div style={{ display:"flex", alignItems:"center", gap:10 }}>
-                        <div style={{
-                          width:32, height:32, borderRadius:"50%", flexShrink:0,
-                          background:`linear-gradient(135deg,${grad})`,
-                          display:"flex", alignItems:"center", justifyContent:"center",
-                          color:"#fff", fontSize:11, fontWeight:900,
-                        }}>{c.name.split(" ").map(n=>n[0]).join("").slice(0,2)}</div>
+                    {/* Customer — uniform navy avatar */}
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full flex-shrink-0 bg-[#071b4d] flex items-center justify-center text-white text-[11px] font-black">
+                          {c.name.split(" ").map(n=>n[0]).join("").slice(0,2)}
+                        </div>
                         <div>
-                          <p style={{ color:"#0d1e4a", fontSize:13, fontWeight:700, margin:0 }}>{c.name}</p>
-                          <p style={{ color:"#94a3b8", fontSize:12, margin:"2px 0 0" }}>{c.email}</p>
+                          <p className="text-[#071b4d] text-[13px] font-bold">{c.name}</p>
+                          <p className="text-slate-400 text-[12px]">{c.email}</p>
                         </div>
                       </div>
                     </td>
-                    {/* Plan */}
-                    <td style={{ padding:"12px 16px" }}>
-                      <span style={{
-                        display:"inline-flex", alignItems:"center", gap:5,
-                        padding:"3px 10px", borderRadius:999, fontSize:12, fontWeight:700,
-                        background:plan.bg, color:plan.text, border:`1px solid ${plan.border}`,
-                      }}>
-                        <span style={{ width:6,height:6,borderRadius:"50%",background:plan.dot,display:"inline-block" }}/>
+                    {/* Plan badge */}
+                    <td className="px-4 py-3">
+                      <span
+                        className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-bold border"
+                        style={{ background:plan.bg, color:plan.text, borderColor:plan.border }}
+                      >
+                        <span className="w-1.5 h-1.5 rounded-full" style={{ background:plan.dot }} />
                         {c.plan}
                       </span>
                     </td>
-                    {/* Bookings */}
-                    <td style={{ padding:"12px 16px" }}>
-                      <span style={{ color:"#0d1e4a", fontSize:14, fontWeight:800 }}>{c.totalBookings}</span>
+                    {/* Bookings count */}
+                    <td className="px-4 py-3">
+                      <span className="text-[#071b4d] text-[14px] font-black">{c.totalBookings}</span>
                     </td>
-                    {/* Spend */}
-                    <td style={{ padding:"12px 16px", minWidth:130 }}>
-                      <p style={{ color:"#0d1e4a", fontSize:14, fontWeight:800, margin:"0 0 5px" }}>${c.totalSpent.toLocaleString()}</p>
-                      <div style={{ height:4, borderRadius:999, background:"#f1f5f9", width:80 }}>
-                        <div style={{ height:"100%", borderRadius:999, background:"#1557b8", opacity:0.4, width:`${spendPct}%` }} />
+                    {/* Total Spent with spend bar */}
+                    <td className="px-4 py-3 min-w-[130px]">
+                      <p className="text-[#071b4d] text-[14px] font-black mb-1">${c.totalSpent.toLocaleString()}</p>
+                      <div className="h-1 rounded-full bg-slate-100 w-20">
+                        <div className="h-full rounded-full bg-[#1557b8]/40" style={{ width:`${spendPct}%` }} />
                       </div>
                     </td>
-                    {/* Last service */}
-                    <td style={{ padding:"12px 16px" }}>
-                      <span style={{ color:c.lastService==="—"?"#d1d5db":"#374151", fontSize:13, fontWeight:500 }}>
+                    {/* Last Service */}
+                    <td className="px-4 py-3">
+                      <span className={`text-[13px] font-medium ${c.lastService==="—" ? "text-slate-300" : "text-slate-600"}`}>
                         {c.lastService==="—" ? "Never" : new Date(c.lastService).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})}
                       </span>
                     </td>
                     {/* Arrow */}
-                    <td style={{ padding:"12px 16px" }}>
-                      <ChevronRight style={{width:14,height:14,color:"#d1d5db"}}/>
+                    <td className="px-4 py-3">
+                      <ChevronRight className="w-3.5 h-3.5 text-slate-300" />
                     </td>
                   </tr>
                 );
               })}
               {filtered.length===0 && (
-                <tr><td colSpan={6} style={{ padding:"52px 16px", textAlign:"center", color:"#94a3b8", fontSize:13 }}>No customers found.</td></tr>
+                <tr><td colSpan={6} className="px-4 py-14 text-center text-slate-400 text-[13px]">No customers found.</td></tr>
               )}
             </tbody>
           </table>
@@ -147,51 +132,58 @@ export default function AdminCustomersPage() {
 
       {/* Detail Drawer */}
       {selected && (() => {
-        const idx  = MOCK_CUSTOMERS.findIndex(c=>c.id===selected.id);
-        const grad = GRADS[idx % GRADS.length];
         const plan = PLAN[selected.plan] ?? PLAN.None;
         return (
-          <div style={{ position:"fixed", inset:0, zIndex:50, display:"flex" }}>
-            <div style={{ flex:1, background:"rgba(0,0,0,0.45)", backdropFilter:"blur(3px)" }} onClick={()=>setSelected(null)} />
-            <div style={{ width:"100%", maxWidth:420, background:"#fff", display:"flex", flexDirection:"column", boxShadow:"-4px 0 24px rgba(0,0,0,0.15)" }}>
-              {/* Header */}
-              <div style={{ padding:"20px 24px", borderBottom:"1px solid #edf0f7" }}>
-                <div style={{ display:"flex", alignItems:"flex-start", justifyContent:"space-between" }}>
-                  <div style={{ display:"flex", alignItems:"center", gap:12 }}>
-                    <div style={{ width:40,height:40,borderRadius:"50%",background:`linear-gradient(135deg,${grad})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontSize:13,fontWeight:900 }}>
+          <div className="fixed inset-0 z-50 flex">
+            <div className="flex-1 bg-black/40 backdrop-blur-[2px]" onClick={()=>setSelected(null)} />
+            <div className="w-full max-w-[420px] bg-white flex flex-col shadow-2xl">
+
+              {/* Drawer Header */}
+              <div className="px-6 py-5 border-b border-slate-100">
+                <div className="flex items-start justify-between">
+                  <div className="flex items-center gap-3">
+                    {/* Uniform navy avatar — no rainbow gradient */}
+                    <div className="w-10 h-10 rounded-full bg-[#071b4d] flex items-center justify-center text-white text-[13px] font-black">
                       {selected.name.split(" ").map(n=>n[0]).join("").slice(0,2)}
                     </div>
                     <div>
-                      <h2 style={{ color:"#0d1e4a", fontSize:16, fontWeight:900, margin:0 }}>{selected.name}</h2>
-                      <p style={{ color:"#94a3b8", fontSize:12, margin:"3px 0 0" }}>{selected.id}</p>
+                      <h2 className="text-[#071b4d] text-base font-black">{selected.name}</h2>
+                      <p className="text-slate-400 text-[12px] mt-0.5">{selected.id}</p>
                     </div>
                   </div>
-                  <button onClick={()=>setSelected(null)} style={{ background:"none",border:"none",cursor:"pointer",color:"#94a3b8" }}>
-                    <X style={{width:18,height:18}}/>
+                  <button onClick={()=>setSelected(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
+                    <X className="w-4.5 h-4.5" />
                   </button>
                 </div>
-                <div style={{ display:"flex", alignItems:"center", gap:8, marginTop:14 }}>
-                  <span style={{ display:"inline-flex", alignItems:"center", gap:5, padding:"3px 10px", borderRadius:999, fontSize:12, fontWeight:700, background:plan.bg, color:plan.text, border:`1px solid ${plan.border}` }}>
-                    <span style={{ width:6,height:6,borderRadius:"50%",background:plan.dot,display:"inline-block" }}/>{selected.plan} Plan
+                <div className="flex items-center gap-2 mt-3">
+                  <span
+                    className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[12px] font-bold border"
+                    style={{ background:plan.bg, color:plan.text, borderColor:plan.border }}
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full" style={{ background:plan.dot }} />
+                    {selected.plan} Plan
                   </span>
-                  <span style={{ color:"#94a3b8", fontSize:12 }}>Since {new Date(selected.joinedDate).toLocaleDateString("en-US",{month:"short",year:"numeric"})}</span>
+                  <span className="text-slate-400 text-[12px]">
+                    Since {new Date(selected.joinedDate).toLocaleDateString("en-US",{month:"short",year:"numeric"})}
+                  </span>
                 </div>
               </div>
 
-              <div style={{ flex:1, overflowY:"auto", padding:"20px 24px" }}>
+              <div className="flex-1 overflow-y-auto px-6 py-5">
+
                 {/* Mini stats */}
-                <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, marginBottom:22 }}>
-                  {[{ label:"Total Bookings",value:selected.totalBookings },{ label:"Total Spent",value:`$${selected.totalSpent.toLocaleString()}` }].map(({label,value})=>(
-                    <div key={label} style={{ background:"#fafbfd", borderRadius:10, padding:14 }}>
-                      <p style={{ color:"#94a3b8", fontSize:12, fontWeight:600, margin:"0 0 5px" }}>{label}</p>
-                      <p style={{ color:"#0d1e4a", fontSize:20, fontWeight:900, margin:0 }}>{value}</p>
+                <div className="grid grid-cols-2 gap-2.5 mb-5">
+                  {[{ label:"Total Bookings", value:selected.totalBookings }, { label:"Total Spent", value:`$${selected.totalSpent.toLocaleString()}` }].map(({label,value})=>(
+                    <div key={label} className="bg-slate-50 rounded-xl p-3.5">
+                      <p className="text-slate-400 text-[12px] font-semibold mb-1">{label}</p>
+                      <p className="text-[#071b4d] text-xl font-black">{value}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Contact */}
-                <p style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.14em", color:"#94a3b8", margin:"0 0 10px" }}>Contact</p>
-                <div style={{ display:"flex", flexDirection:"column", gap:8, marginBottom:22 }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-2.5">Contact</p>
+                <div className="flex flex-col gap-2 mb-5">
                   {[
                     { icon:Phone, v:selected.phone, href:`tel:${selected.phone}` },
                     { icon:Mail,  v:selected.email, href:`mailto:${selected.email}` },
@@ -199,33 +191,38 @@ export default function AdminCustomersPage() {
                       href:`https://maps.google.com/?q=${encodeURIComponent(selected.address+" "+selected.city)}` },
                   ].map(({icon:Icon,v,href})=>(
                     <a key={href} href={href} target="_blank" rel="noopener noreferrer"
-                      style={{ display:"flex", alignItems:"flex-start", gap:9, fontSize:13, color:"#1557b8", textDecoration:"none" }}>
-                      <Icon style={{width:14,height:14,marginTop:1,color:"#94a3b8",flexShrink:0}}/>
-                      <span style={{ flex:1 }}>{v}</span>
-                      <ArrowUpRight style={{width:12,height:12,marginTop:1,flexShrink:0,color:"#94a3b8"}}/>
+                      className="flex items-start gap-2.5 text-[13px] text-[#1557b8] no-underline hover:text-[#071b4d] transition-colors"
+                    >
+                      <Icon className="w-3.5 h-3.5 mt-0.5 text-slate-400 flex-shrink-0" />
+                      <span className="flex-1">{v}</span>
+                      <ArrowUpRight className="w-3 h-3 mt-0.5 flex-shrink-0 text-slate-400" />
                     </a>
                   ))}
                 </div>
 
                 {/* Booking history */}
-                <p style={{ fontSize:11, fontWeight:700, textTransform:"uppercase", letterSpacing:"0.14em", color:"#94a3b8", margin:"0 0 10px" }}>
+                <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-slate-400 mb-2.5">
                   Service History ({selBookings.length})
                 </p>
                 {selBookings.length===0 ? (
-                  <p style={{ color:"#94a3b8", fontSize:13, margin:0 }}>No services yet.</p>
+                  <p className="text-slate-400 text-[13px]">No services yet.</p>
                 ) : (
-                  <div style={{ display:"flex", flexDirection:"column", gap:6 }}>
+                  <div className="flex flex-col gap-2">
                     {selBookings.map(b => {
                       const ss = STATUS_STYLE[b.status] ?? STATUS_STYLE.pending;
                       return (
-                        <div key={b.id} style={{ display:"flex", alignItems:"center", gap:10, background:"#fafbfd", borderRadius:9, padding:"10px 12px" }}>
-                          <div style={{ flex:1, minWidth:0 }}>
-                            <p style={{ color:"#0d1e4a", fontSize:13, fontWeight:700, margin:0 }}>{b.service}</p>
-                            <p style={{ color:"#94a3b8", fontSize:12, margin:"2px 0 0" }}>
-                              {new Date(b.scheduledDate).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} · ${b.price}
+                        <div key={b.id} className="flex items-center gap-2.5 bg-slate-50 rounded-xl px-3 py-2.5">
+                          <div className="flex-1 min-w-0">
+                            <p className="text-[#071b4d] text-[13px] font-bold">{b.service}</p>
+                            <p className="text-slate-400 text-[12px] mt-0.5">
+                              {new Date(b.scheduledDate).toLocaleDateString("en-US",{month:"short",day:"numeric",year:"numeric"})} &middot; ${b.price}
                             </p>
                           </div>
-                          <span style={{ fontSize:11, fontWeight:700, padding:"3px 8px", borderRadius:999, textTransform:"capitalize", background:ss.bg, color:ss.color }}>
+                          <span
+                            className="inline-flex items-center gap-1.5 text-[11px] font-bold px-2 py-0.5 rounded-full capitalize"
+                            style={{ background:ss.bg, color:ss.color }}
+                          >
+                            <span className="w-1.5 h-1.5 rounded-full" style={{ background:ss.dot }} />
                             {b.status}
                           </span>
                         </div>
@@ -236,13 +233,18 @@ export default function AdminCustomersPage() {
               </div>
 
               {/* Footer */}
-              <div style={{ padding:"16px 24px", borderTop:"1px solid #edf0f7" }}>
-                <a href={`https://wa.me/${selected.phone.replace(/\D/g,"")}`} target="_blank" rel="noopener noreferrer"
-                  style={{ display:"flex", alignItems:"center", justifyContent:"center", gap:10, height:44, background:"#16a34a", color:"#fff", borderRadius:10, fontSize:14, fontWeight:700, textDecoration:"none" }}>
-                  <MessageCircle style={{width:16,height:16}}/>
+              <div className="px-6 py-4 border-t border-slate-100">
+                <a
+                  href={`https://wa.me/${selected.phone.replace(/\D/g,"")}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center gap-2.5 h-11 bg-[#17824b] hover:bg-[#146b3f] text-white rounded-xl text-[14px] font-bold no-underline transition-colors"
+                >
+                  <MessageCircle className="w-4 h-4" />
                   Message on WhatsApp
                 </a>
               </div>
+
             </div>
           </div>
         );
