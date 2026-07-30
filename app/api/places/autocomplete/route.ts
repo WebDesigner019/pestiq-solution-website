@@ -119,10 +119,14 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // 3. Try Photon Komoot API (High-performance, instant open-source geocoder, NJ biased lat: 40.0583, lon: -74.4057)
+  // Detect if user explicitly typed another US state code or state name
+  const otherStatePattern = /\b(NY|CT|PA|DE|CA|FL|TX|IL|GA|MA|MD|VA|NC|SC|OH|MI|CO|AZ|WA|OR|NV|HI|AK|AL|AR|DC|IA|ID|IN|KS|KY|LA|ME|MN|MO|MS|MT|ND|NE|NH|NM|OK|RI|SD|TN|UT|VT|WI|WV|WY|New York|Connecticut|Pennsylvania|California|Florida|Texas|Illinois)\b/i;
+  const hasOtherState = otherStatePattern.test(query);
+
+  // 3. Try Photon Geocoding API
   if (results.length < 5) {
     try {
-      const searchQuery = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
+      const searchQuery = (hasOtherState || query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey"))
         ? query
         : `${query}, NJ`;
 
@@ -159,24 +163,24 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // 4. Try OpenStreetMap Nominatim with NJ Viewbox restriction
+  // 4. Try OpenStreetMap Nominatim API
   if (results.length < 5) {
     try {
-      const searchTarget = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
+      const searchTarget = (hasOtherState || query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey"))
         ? query
         : `${query}, New Jersey`;
 
-      const osmRes = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(
-          searchTarget
-        )}&format=json&addressdetails=1&countrycodes=us&viewbox=-75.55,41.36,-73.89,38.93&bounded=1&limit=6`,
-        {
-          headers: {
-            "Accept-Language": "en-US,en",
-            "User-Agent": "PestIQ-Web-Address-Autocomplete/2.0",
-          },
-        }
-      );
+      const osmUrl = hasOtherState
+        ? `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTarget)}&format=json&addressdetails=1&countrycodes=us&limit=6`
+        : `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTarget)}&format=json&addressdetails=1&countrycodes=us&viewbox=-75.55,41.36,-73.89,38.93&limit=6`;
+
+      const osmRes = await fetch(osmUrl, {
+        headers: {
+          "Accept-Language": "en-US,en",
+          "User-Agent": "PestIQ-Web-Address-Autocomplete/2.0",
+        },
+      });
+
 
       if (osmRes.ok) {
         const osmData = await osmRes.json();
