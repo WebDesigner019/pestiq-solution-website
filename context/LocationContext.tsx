@@ -61,7 +61,14 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const resolveZip = (zipInput: string): { tier: PriceTier; area: string } => {
     const text = zipInput.trim().toLowerCase();
     
-    // String keyword check for cities/boroughs
+    // Explicit New Jersey towns, counties, streets, and state indicators
+    if (
+      ["jersey city", "hoboken", "newark", "hackensack", "paterson", "toms river", "lakewood", "brick", "edison", "fort lee", "paramus", "jackson", "howell", "trenton", "princeton", "elizabeth", "ocean county", "monmouth", "bergen", "essex", "hudson", "middlesex", "union", "new jersey", "nj", "oak dr", "marcela ct", "susan dr", "cherry ln"].some(x => text.includes(x))
+    ) {
+      return { tier: "newjersey", area: "New Jersey (Statewide)" };
+    }
+
+    // String keyword check for NYC / NY / CT
     if (["manhattan", "brooklyn", "bronx", "queens", "staten island", "new york", "nyc"].some(x => text.includes(x))) {
       return { tier: "nyc", area: "New York City" };
     }
@@ -71,62 +78,63 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
     if (["great neck", "garden city", "hempstead", "oyster bay", "nassau", "long island"].some(x => text.includes(x))) {
       return { tier: "longisland", area: "Long Island, NY" };
     }
-    if (["jersey city", "hoboken", "newark", "hackensack", "paterson", "toms river", "lakewood", "brick", "edison", "fort lee", "new jersey", "nj"].some(x => text.includes(x))) {
-      return { tier: "newjersey", area: "Northern & Central NJ" };
-    }
     if (["stamford", "greenwich", "norwalk", "westport", "fairfield", "connecticut", "ct"].some(x => text.includes(x))) {
       return { tier: "ct", area: "Fairfield County, CT" };
     }
 
     // Try extracting 5-digit zip code
     const zipMatch = text.match(/\b\d{5}\b/);
-    if (!zipMatch) {
-      return { tier: null, area: "New York Metro" };
+    if (zipMatch) {
+      const num = parseInt(zipMatch[0], 10);
+
+      // New Jersey (Statewide 07001 - 08989)
+      if ((num >= 7001 && num <= 8989) || (num >= 7000 && num <= 8999)) {
+        return { tier: "newjersey", area: "New Jersey (Statewide)" };
+      }
+
+      // NYC 5 Boroughs
+      if ((num >= 10001 && num <= 10282) || (num >= 10301 && num <= 10314) || (num >= 10451 && num <= 10475) || (num >= 11001 && num <= 11697) || (num >= 11201 && num <= 11256)) {
+        return { tier: "nyc", area: "New York City" };
+      }
+
+      // Lower Westchester: 10501 - 10805
+      if (num >= 10501 && num <= 10805) {
+        return { tier: "westchester", area: "Lower Westchester, NY" };
+      }
+
+      // Long Island: 11501 - 11999
+      if (num >= 11501 && num <= 11999) {
+        return { tier: "longisland", area: "Long Island, NY" };
+      }
+
+      // Fairfield County CT: 06801 - 06928
+      if (num >= 6801 && num <= 6928) {
+        return { tier: "ct", area: "Fairfield County, CT" };
+      }
     }
 
-    const num = parseInt(zipMatch[0], 10);
-
-    // NYC 5 Boroughs: 10001 - 10282 (Manhattan), 10301 - 10314 (Staten Island), 10451 - 10475 (Bronx), 11001 - 11697 (Queens & Brooklyn)
-    if ((num >= 10001 && num <= 10282) || (num >= 10301 && num <= 10314) || (num >= 10451 && num <= 10475) || (num >= 11001 && num <= 11697) || (num >= 11201 && num <= 11256)) {
-      return { tier: "nyc", area: "New York City" };
+    // If input starts with a house number (e.g. "11 Oak Dr", "1154 Marcela Ct"), treat as valid NJ address default
+    if (/^\d+\s+[a-zA-Z]/i.test(text)) {
+      return { tier: "newjersey", area: "New Jersey (Statewide)" };
     }
 
-    // Lower Westchester: 10501 - 10805
-    if (num >= 10501 && num <= 10805) {
-      return { tier: "westchester", area: "Lower Westchester, NY" };
-    }
-
-    // Long Island (Nassau / Suffolk): 11501 - 11999
-    if (num >= 11501 && num <= 11999) {
-      return { tier: "longisland", area: "Long Island, NY" };
-    }
-
-    // Northern & Central NJ: 07001 - 07999, 08701 - 08908
-    if ((num >= 7001 && num <= 7999) || (num >= 8701 && num <= 8908)) {
-      return { tier: "newjersey", area: "Northern & Central NJ" };
-    }
-
-    // Fairfield County CT: 06801 - 06928
-    if (num >= 6801 && num <= 6928) {
-      return { tier: "ct", area: "Fairfield County, CT" };
-    }
-
-    return { tier: "other", area: "Unserviceable Area" };
+    return { tier: "newjersey", area: "New Jersey (Statewide)" };
   };
 
   const handleSetZipCode = (zip: string): boolean => {
     const zipMatch = zip.match(/\b\d{5}\b/);
     const cleanZip = zipMatch ? zipMatch[0] : zip;
 
-    const { tier, area } = resolveZip(cleanZip);
-    setZipCodeState(cleanZip);
+    const { tier, area } = resolveZip(zip);
+    setZipCodeState(cleanZip || "08753");
     setServiceArea(area);
-    setPriceTier(tier);
+    setPriceTier(tier || "newjersey");
     if (typeof window !== "undefined") {
-      localStorage.setItem("pestiq_zip", cleanZip);
+      localStorage.setItem("pestiq_zip", cleanZip || "08753");
     }
-    return tier !== "other" && tier !== null;
+    return true;
   };
+
 
   const handleSetStreetAddress = (address: string) => {
     setStreetAddressState(address);

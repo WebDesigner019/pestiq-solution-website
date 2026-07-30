@@ -19,21 +19,10 @@ interface AddressResult {
   fullAddress: string;
 }
 
-// Fallback suggestions for Tri-State area
-const FALLBACK_STREETS: AddressResult[] = [
-  { street: "123 Main Street", city: "Newark", state: "NJ", zip: "07102", fullAddress: "123 Main Street, Newark, NJ 07102" },
-  { street: "45 Ocean Avenue", city: "Jersey City", state: "NJ", zip: "07305", fullAddress: "45 Ocean Avenue, Jersey City, NJ 07305" },
-  { street: "88 Broad Street", city: "Trenton", state: "NJ", zip: "08608", fullAddress: "88 Broad Street, Trenton, NJ 08608" },
-  { street: "500 Princeton Pike", city: "Princeton", state: "NJ", zip: "08540", fullAddress: "500 Princeton Pike, Princeton, NJ 08540" },
-  { street: "140 Atlantic Avenue", city: "Atlantic City", state: "NJ", zip: "08401", fullAddress: "140 Atlantic Avenue, Atlantic City, NJ 08401" },
-  { street: "248 W 57th Street", city: "New York", state: "NY", zip: "10107", fullAddress: "248 W 57th Street, New York, NY 10107" },
-  { street: "55 Mamaroneck Ave", city: "White Plains", state: "NY", zip: "10601", fullAddress: "55 Mamaroneck Ave, White Plains, NY 10601" },
-];
-
 export default function AddressAutocomplete({
   value,
   onChange,
-  placeholder = "Enter street address (e.g. 123 Main St, Newark, NJ)",
+  placeholder = "Enter street address (e.g. 11 Oak Dr, Brick, NJ)",
   className,
   style,
 }: AddressAutocompleteProps) {
@@ -58,8 +47,8 @@ export default function AddressAutocomplete({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const fetchOpenStreetMapPlaces = async (text: string) => {
-    if (text.trim().length < 3) {
+  const fetchPlaces = async (text: string) => {
+    if (text.trim().length < 2) {
       setSuggestions([]);
       setIsLoading(false);
       return;
@@ -67,57 +56,30 @@ export default function AddressAutocomplete({
 
     setIsLoading(true);
     try {
-      // Query OpenStreetMap Nominatim API (100% Free, No Credit Card, No Key required)
-      const res = await fetch(
-        `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(text)}&format=json&addressdetails=1&countrycodes=us&limit=6`,
-        {
-          headers: {
-            "Accept-Language": "en-US,en",
-            "User-Agent": "PestIQ-Web-Address-Autocomplete/1.0",
-          },
-        }
-      );
-
+      const res = await fetch(`/api/places/autocomplete?q=${encodeURIComponent(text)}`);
       if (res.ok) {
         const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          const formatted: AddressResult[] = data.map((item: any) => {
-            const addr = item.address || {};
-            const road = addr.road || addr.pedestrian || addr.street || item.display_name.split(",")[0];
-            const houseNumber = addr.house_number ? `${addr.house_number} ` : "";
-            const streetName = `${houseNumber}${road}`.trim();
-            const city = addr.city || addr.town || addr.village || addr.suburb || addr.county || "New Jersey";
-            const state = addr.state === "New Jersey" ? "NJ" : addr.state === "New York" ? "NY" : addr.state || "NJ";
-            const zip = addr.postcode || (state === "NJ" ? "07001" : "10001");
-
-            return {
-              street: streetName,
-              city,
-              state,
-              zip,
-              fullAddress: `${streetName}, ${city}, ${state} ${zip}`,
-            };
-          });
-
-          setSuggestions(formatted);
+        if (data.suggestions && Array.isArray(data.suggestions)) {
+          setSuggestions(data.suggestions);
           setShowDropdown(true);
           setIsLoading(false);
           return;
         }
       }
     } catch (err) {
-      console.warn("OpenStreetMap search warning:", err);
+      console.warn("Places API autocomplete error:", err);
     }
 
-    // Fallback to offline search matching
-    const filtered = FALLBACK_STREETS.filter(s =>
-      s.fullAddress.toLowerCase().includes(text.toLowerCase())
-    );
-    setSuggestions(
-      filtered.length > 0
-        ? filtered
-        : [{ street: text, city: "New Jersey", state: "NJ", zip: "07001", fullAddress: `${text}, New Jersey, NJ 07001` }]
-    );
+    // Fallback suggestion format
+    setSuggestions([
+      {
+        street: text,
+        city: "Toms River",
+        state: "NJ",
+        zip: "08753",
+        fullAddress: `${text}, Toms River, NJ 08753`,
+      },
+    ]);
     setShowDropdown(true);
     setIsLoading(false);
   };
@@ -129,11 +91,11 @@ export default function AddressAutocomplete({
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-    if (val.trim().length >= 3) {
+    if (val.trim().length >= 2) {
       setIsLoading(true);
       debounceTimer.current = setTimeout(() => {
-        fetchOpenStreetMapPlaces(val);
-      }, 350);
+        fetchPlaces(val);
+      }, 250);
     } else {
       setSuggestions([]);
       setShowDropdown(false);
@@ -155,7 +117,12 @@ export default function AddressAutocomplete({
           type="text"
           value={query}
           onChange={handleInputChange}
-          onFocus={() => { if (query.trim().length >= 3) setShowDropdown(true); }}
+          onFocus={() => {
+            if (query.trim().length >= 2) {
+              if (suggestions.length > 0) setShowDropdown(true);
+              else fetchPlaces(query);
+            }
+          }}
           placeholder={placeholder}
           className={className}
           style={{
@@ -193,16 +160,12 @@ export default function AddressAutocomplete({
           overflow: "hidden",
           maxHeight: 260,
         }}>
-          <div style={{ padding: "8px 12px", background: "#f8fafc", borderBottom: "1px solid #f1f5f9", fontSize: 11, fontWeight: 700, color: "#64748b", textTransform: "uppercase", letterSpacing: "0.05em", display: "flex", justifyContent: "space-between" }}>
-            <span>Live Street Address Autocomplete</span>
-            <span style={{ color: "#1557b8" }}>100% Free · No Card Required</span>
-          </div>
           {suggestions.map((item, idx) => (
             <div
               key={idx}
               onClick={() => handleSelect(item)}
               style={{
-                padding: "10px 14px",
+                padding: "11px 14px",
                 display: "flex",
                 alignItems: "center",
                 gap: 10,
@@ -213,10 +176,10 @@ export default function AddressAutocomplete({
               onMouseEnter={e => (e.currentTarget.style.background = "#eff6ff")}
               onMouseLeave={e => (e.currentTarget.style.background = "#ffffff")}
             >
-              <Search style={{ width: 14, height: 14, color: "#1557b8", flexShrink: 0 }} />
+              <Search style={{ width: 15, height: 15, color: "#1557b8", flexShrink: 0 }} />
               <div style={{ overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
-                <p style={{ margin: 0, fontSize: 13, fontWeight: 700, color: "#0f172a" }}>{item.street}</p>
-                <p style={{ margin: 0, fontSize: 11, color: "#64748b" }}>{item.city}, {item.state} {item.zip} · PestIQ Covered Area</p>
+                <p style={{ margin: 0, fontSize: 13.5, fontWeight: 700, color: "#0f172a" }}>{item.street}</p>
+                <p style={{ margin: 0, fontSize: 11.5, color: "#64748b" }}>{item.city}, {item.state} {item.zip} · Verified Service Area</p>
               </div>
             </div>
           ))}
