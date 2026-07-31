@@ -2,7 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { useLocation } from "@/context/LocationContext";
-import { MapPin, Search, Loader2, Navigation } from "lucide-react";
+import { Navigation, Loader2 } from "lucide-react";
 
 interface AddressModalProps {
   onClose: () => void;
@@ -96,7 +96,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
-    if (val.trim().length >= 2) {
+    if (val.trim().length >= 1) {
       setIsLoadingPlaces(true);
       debounceTimer.current = setTimeout(async () => {
         try {
@@ -113,7 +113,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         } finally {
           setIsLoadingPlaces(false);
         }
-      }, 200);
+      }, 150);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -229,44 +229,30 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                 <div className="relative">
                   <input
                     type="text"
-                    placeholder="Enter street address or ZIP code (e.g. 11 Oak Dr, Brick, NJ)"
+                    placeholder="Search address or ZIP code..."
                     value={addressInput}
                     onChange={handleInputChange}
                     onFocus={() => {
-                      if (addressInput.length >= 2 && suggestions.length > 0) setShowSuggestions(true);
+                      if (addressInput.length >= 1 && suggestions.length > 0) setShowSuggestions(true);
                     }}
-                    className="w-full pl-6 pr-14 py-4 bg-white text-zinc-900 placeholder:text-gray-500 text-[15px] sm:text-[16px] font-medium border-0 rounded-full shadow-2xl outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
+                    className="w-full px-6 py-4 bg-white text-zinc-900 placeholder:text-gray-400 text-[16px] font-medium border-0 rounded-full shadow-2xl outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
                     required
                     autoFocus
                   />
-                  
-                  <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                    {isLocating ? (
-                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
-                    ) : (
-                      <button
-                        type="button"
-                        onClick={handleUseCurrentLocation}
-                        title="Use my current location"
-                        className="text-blue-600 hover:text-blue-700 transition-colors p-1"
-                      >
-                        <Navigation className="w-5 h-5 rotate-45" />
-                      </button>
-                    )}
-                    {isLoadingPlaces && !isLocating && (
-                      <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
-                    )}
-                  </div>
 
-                  {/* Dropdown Suggestions List */}
-                  {showSuggestions && suggestions.length > 0 && (
+                  {/* Dropdown Suggestions List (Faithfully Matching Terminix Screenshot) */}
+                  {showSuggestions && (suggestions.length > 0 || isLocating) && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-200 max-h-72 overflow-y-auto">
                       <button
                         type="button"
                         onClick={handleUseCurrentLocation}
-                        className="w-full px-5 py-3 text-left bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors border-b border-sky-100 flex items-center gap-3 text-xs font-bold"
+                        className="w-full px-6 py-3.5 text-left bg-sky-50 text-sky-800 hover:bg-sky-100 transition-colors border-b border-sky-100 flex items-center gap-3 text-xs font-bold"
                       >
-                        <Navigation className="w-4 h-4 rotate-45 shrink-0 text-sky-600" />
+                        {isLocating ? (
+                          <Loader2 className="w-4 h-4 text-sky-600 animate-spin shrink-0" />
+                        ) : (
+                          <Navigation className="w-4 h-4 rotate-45 shrink-0 text-sky-600" />
+                        )}
                         <span>{isLocating ? "Detecting GPS location..." : "Use my current location"}</span>
                       </button>
 
@@ -279,36 +265,22 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                             setShowSuggestions(false);
                             handleSubmit(suggestion.fullAddress);
                           }}
-                          className="w-full px-5 py-3.5 text-left text-gray-800 hover:bg-blue-50 hover:text-[#0066cc] transition-colors border-b border-gray-100 last:border-0 flex items-center gap-3 text-sm font-medium"
+                          className="w-full px-6 py-3.5 text-left text-gray-800 hover:bg-blue-50 hover:text-[#0066cc] transition-colors border-b border-gray-100 last:border-0 flex items-center justify-between text-sm font-medium"
                         >
-                          <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
-                          <div className="truncate">
-                            <span className="font-bold text-gray-900">{suggestion.street}</span>
-                            <span className="text-gray-500 text-xs block">{suggestion.city}, {suggestion.state} {suggestion.zip} · Verified Service Area</span>
-                          </div>
+                          <span className="truncate pr-2">{suggestion.fullAddress}</span>
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
 
-                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mt-1">
-                  <button
-                    type="button"
-                    onClick={handleUseCurrentLocation}
-                    className="text-[#ffc400] hover:text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
-                  >
-                    <Navigation className="w-3.5 h-3.5 rotate-45" />
-                    {isLocating ? "Detecting location..." : "Use my current location"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setIsManualMode(true)}
-                    className="text-zinc-400 hover:text-white text-xs font-medium transition-colors underline underline-offset-4"
-                  >
-                    Can&apos;t find your address? Enter manually.
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsManualMode(true)}
+                  className="text-zinc-300 hover:text-white text-sm font-medium transition-colors mt-1 underline underline-offset-4"
+                >
+                  Can&apos;t find your address? Enter manually.
+                </button>
 
                 <button
                   type="submit"
