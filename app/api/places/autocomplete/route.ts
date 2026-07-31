@@ -18,7 +18,6 @@ const PINNED_ADDRESSES: PlaceSuggestion[] = [
   { street: "167 Susan Dr", city: "Lakewood", state: "NJ", zip: "08701", fullAddress: "167 Susan Dr, Lakewood, NJ 08701" },
   { street: "167 Susan Dr", city: "Brick", state: "NJ", zip: "08723", fullAddress: "167 Susan Dr, Brick, NJ 08723" },
   { street: "27 Cherry Ln", city: "Lakewood", state: "NJ", zip: "08701", fullAddress: "27 Cherry Ln, Lakewood, NJ 08701" },
-  { street: "27 Cherry Ln", city: "Toms River", state: "NJ", zip: "08755", fullAddress: "27 Cherry Ln, Toms River, NJ 08755" },
 ];
 
 export async function GET(req: NextRequest) {

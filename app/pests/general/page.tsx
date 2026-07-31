@@ -5,6 +5,8 @@ import Image from "next/image";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useLocation } from "@/context/LocationContext";
+import { calculatePrices } from "@/lib/pricing";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { 
   Star, ShieldCheck, HeartPulse, Home, SprayCan, Crosshair, TrendingDown,
@@ -22,9 +24,17 @@ const StarRating = () => (
 );
 
 export default function GeneralPestControlPage() {
-  const { setIsAddressModalOpen } = useLocation();
+  const router = useRouter();
+  const { zipCode, priceTier, propertySqFt, setCartItem, setIsAddressModalOpen } = useLocation();
   const [activeFaq, setActiveFaq] = useState<number | null>(null);
   const [activePestTab, setActivePestTab] = useState("Ants");
+
+  const prices = calculatePrices(priceTier, propertySqFt);
+
+  const handleAddToCart = (planId: "essential" | "complete" | "onetime", planName: string, monthlyPrice: string, initialFee: string, isSubscription: boolean) => {
+    setCartItem({ planId, planName, monthlyPrice, initialFee, isSubscription });
+    router.push('/checkout');
+  };
 
   const faqs = [
     {
@@ -200,9 +210,22 @@ export default function GeneralPestControlPage() {
                   <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Regularly scheduled pest treatments</span></li>
                   <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost⁴</span></li>
                 </ul>
-                <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all">
-                  See Pricing
-                </button>
+
+                {zipCode ? (
+                  <div className="text-center mt-auto">
+                    <div className="text-3xl font-black text-[#071b4d]">${prices.essential} <span className="text-sm font-medium text-gray-500">/ month</span></div>
+                    <button
+                      onClick={() => handleAddToCart("essential", "PestFree365 Plan", String(prices.essential), "125.00", true)}
+                      className="w-full mt-4 bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-md transition-all cursor-pointer"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all cursor-pointer">
+                    See Pricing
+                  </button>
+                )}
               </div>
 
               {/* Card 2 (Featured) */}
@@ -219,9 +242,22 @@ export default function GeneralPestControlPage() {
                   <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">Regularly scheduled pest treatments</span></li>
                   <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back between treatments, so will we — at no additional cost⁴</span></li>
                 </ul>
-                <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all">
-                  See Pricing
-                </button>
+
+                {zipCode ? (
+                  <div className="text-center mt-auto">
+                    <div className="text-4xl font-black text-[#17824b]">${prices.complete} <span className="text-sm font-medium text-gray-500">/ month</span></div>
+                    <button
+                      onClick={() => handleAddToCart("complete", "PestFree365+ Plan", String(prices.complete), "149.00", true)}
+                      className="w-full mt-4 bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[14px] uppercase tracking-wider py-4 rounded-full shadow-lg transition-all cursor-pointer"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all cursor-pointer">
+                    See Pricing
+                  </button>
+                )}
               </div>
 
               {/* Card 3 */}
@@ -235,9 +271,22 @@ export default function GeneralPestControlPage() {
                   <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">One pest treatment</span></li>
                   <li className="flex items-start gap-3"><Check className="w-5 h-5 text-[#17824b] shrink-0" /><span className="text-sm font-medium text-gray-700">PestIQ Guarantee which means if pests come back within 30 days of your treatment, so will we — at no additional cost⁶</span></li>
                 </ul>
-                <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all">
-                  See Pricing
-                </button>
+
+                {zipCode ? (
+                  <div className="text-center mt-auto">
+                    <div className="text-3xl font-black text-[#071b4d]">${prices.onetime} <span className="text-sm font-medium text-gray-500">one-time</span></div>
+                    <button
+                      onClick={() => handleAddToCart("onetime", "One-time Pest Plan", "0.00", String(prices.onetime), false)}
+                      className="w-full mt-4 bg-white border-2 border-[#071b4d] hover:bg-gray-50 text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full transition-all cursor-pointer"
+                    >
+                      Add to Cart
+                    </button>
+                  </div>
+                ) : (
+                  <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider py-4 rounded-full shadow-sm transition-all cursor-pointer">
+                    See Pricing
+                  </button>
+                )}
               </div>
             </div>
 

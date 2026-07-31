@@ -2,29 +2,22 @@
 
 import React from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useLocation } from "@/context/LocationContext";
+import { calculatePrices } from "@/lib/pricing";
 
 export default function PlansPage() {
-  const { priceTier, serviceArea, zipCode, setIsAddressModalOpen } = useLocation();
+  const router = useRouter();
+  const { priceTier, serviceArea, propertySqFt, zipCode, setCartItem, setIsAddressModalOpen } = useLocation();
 
-  // Prices are automatically set based on the user's location tier
-  const getPrices = () => {
-    if (priceTier === "newjersey") {
-      return { essential: 45, complete: 55, onetime: 229 };
-    } else if (priceTier === "westchester") {
-      return { essential: 49, complete: 59, onetime: 249 };
-    } else if (priceTier === "longisland") {
-      return { essential: 59, complete: 69, onetime: 269 };
-    } else if (priceTier === "ct") {
-      return { essential: 55, complete: 65, onetime: 259 };
-    }
-    // Default (NYC, other)
-    return { essential: 59, complete: 69, onetime: 279 };
+  const prices = calculatePrices(priceTier, propertySqFt);
+
+  const handleAddToCart = (planId: "essential" | "complete" | "onetime", planName: string, monthlyPrice: string, initialFee: string, isSubscription: boolean) => {
+    setCartItem({ planId, planName, monthlyPrice, initialFee, isSubscription });
+    router.push('/checkout');
   };
-
-  const prices = getPrices();
 
   const handleCta = (e: React.MouseEvent) => {
     if (!zipCode) {
@@ -47,7 +40,7 @@ export default function PlansPage() {
               </div>
               <button
                 onClick={() => setIsAddressModalOpen(true)}
-                className="px-4 py-1.5 bg-[#17824b] hover:bg-[#155f2e] text-white rounded font-bold text-[12.5px] transition-all whitespace-nowrap"
+                className="px-4 py-1.5 bg-[#17824b] hover:bg-[#155f2e] text-white rounded font-bold text-[12.5px] transition-all whitespace-nowrap cursor-pointer"
               >
                 Verify Address →
               </button>
@@ -68,7 +61,7 @@ export default function PlansPage() {
                   </span>
                   <button
                     onClick={() => setIsAddressModalOpen(true)}
-                    className="text-[11px] font-bold text-[#0066cc] hover:underline ml-2"
+                    className="text-[11px] font-bold text-[#0066cc] hover:underline ml-2 cursor-pointer"
                   >
                     Change
                   </button>
@@ -76,7 +69,7 @@ export default function PlansPage() {
               ) : (
                 <button
                   onClick={() => setIsAddressModalOpen(true)}
-                  className="bg-[#0066cc] hover:bg-[#0052a3] text-white font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider shadow-sm transition-all"
+                  className="bg-[#0066cc] hover:bg-[#0052a3] text-white font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer"
                 >
                   📍 Enter address to see local pricing →
                 </button>
@@ -114,9 +107,18 @@ export default function PlansPage() {
                   <strong>${prices.essential}</strong>
                   <small>/ month</small>
                 </div>
-                <Link href="/book?plan=monthly" onClick={handleCta} className="w-full">
-                  Check availability
-                </Link>
+                {zipCode ? (
+                  <button
+                    onClick={() => handleAddToCart("essential", "Essential Protection", String(prices.essential), "125.00", true)}
+                    className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase py-3 rounded-full shadow-md transition-all cursor-pointer"
+                  >
+                    Add to Cart
+                  </button>
+                ) : (
+                  <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white font-extrabold text-[13px] uppercase py-3 rounded-full transition-all cursor-pointer">
+                    See Pricing
+                  </button>
+                )}
               </article>
 
               {/* COMPLETE CARD */}
@@ -148,9 +150,18 @@ export default function PlansPage() {
                   <strong>${prices.complete}</strong>
                   <small>/ month</small>
                 </div>
-                <Link href="/book?plan=monthly" onClick={handleCta} className="w-full">
-                  Check local price
-                </Link>
+                {zipCode ? (
+                  <button
+                    onClick={() => handleAddToCart("complete", "Complete Protection", String(prices.complete), "149.00", true)}
+                    className="w-full bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[14px] uppercase py-3.5 rounded-full shadow-lg transition-all cursor-pointer"
+                  >
+                    Add to Cart
+                  </button>
+                ) : (
+                  <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white font-extrabold text-[13px] uppercase py-3 rounded-full transition-all cursor-pointer">
+                    See Pricing
+                  </button>
+                )}
               </article>
 
               {/* ONE-TIME CARD */}
@@ -176,14 +187,22 @@ export default function PlansPage() {
                 </ul>
                 <div className="comparison-price">
                   <strong>${prices.onetime}</strong>
-                  <small>starting price</small>
+                  <small>one-time price</small>
                 </div>
-                <Link href="/book?plan=one-time" onClick={handleCta} className="w-full">
-                  Request a visit
-                </Link>
+                {zipCode ? (
+                  <button
+                    onClick={() => handleAddToCart("onetime", "One-Time Service", "0.00", String(prices.onetime), false)}
+                    className="w-full bg-white border-2 border-[#071b4d] hover:bg-gray-50 text-[#071b4d] font-extrabold text-[13px] uppercase py-3 rounded-full transition-all cursor-pointer"
+                  >
+                    Add to Cart
+                  </button>
+                ) : (
+                  <button onClick={() => setIsAddressModalOpen(true)} className="w-full bg-[#0066cc] hover:bg-[#0052a3] text-white font-extrabold text-[13px] uppercase py-3 rounded-full transition-all cursor-pointer">
+                    See Pricing
+                  </button>
+                )}
               </article>
             </div>
-
           </div>
         </section>
 

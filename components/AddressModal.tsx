@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import { useLocation } from "@/context/LocationContext";
 
 interface AddressModalProps {
@@ -13,8 +12,6 @@ interface SuggestionItem {
 }
 
 export default function AddressModal({ onClose }: AddressModalProps) {
-  const router = useRouter();
-  const pathname = usePathname();
   const { submitAddressSearch } = useLocation();
   const [addressInput, setAddressInput] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
@@ -61,13 +58,10 @@ export default function AddressModal({ onClose }: AddressModalProps) {
     setIsSubmitting(true);
     setShowSuggestions(false);
     submitAddressSearch(address);
-    // Small delay for state to settle then navigate
+    // Settle state and close modal without navigating away
     setTimeout(() => {
       onClose();
-      if (pathname !== "/plans") {
-        router.push("/plans");
-      }
-    }, 300);
+    }, 200);
   };
 
   const handleUseCurrentLocation = () => {
@@ -111,13 +105,13 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
       style={{ backgroundColor: "rgba(3, 14, 43, 0.92)" }}
     >
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 text-white/60 hover:text-white text-3xl font-light leading-none outline-none"
+        className="absolute top-6 right-6 text-white/60 hover:text-white text-3xl font-light leading-none outline-none cursor-pointer"
         aria-label="Close"
       >
         ×
@@ -125,10 +119,10 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
       <div className="w-full max-w-xl text-center text-white flex flex-col items-center gap-6">
         <div>
-          <h2 className="text-[38px] sm:text-[48px] font-extrabold tracking-tight leading-tight mb-3">
+          <h2 className="text-[34px] sm:text-[46px] font-extrabold tracking-tight leading-tight mb-3">
             What is your address?
           </h2>
-          <p className="text-zinc-300 text-[16px]">
+          <p className="text-zinc-300 text-[15px] sm:text-[16px]">
             Your customized local price is based on your location.
           </p>
         </div>
@@ -150,7 +144,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                 if (suggestions.length > 0) setShowSuggestions(true);
               }}
               placeholder="Enter your address or ZIP code..."
-              className="w-full px-5 py-4 text-[16px] text-gray-900 placeholder:text-gray-400 bg-white rounded-full shadow-xl outline-none focus:ring-4 focus:ring-yellow-400/40 transition-all pr-32"
+              className="w-full px-6 py-4 text-[16px] text-gray-900 placeholder:text-gray-400 bg-white rounded-full shadow-2xl outline-none focus:ring-4 focus:ring-yellow-400/40 transition-all pr-28 font-medium"
               autoFocus
               autoComplete="street-address"
               disabled={isSubmitting || isLocating}
@@ -158,44 +152,44 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             <button
               type="submit"
               disabled={!addressInput.trim() || isSubmitting || isLocating}
-              className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#ffc400] hover:bg-[#e6af00] disabled:opacity-40 text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider px-5 py-2.5 rounded-full transition-all"
+              className="absolute right-2 top-1/2 -translate-y-1/2 bg-[#ffc400] hover:bg-[#e6af00] disabled:opacity-40 text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider px-5 py-2.5 rounded-full transition-all cursor-pointer"
             >
               {isSubmitting ? "..." : "Go"}
             </button>
           </div>
 
-          {/* Autocomplete dropdown */}
+          {/* Autocomplete dropdown with ample bottom padding to prevent cutoff */}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-100 max-h-72 overflow-y-auto">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-100 max-h-80 overflow-y-auto py-1">
               {/* GPS at top of dropdown */}
               <button
                 type="button"
                 onClick={handleUseCurrentLocation}
                 disabled={isLocating}
-                className="w-full px-5 py-3.5 text-left bg-sky-50 hover:bg-sky-100 text-sky-800 text-sm font-semibold flex items-center gap-3 border-b border-sky-100 transition-colors"
+                className="w-full px-5 py-3 text-left bg-sky-50 hover:bg-sky-100 text-sky-800 text-sm font-semibold flex items-center gap-3 border-b border-sky-100 transition-colors cursor-pointer"
               >
-                <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                <svg className="w-4 h-4 shrink-0 text-sky-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
                   <circle cx="12" cy="12" r="3" />
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 2v2m0 16v2M2 12h2m16 0h2" />
                 </svg>
                 {isLocating ? "Detecting location..." : "Use my current location"}
               </button>
 
-              {suggestions.map((s, i) => (
-                <button
-                  key={i}
-                  type="button"
-                  onClick={() => commitAddress(s.fullAddress)}
-                  className="w-full px-5 py-3.5 text-left text-gray-800 hover:bg-blue-50 text-sm font-medium border-b border-gray-100 last:border-0 transition-colors"
-                >
-                  <span className="flex items-center gap-2">
-                    <svg className="w-3.5 h-3.5 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              <div className="divide-y divide-gray-100 pb-2">
+                {suggestions.map((s, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => commitAddress(s.fullAddress)}
+                    className="w-full px-5 py-3.5 text-left text-gray-800 hover:bg-blue-50 text-sm font-medium transition-colors cursor-pointer flex items-center gap-2.5"
+                  >
+                    <svg className="w-4 h-4 text-gray-400 shrink-0" fill="currentColor" viewBox="0 0 20 20">
                       <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
                     </svg>
-                    {s.fullAddress}
-                  </span>
-                </button>
-              ))}
+                    <span className="truncate">{s.fullAddress}</span>
+                  </button>
+                ))}
+              </div>
             </div>
           )}
         </form>
@@ -206,7 +200,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             type="button"
             onClick={handleUseCurrentLocation}
             disabled={isLocating}
-            className="flex items-center gap-2 text-sky-300 hover:text-white text-sm font-medium transition-colors disabled:opacity-50"
+            className="flex items-center gap-2 text-sky-300 hover:text-white text-sm font-medium transition-colors disabled:opacity-50 cursor-pointer"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
               <circle cx="12" cy="12" r="3" />
