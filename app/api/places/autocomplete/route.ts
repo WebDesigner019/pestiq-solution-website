@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
   const rawQuery = searchParams.get("q") || "";
   const query = rawQuery.trim();
 
-  if (query.length < 2) {
+  if (!query || query.length < 1) {
     return NextResponse.json({ suggestions: [] });
   }
 

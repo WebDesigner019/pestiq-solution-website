@@ -113,7 +113,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         } finally {
           setIsLoadingPlaces(false);
         }
-      }, 150);
+      }, 50);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);

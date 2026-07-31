@@ -96,7 +96,7 @@ export default function AddressAutocomplete({
       setIsLoading(true);
       debounceTimer.current = setTimeout(() => {
         fetchPlaces(val);
-      }, 150);
+      }, 50);
     } else {
       setSuggestions([]);
       setShowDropdown(false);
