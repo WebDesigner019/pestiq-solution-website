@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useRef } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import { useLocation } from "@/context/LocationContext";
 import { Navigation, Loader2 } from "lucide-react";
 
@@ -71,13 +72,15 @@ const ALL_US_STATES = [
 ];
 
 export default function AddressModal({ onClose }: AddressModalProps) {
+  const router = useRouter();
+  const pathname = usePathname();
   const { setZipCode, setStreetAddress, submitAddressSearch } = useLocation();
   const [addressInput, setAddressInput] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
-  const [modalState, setModalState] = useState<"input" | "loading" | "unserviceable">("input");
+  const [modalState, setModalState] = useState<"input" | "loading" | "done">("input");
   const [isManualMode, setIsManualMode] = useState(false);
   const [manualStreet, setManualStreet] = useState("");
   const [manualCity, setManualCity] = useState("");
@@ -86,6 +89,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   const [isStateDropdownOpen, setIsStateDropdownOpen] = useState(false);
   const [loadingText, setLoadingText] = useState("Connecting to Property Assessor API...");
   const [loadingSubtext, setLoadingSubtext] = useState("Querying parcel registry...");
+  const [locationError, setLocationError] = useState("");
 
   const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
@@ -93,6 +97,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     setAddressInput(val);
+    setLocationError("");
 
     if (debounceTimer.current) clearTimeout(debounceTimer.current);
 
@@ -113,7 +118,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         } finally {
           setIsLoadingPlaces(false);
         }
-      }, 50);
+      }, 80);
     } else {
       setSuggestions([]);
       setShowSuggestions(false);
@@ -121,14 +126,18 @@ export default function AddressModal({ onClose }: AddressModalProps) {
     }
   };
 
-  // Live GPS Location Detection
+  // Live GPS Location Detection — works on iPhone, Android, Desktop
   const handleUseCurrentLocation = () => {
+    setLocationError("");
+
     if (!navigator.geolocation) {
-      alert("Geolocation is not supported by your browser.");
+      setLocationError("Your browser does not support location access. Please type your address manually.");
       return;
     }
 
     setIsLocating(true);
+    setShowSuggestions(false);
+
     navigator.geolocation.getCurrentPosition(
       async (position) => {
         const { latitude, longitude } = position.coords;
@@ -138,54 +147,61 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             const data = await res.json();
             if (data.fullAddress) {
               setAddressInput(data.fullAddress);
-              setShowSuggestions(false);
+              setIsLocating(false);
               handleSubmit(data.fullAddress);
+              return;
             }
           }
         } catch (err) {
-          console.warn("Location reverse geocoding error:", err);
-        } finally {
-          setIsLocating(false);
+          console.warn("Reverse geocoding error:", err);
         }
+        setIsLocating(false);
+        setLocationError("Could not resolve your location. Please type your address.");
       },
       (error) => {
-        console.warn("Geolocation error:", error);
         setIsLocating(false);
-        const sample = "11 Oak Dr, Brick Township, NJ 08723";
-        setAddressInput(sample);
-        handleSubmit(sample);
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationError("Location access was denied. Please type your address or enable location in your browser/phone settings.");
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          setLocationError("Location is unavailable. Please type your address.");
+        } else {
+          setLocationError("Location request timed out. Please type your address.");
+        }
       },
-      { timeout: 8000 }
+      { timeout: 10000, enableHighAccuracy: true, maximumAge: 0 }
     );
   };
 
-  // Handle address check submission
+  // Handle address submission and navigate to /plans
   const handleSubmit = (address: string) => {
     if (!address.trim()) return;
 
     setAddressInput(address);
+    setShowSuggestions(false);
     setModalState("loading");
 
-    // Phase 1: Connect to Assessor API
-    setLoadingText("Connecting to Property Assessor API...");
-    setLoadingSubtext("Querying regional parcel registry database...");
+    setLoadingText("Verifying your address...");
+    setLoadingSubtext("Checking service area coverage...");
 
     setTimeout(() => {
-      // Phase 2: Retrieve parcel size
-      setLoadingText("Retrieving parcel records...");
-      setLoadingSubtext("Calculating building square footage area...");
+      setLoadingText("Calculating your local pricing...");
+      setLoadingSubtext("Retrieving property data...");
 
       setTimeout(() => {
-        const isSupported = submitAddressSearch(address);
-        if (isSupported) {
-          onClose();
-        } else {
-          setZipCode(address);
-          setStreetAddress(address);
-          onClose();
+        // Commit address to context + localStorage
+        submitAddressSearch(address);
+
+        setModalState("done");
+
+        // Always close the modal first
+        onClose();
+
+        // If user is NOT already on /plans, navigate there so they can see their price
+        if (pathname !== "/plans") {
+          router.push("/plans");
         }
-      }, 600);
-    }, 600);
+      }, 700);
+    }, 700);
   };
 
   return (
@@ -224,7 +240,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                   e.preventDefault();
                   handleSubmit(addressInput);
                 }}
-                className="w-full max-w-lg flex flex-col gap-4 mt-4 relative"
+                className="w-full max-w-lg flex flex-col gap-3 mt-4 relative"
               >
                 <div className="relative">
                   <input
@@ -238,22 +254,25 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                     className="w-full px-6 py-4 bg-white text-zinc-900 placeholder:text-gray-400 text-[16px] font-medium border-0 rounded-full shadow-2xl outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
                     required
                     autoFocus
+                    autoComplete="street-address"
+                    inputMode="text"
                   />
 
-                  {/* Dropdown Suggestions List (Faithfully Matching Terminix Screenshot) */}
-                  {showSuggestions && (suggestions.length > 0 || isLocating) && (
+                  {/* Dropdown Suggestions */}
+                  {showSuggestions && suggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-200 max-h-72 overflow-y-auto">
+                      {/* Use Current Location — top of dropdown */}
                       <button
                         type="button"
                         onClick={handleUseCurrentLocation}
-                        className="w-full px-6 py-3.5 text-left bg-sky-50 text-sky-800 hover:bg-sky-100 transition-colors border-b border-sky-100 flex items-center gap-3 text-xs font-bold"
+                        className="w-full px-5 py-3.5 text-left bg-sky-50 text-sky-800 hover:bg-sky-100 transition-colors border-b border-sky-100 flex items-center gap-3 text-sm font-semibold"
                       >
                         {isLocating ? (
                           <Loader2 className="w-4 h-4 text-sky-600 animate-spin shrink-0" />
                         ) : (
                           <Navigation className="w-4 h-4 rotate-45 shrink-0 text-sky-600" />
                         )}
-                        <span>{isLocating ? "Detecting GPS location..." : "Use my current location"}</span>
+                        <span>{isLocating ? "Detecting your location..." : "Use my current location"}</span>
                       </button>
 
                       {suggestions.map((suggestion, idx) => (
@@ -265,26 +284,48 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                             setShowSuggestions(false);
                             handleSubmit(suggestion.fullAddress);
                           }}
-                          className="w-full px-6 py-3.5 text-left text-gray-800 hover:bg-blue-50 hover:text-[#0066cc] transition-colors border-b border-gray-100 last:border-0 flex items-center justify-between text-sm font-medium"
+                          className="w-full px-5 py-3.5 text-left text-gray-800 hover:bg-blue-50 transition-colors border-b border-gray-100 last:border-0 text-sm font-medium"
                         >
-                          <span className="truncate pr-2">{suggestion.fullAddress}</span>
+                          <span className="truncate block">{suggestion.fullAddress}</span>
                         </button>
                       ))}
                     </div>
                   )}
                 </div>
 
+                {/* Location error message */}
+                {locationError && (
+                  <p className="text-amber-300 text-xs font-medium text-center px-2">
+                    ⚠️ {locationError}
+                  </p>
+                )}
+
+                {/* Use my current location — also as a standalone link below input */}
+                <button
+                  type="button"
+                  onClick={handleUseCurrentLocation}
+                  disabled={isLocating}
+                  className="flex items-center justify-center gap-2 text-sky-300 hover:text-white text-sm font-semibold transition-colors mx-auto disabled:opacity-50"
+                >
+                  {isLocating ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Navigation className="w-4 h-4 rotate-45" />
+                  )}
+                  <span>{isLocating ? "Detecting your location..." : "Use my current location"}</span>
+                </button>
+
                 <button
                   type="button"
                   onClick={() => setIsManualMode(true)}
-                  className="text-zinc-300 hover:text-white text-sm font-medium transition-colors mt-1 underline underline-offset-4"
+                  className="text-zinc-400 hover:text-white text-sm font-medium transition-colors underline underline-offset-4"
                 >
                   Can&apos;t find your address? Enter manually.
                 </button>
 
                 <button
                   type="submit"
-                  className="w-full sm:w-auto self-center bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider px-10 py-4.5 rounded-full shadow-md transition-all duration-250 mt-2"
+                  className="w-full sm:w-auto self-center bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider px-10 py-4 rounded-full shadow-md transition-all duration-250 mt-1"
                 >
                   Continue ›
                 </button>
@@ -302,12 +343,13 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                   <label className="text-zinc-300 text-xs font-bold uppercase tracking-wider mb-1.5 block">Street Address</label>
                   <input
                     type="text"
-                    placeholder="Street Address (e.g. 11 Oak Dr)"
+                    placeholder="e.g. 11 Oak Dr"
                     value={manualStreet}
                     onChange={(e) => setManualStreet(e.target.value)}
                     className="w-full px-5 py-3.5 bg-white text-zinc-900 placeholder:text-gray-400 text-[15px] font-medium border-0 rounded-xl shadow-inner outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
                     required
                     autoFocus
+                    autoComplete="address-line1"
                   />
                 </div>
 
@@ -316,22 +358,25 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                     <label className="text-zinc-300 text-xs font-bold uppercase tracking-wider mb-1.5 block">City</label>
                     <input
                       type="text"
-                      placeholder="City (e.g. Brick)"
+                      placeholder="e.g. Brick"
                       value={manualCity}
                       onChange={(e) => setManualCity(e.target.value)}
                       className="w-full px-5 py-3.5 bg-white text-zinc-900 placeholder:text-gray-400 text-[15px] font-medium border-0 rounded-xl shadow-inner outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
                       required
+                      autoComplete="address-level2"
                     />
                   </div>
                   <div>
-                    <label className="text-zinc-300 text-xs font-bold uppercase tracking-wider mb-1.5 block">Zip Code</label>
+                    <label className="text-zinc-300 text-xs font-bold uppercase tracking-wider mb-1.5 block">ZIP Code</label>
                     <input
                       type="text"
-                      placeholder="ZIP Code (e.g. 08723)"
+                      inputMode="numeric"
+                      placeholder="e.g. 08723"
                       value={manualZip}
                       onChange={(e) => setManualZip(e.target.value)}
                       className="w-full px-5 py-3.5 bg-white text-zinc-900 placeholder:text-gray-400 text-[15px] font-medium border-0 rounded-xl shadow-inner outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
                       required
+                      autoComplete="postal-code"
                     />
                   </div>
                 </div>
@@ -344,32 +389,20 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                       onClick={() => setIsStateDropdownOpen(!isStateDropdownOpen)}
                       className="w-full px-5 py-3.5 bg-white text-zinc-900 text-[15px] font-semibold rounded-xl shadow-md flex items-center justify-between outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all text-left"
                     >
-                      <span>
-                        {ALL_US_STATES.find(s => s.code === manualState)?.name || "New Jersey"} ({manualState})
-                      </span>
-                      <span className="text-gray-500 font-bold text-xs">
-                        {isStateDropdownOpen ? "▲" : "▼"}
-                      </span>
+                      <span>{ALL_US_STATES.find(s => s.code === manualState)?.name || "New Jersey"} ({manualState})</span>
+                      <span className="text-gray-500 text-xs font-bold">{isStateDropdownOpen ? "▲" : "▼"}</span>
                     </button>
 
-                    {/* Custom Scrollable State Dropdown Box */}
                     {isStateDropdownOpen && (
-                      <div className="absolute bottom-full mb-2 left-0 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-52 overflow-y-auto text-left py-1 animate-fade-in">
+                      <div className="absolute bottom-full mb-2 left-0 right-0 bg-white rounded-xl shadow-2xl border border-gray-200 z-50 max-h-52 overflow-y-auto text-left py-1">
                         <div className="px-4 py-2 bg-gray-50 text-[11px] font-bold text-gray-400 uppercase tracking-wider border-b border-gray-100">
-                          Select US State
+                          Select State
                         </div>
                         {ALL_US_STATES.map((st) => (
                           <div
                             key={st.code}
-                            onClick={() => {
-                              setManualState(st.code);
-                              setIsStateDropdownOpen(false);
-                            }}
-                            className={`px-5 py-2.5 text-sm font-semibold cursor-pointer transition-colors border-b border-gray-50 last:border-0 ${
-                              manualState === st.code
-                                ? "bg-blue-50 text-[#0066cc]"
-                                : "text-gray-800 hover:bg-gray-100"
-                            }`}
+                            onClick={() => { setManualState(st.code); setIsStateDropdownOpen(false); }}
+                            className={`px-5 py-2.5 text-sm font-semibold cursor-pointer border-b border-gray-50 last:border-0 transition-colors ${manualState === st.code ? "bg-blue-50 text-[#0066cc]" : "text-gray-800 hover:bg-gray-100"}`}
                           >
                             {st.name} ({st.code})
                           </div>
@@ -378,18 +411,18 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                     )}
                   </div>
                 </div>
-                
-                <div className="flex justify-between items-center mt-6">
+
+                <div className="flex justify-between items-center mt-4">
                   <button
                     type="button"
                     onClick={() => setIsManualMode(false)}
-                    className="bg-white/10 hover:bg-white/20 text-white font-extrabold text-[12.5px] uppercase tracking-wider px-6 py-3.5 rounded-full border border-white/10 transition-all duration-200"
+                    className="bg-white/10 hover:bg-white/20 text-white font-extrabold text-[12.5px] uppercase tracking-wider px-6 py-3.5 rounded-full border border-white/10 transition-all"
                   >
                     ‹ Go back
                   </button>
                   <button
                     type="submit"
-                    className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider px-8 py-3.5 rounded-full shadow-md transition-all duration-200"
+                    className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[13px] uppercase tracking-wider px-8 py-3.5 rounded-full shadow-md transition-all"
                   >
                     Continue ›
                   </button>

@@ -209,22 +209,24 @@ export function Header() {
               <span className="text-blue-600">Change</span>
             </button>
           </div>
-          <Link href="/termites" className="p-4 border-b border-gray-100 font-bold text-gray-800">Termite Treatment</Link>
+          <Link href="/" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-[#071b4d] flex items-center gap-2">🏠 Home</Link>
+          <Link href="/termites" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">Termite Treatment</Link>
           <div className="p-4 border-b border-gray-100 flex flex-col">
             <span className="font-bold text-gray-800 mb-3">Pest Control Services</span>
             <div className="grid grid-cols-2 gap-2 pl-4 text-sm">
-              <Link href="/pests/ants" className="text-gray-600 py-1">Ant Control</Link>
-              <Link href="/pests/cockroaches" className="text-gray-600 py-1">Cockroach Control</Link>
-              <Link href="/pests/rodents" className="text-gray-600 py-1">Rodent Control</Link>
-              <Link href="/pests/mosquitoes" className="text-gray-600 py-1">Mosquito Control</Link>
-              <Link href="/pests/bed-bugs" className="text-gray-600 py-1">Bed Bug Control</Link>
-              <Link href="/pests/general" className="text-blue-600 py-1 font-semibold">View All Pests →</Link>
+              <Link href="/pests/ants" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 py-1">Ant Control</Link>
+              <Link href="/pests/cockroaches" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 py-1">Cockroach Control</Link>
+              <Link href="/pests/rodents" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 py-1">Rodent Control</Link>
+              <Link href="/pests/mosquitoes" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 py-1">Mosquito Control</Link>
+              <Link href="/pests/bed-bugs" onClick={() => setMobileMenuOpen(false)} className="text-gray-600 py-1">Bed Bug Control</Link>
+              <Link href="/pests/general" onClick={() => setMobileMenuOpen(false)} className="text-blue-600 py-1 font-semibold">View All Pests →</Link>
             </div>
           </div>
-          <Link href="/home-services" className="p-4 border-b border-gray-100 font-bold text-gray-800">Home Services</Link>
-          <Link href="/research" className="p-4 border-b border-gray-100 font-bold text-gray-800">Pest Research</Link>
-          <Link href="/about" className="p-4 border-b border-gray-100 font-bold text-gray-800">About PestIQ</Link>
-          <Link href="/offers" className="p-4 border-b border-gray-100 font-bold text-red-600">Exclusive Offers</Link>
+          <Link href="/plans" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-[#17824b]">💰 View Plans & Pricing</Link>
+          <Link href="/home-services" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">Home Services</Link>
+          <Link href="/research" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">Pest Research</Link>
+          <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">About PestIQ</Link>
+          <Link href="/offers" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-red-600">Exclusive Offers</Link>
         </div>
       )}
     </header>

@@ -9,7 +9,36 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ error: "Latitude and Longitude are required" }, { status: 400 });
   }
 
+  const geoapifyApiKey = process.env.GEOAPIFY_API_KEY || process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
   const googleApiKey = process.env.GOOGLE_PLACES_API_KEY || process.env.NEXT_PUBLIC_GOOGLE_PLACES_API_KEY;
+
+  // 1. Try Geoapify Reverse Geocoding (always available via free API key)
+  if (geoapifyApiKey) {
+    try {
+      const geoRes = await fetch(
+        `https://api.geoapify.com/v1/geocode/reverse?lat=${lat}&lon=${lng}&apiKey=${geoapifyApiKey}`,
+        { signal: AbortSignal.timeout(4000) }
+      );
+      if (geoRes.ok) {
+        const geoData = await geoRes.json();
+        const feat = geoData.features?.[0];
+        if (feat) {
+          const props = feat.properties || {};
+          const house = props.housenumber ? `${props.housenumber} ` : "";
+          const streetName = props.street || props.address_line1 || "Main St";
+          const street = `${house}${streetName}`.trim();
+          const city = props.city || props.town || props.suburb || props.county || "Toms River";
+          const stateCode = props.state_code || "NJ";
+          const zip = props.postcode || "08753";
+          const fullAddress = props.formatted || `${street}, ${city}, ${stateCode} ${zip}`;
+
+          return NextResponse.json({ street, city, state: stateCode, zip, fullAddress, provider: "geoapify" });
+        }
+      }
+    } catch (err) {
+      console.warn("Geoapify Reverse Geocode error:", err);
+    }
+  }
 
   // 1. Try Google Reverse Geocoding API if key is present
   if (googleApiKey) {
