@@ -123,6 +123,10 @@ export async function GET(req: NextRequest) {
   const otherStatePattern = /\b(NY|CT|PA|DE|CA|FL|TX|IL|GA|MA|MD|VA|NC|SC|OH|MI|CO|AZ|WA|OR|NV|HI|AK|AL|AR|DC|IA|ID|IN|KS|KY|LA|ME|MN|MO|MS|MT|ND|NE|NH|NM|OK|RI|SD|TN|UT|VT|WI|WV|WY|New York|Connecticut|Pennsylvania|California|Florida|Texas|Illinois)\b/i;
   const hasOtherState = otherStatePattern.test(query);
 
+  // Extract house number from typed query (e.g. "11" from "11 Oak Dr" or "1154" from "1154 Marcela Ct")
+  const houseNumMatch = query.match(/^(\d+[a-zA-Z]?)\s+/);
+  const userHouseNum = houseNumMatch ? houseNumMatch[1] : "";
+
   // 3. Try Photon Geocoding API
   if (results.length < 5) {
     try {
@@ -140,9 +144,15 @@ export async function GET(req: NextRequest) {
         if (photonData.features && Array.isArray(photonData.features)) {
           for (const feat of photonData.features) {
             const props = feat.properties || {};
-            const house = props.housenumber ? `${props.housenumber} ` : "";
+            let house = props.housenumber ? `${props.housenumber} ` : (userHouseNum ? `${userHouseNum} ` : "");
             const streetName = props.street || props.name || query;
-            const fullStreet = `${house}${streetName}`.trim();
+            
+            // If streetName already starts with digits, don't duplicate
+            let fullStreet = `${house}${streetName}`.trim();
+            if (userHouseNum && !/^\d/.test(fullStreet)) {
+              fullStreet = `${userHouseNum} ${fullStreet}`;
+            }
+
             const city = props.city || props.town || props.district || props.county || "New Jersey";
             const state = props.state === "New Jersey" ? "NJ" : props.state === "New York" ? "NY" : props.state || "NJ";
             const zip = props.postcode || (state === "NJ" ? "08701" : "10001");
@@ -181,15 +191,18 @@ export async function GET(req: NextRequest) {
         },
       });
 
-
       if (osmRes.ok) {
         const osmData = await osmRes.json();
         if (Array.isArray(osmData)) {
           for (const item of osmData) {
             const addr = item.address || {};
             const road = addr.road || addr.pedestrian || addr.street || item.display_name.split(",")[0];
-            const houseNumber = addr.house_number ? `${addr.house_number} ` : "";
-            const streetName = `${houseNumber}${road}`.trim();
+            const houseNumber = addr.house_number ? `${addr.house_number} ` : (userHouseNum ? `${userHouseNum} ` : "");
+            let streetName = `${houseNumber}${road}`.trim();
+            if (userHouseNum && !/^\d/.test(streetName)) {
+              streetName = `${userHouseNum} ${streetName}`;
+            }
+
             const city = addr.city || addr.town || addr.village || addr.suburb || addr.county || "New Jersey";
             const state = addr.state === "New Jersey" ? "NJ" : addr.state === "New York" ? "NY" : addr.state || "NJ";
             const zip = addr.postcode || (state === "NJ" ? "08701" : "10001");
@@ -209,6 +222,7 @@ export async function GET(req: NextRequest) {
       console.warn("OSM Nominatim fetch error:", e);
     }
   }
+
 
   // 5. If query contains street number/name but no match found, format a valid NJ address fallback
   if (results.length === 0 && query.length >= 3) {

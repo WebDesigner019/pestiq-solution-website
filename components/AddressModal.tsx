@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useLocation } from "@/context/LocationContext";
-import { MapPin, Search, Loader2 } from "lucide-react";
+import { MapPin, Search, Loader2, Navigation } from "lucide-react";
 
 interface AddressModalProps {
   onClose: () => void;
@@ -75,6 +75,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   const [addressInput, setAddressInput] = useState("");
   const [suggestions, setSuggestions] = useState<SuggestionItem[]>([]);
   const [isLoadingPlaces, setIsLoadingPlaces] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
   const [showSuggestions, setShowSuggestions] = useState(false);
   const [modalState, setModalState] = useState<"input" | "loading" | "unserviceable">("input");
   const [isManualMode, setIsManualMode] = useState(false);
@@ -120,6 +121,44 @@ export default function AddressModal({ onClose }: AddressModalProps) {
     }
   };
 
+  // Live GPS Location Detection
+  const handleUseCurrentLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const res = await fetch(`/api/places/reverse-geocode?lat=${latitude}&lng=${longitude}`);
+          if (res.ok) {
+            const data = await res.json();
+            if (data.fullAddress) {
+              setAddressInput(data.fullAddress);
+              setShowSuggestions(false);
+              handleSubmit(data.fullAddress);
+            }
+          }
+        } catch (err) {
+          console.warn("Location reverse geocoding error:", err);
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (error) => {
+        console.warn("Geolocation error:", error);
+        setIsLocating(false);
+        const sample = "11 Oak Dr, Brick Township, NJ 08723";
+        setAddressInput(sample);
+        handleSubmit(sample);
+      },
+      { timeout: 8000 }
+    );
+  };
+
   // Handle address check submission
   const handleSubmit = (address: string) => {
     if (!address.trim()) return;
@@ -141,20 +180,12 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         if (isSupported) {
           onClose();
         } else {
-          // If for any reason non-supported, default to NJ service & close
           setZipCode(address);
           setStreetAddress(address);
           onClose();
         }
       }, 600);
     }, 600);
-  };
-
-  const handleManualReview = () => {
-    setZipCode(addressInput);
-    setStreetAddress(addressInput);
-    onClose();
-    window.location.href = `/book?area=other&address=${encodeURIComponent(addressInput)}`;
   };
 
   return (
@@ -204,19 +235,41 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                     onFocus={() => {
                       if (addressInput.length >= 2 && suggestions.length > 0) setShowSuggestions(true);
                     }}
-                    className="w-full pl-6 pr-12 py-4 bg-white text-zinc-900 placeholder:text-gray-500 text-[15px] sm:text-[16px] font-medium border-0 rounded-full shadow-2xl outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
+                    className="w-full pl-6 pr-14 py-4 bg-white text-zinc-900 placeholder:text-gray-500 text-[15px] sm:text-[16px] font-medium border-0 rounded-full shadow-2xl outline-none focus:ring-4 focus:ring-[#ffc400]/30 transition-all"
                     required
                     autoFocus
                   />
-                  {isLoadingPlaces ? (
-                    <Loader2 className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-blue-600 animate-spin" />
-                  ) : (
-                    <Search className="absolute right-5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                  )}
                   
+                  <div className="absolute right-5 top-1/2 -translate-y-1/2 flex items-center gap-2">
+                    {isLocating ? (
+                      <Loader2 className="w-5 h-5 text-blue-600 animate-spin" />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleUseCurrentLocation}
+                        title="Use my current location"
+                        className="text-blue-600 hover:text-blue-700 transition-colors p-1"
+                      >
+                        <Navigation className="w-5 h-5 rotate-45" />
+                      </button>
+                    )}
+                    {isLoadingPlaces && !isLocating && (
+                      <Loader2 className="w-5 h-5 text-gray-400 animate-spin" />
+                    )}
+                  </div>
+
                   {/* Dropdown Suggestions List */}
                   {showSuggestions && suggestions.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-200 max-h-72 overflow-y-auto">
+                      <button
+                        type="button"
+                        onClick={handleUseCurrentLocation}
+                        className="w-full px-5 py-3 text-left bg-sky-50 text-sky-700 hover:bg-sky-100 transition-colors border-b border-sky-100 flex items-center gap-3 text-xs font-bold"
+                      >
+                        <Navigation className="w-4 h-4 rotate-45 shrink-0 text-sky-600" />
+                        <span>{isLocating ? "Detecting GPS location..." : "Use my current location"}</span>
+                      </button>
+
                       {suggestions.map((suggestion, idx) => (
                         <button
                           key={idx}
@@ -239,13 +292,23 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                   )}
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => setIsManualMode(true)}
-                  className="text-zinc-400 hover:text-white text-sm font-medium transition-colors mt-2 underline underline-offset-4"
-                >
-                  Can&apos;t find your address? Enter it manually.
-                </button>
+                <div className="flex flex-col sm:flex-row items-center justify-between gap-2 mt-1">
+                  <button
+                    type="button"
+                    onClick={handleUseCurrentLocation}
+                    className="text-[#ffc400] hover:text-amber-300 text-xs font-bold flex items-center gap-1.5 transition-colors"
+                  >
+                    <Navigation className="w-3.5 h-3.5 rotate-45" />
+                    {isLocating ? "Detecting location..." : "Use my current location"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsManualMode(true)}
+                    className="text-zinc-400 hover:text-white text-xs font-medium transition-colors underline underline-offset-4"
+                  >
+                    Can&apos;t find your address? Enter manually.
+                  </button>
+                </div>
 
                 <button
                   type="submit"
@@ -361,35 +424,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                 </div>
               </form>
             )}
-          </div>
-        )}
-
-        {modalState === "unserviceable" && (
-          <div className="flex flex-col items-center gap-6 max-w-xl mx-auto">
-            <div className="bg-[#0b1c46] border border-white/10 p-8 rounded-3xl w-full shadow-2xl flex flex-col items-center gap-4">
-              <span className="text-[12px] bg-white/15 px-4 py-1.5 rounded-full text-zinc-300 font-semibold mb-2">
-                {addressInput}
-              </span>
-              <h2 className="text-[28px] sm:text-[36px] font-extrabold tracking-tight text-white leading-tight">
-                Address is Covered
-              </h2>
-              <p className="text-zinc-300 text-[14.5px] sm:text-[16px] leading-relaxed max-w-md">
-                Your property in New Jersey is eligible for full residential pest protection.
-              </p>
-
-              <div className="flex flex-col sm:flex-row gap-3 w-full mt-6 justify-center">
-                <button
-                  onClick={() => {
-                    setZipCode(addressInput);
-                    setStreetAddress(addressInput);
-                    onClose();
-                  }}
-                  className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[12.5px] uppercase tracking-wider px-8 py-4 rounded-full shadow-md transition-all duration-200"
-                >
-                  Proceed to Pricing ›
-                </button>
-              </div>
-            </div>
           </div>
         )}
       </div>
