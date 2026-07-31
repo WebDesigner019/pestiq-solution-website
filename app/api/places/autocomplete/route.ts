@@ -119,6 +119,45 @@ export async function GET(req: NextRequest) {
     }
   }
 
+  // 2b. Try Geoapify Address Autocomplete API (100% Free - 3,000 req/day, No Credit Card Required)
+  const geoapifyApiKey = process.env.GEOAPIFY_API_KEY || process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
+  if (geoapifyApiKey && results.length < 5) {
+    try {
+      const geoRes = await fetch(
+        `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
+          query
+        )}&filter=countrycode:us&apiKey=${geoapifyApiKey}`
+      );
+      if (geoRes.ok) {
+        const geoData = await geoRes.json();
+        if (geoData.features && Array.isArray(geoData.features)) {
+          for (const feat of geoData.features.slice(0, 5)) {
+            const props = feat.properties || {};
+            const house = props.housenumber ? `${props.housenumber} ` : "";
+            const streetName = props.street || props.address_line1 || query;
+            const fullStreet = `${house}${streetName}`.trim();
+            const city = props.city || props.town || props.suburb || "Toms River";
+            const state = props.state_code || (props.state === "New Jersey" ? "NJ" : "NJ");
+            const zip = props.postcode || "08753";
+            const fullAddress = props.formatted || `${fullStreet}, ${city}, ${state} ${zip}`;
+
+            addSuggestion({
+              street: fullStreet,
+              city,
+              state,
+              zip,
+              fullAddress,
+              provider: "geoapify",
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Geoapify API fetch error:", e);
+    }
+  }
+
+
   // Detect if user explicitly typed another US state code or state name
   const otherStatePattern = /\b(NY|CT|PA|DE|CA|FL|TX|IL|GA|MA|MD|VA|NC|SC|OH|MI|CO|AZ|WA|OR|NV|HI|AK|AL|AR|DC|IA|ID|IN|KS|KY|LA|ME|MN|MO|MS|MT|ND|NE|NH|NM|OK|RI|SD|TN|UT|VT|WI|WV|WY|New York|Connecticut|Pennsylvania|California|Florida|Texas|Illinois)\b/i;
   const hasOtherState = otherStatePattern.test(query);
