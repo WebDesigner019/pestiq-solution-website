@@ -105,7 +105,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 animate-fade-in"
+      className="fixed inset-0 z-50 flex items-start justify-center pt-10 sm:pt-16 px-4 overflow-y-auto pb-12 animate-fade-in"
       style={{ backgroundColor: "rgba(3, 14, 43, 0.92)" }}
     >
       {/* Close button */}
@@ -117,12 +117,12 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         ×
       </button>
 
-      <div className="w-full max-w-xl text-center text-white flex flex-col items-center gap-6">
+      <div className="w-full max-w-xl text-center text-white flex flex-col items-center gap-5 mt-4 sm:mt-6">
         <div>
-          <h2 className="text-[34px] sm:text-[46px] font-extrabold tracking-tight leading-tight mb-3">
+          <h2 className="text-[32px] sm:text-[44px] font-extrabold tracking-tight leading-tight mb-2">
             What is your address?
           </h2>
-          <p className="text-zinc-300 text-[15px] sm:text-[16px]">
+          <p className="text-zinc-300 text-[14px] sm:text-[16px]">
             Your customized local price is based on your location.
           </p>
         </div>
@@ -158,9 +158,9 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             </button>
           </div>
 
-          {/* Autocomplete dropdown with ample bottom padding to prevent cutoff */}
+          {/* Autocomplete dropdown with constrained height for 100% zoom */}
           {showSuggestions && suggestions.length > 0 && (
-            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-100 max-h-80 overflow-y-auto py-1">
+            <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-100 max-h-[36vh] overflow-y-auto py-1">
               {/* GPS at top of dropdown */}
               <button
                 type="button"

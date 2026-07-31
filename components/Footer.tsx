@@ -68,7 +68,7 @@ export function Footer() {
         <div>
           <h3>Customer care</h3>
           <Link href="/book">Request service</Link>
-          <Link href="/plans">Plans &amp; pricing</Link>
+          <Link href="/pests/general">Plans &amp; pricing</Link>
           <Link href="/#service-areas">Service areas</Link>
           <Link href="/policies">Policies</Link>
         </div>

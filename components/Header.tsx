@@ -222,7 +222,7 @@ export function Header() {
               <Link href="/pests/general" onClick={() => setMobileMenuOpen(false)} className="text-blue-600 py-1 font-semibold">View All Pests →</Link>
             </div>
           </div>
-          <Link href="/plans" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-[#17824b]">💰 View Plans & Pricing</Link>
+          <Link href="/pests/general" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-[#17824b]">💰 View Plans &amp; Pricing</Link>
           <Link href="/home-services" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">Home Services</Link>
           <Link href="/research" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">Pest Research</Link>
           <Link href="/about" onClick={() => setMobileMenuOpen(false)} className="p-4 border-b border-gray-100 font-bold text-gray-800">About PestIQ</Link>

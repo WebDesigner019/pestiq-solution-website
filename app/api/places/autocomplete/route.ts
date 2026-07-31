@@ -9,17 +9,6 @@ export interface PlaceSuggestion {
   provider?: string;
 }
 
-// Pinned addresses for client's specific requested locations
-const PINNED_ADDRESSES: PlaceSuggestion[] = [
-  { street: "11 Oak Dr", city: "Brick Township", state: "NJ", zip: "08723", fullAddress: "11 Oak Dr, Brick Township, NJ 08723" },
-  { street: "11 Oak Dr", city: "Edison", state: "NJ", zip: "08817", fullAddress: "11 Oak Dr, Edison, NJ 08817" },
-  { street: "11 Oak Dr", city: "Toms River", state: "NJ", zip: "08753", fullAddress: "11 Oak Dr, Toms River, NJ 08753" },
-  { street: "1154 Marcela Ct", city: "Toms River", state: "NJ", zip: "08753", fullAddress: "1154 Marcela Ct, Toms River, NJ 08753" },
-  { street: "167 Susan Dr", city: "Lakewood", state: "NJ", zip: "08701", fullAddress: "167 Susan Dr, Lakewood, NJ 08701" },
-  { street: "167 Susan Dr", city: "Brick", state: "NJ", zip: "08723", fullAddress: "167 Susan Dr, Brick, NJ 08723" },
-  { street: "27 Cherry Ln", city: "Lakewood", state: "NJ", zip: "08701", fullAddress: "27 Cherry Ln, Lakewood, NJ 08701" },
-];
-
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const rawQuery = searchParams.get("q") || "";
@@ -40,16 +29,6 @@ export async function GET(req: NextRequest) {
       results.push(item);
     }
   };
-
-  // ─── STEP 1: Pinned high-priority addresses (always checked first) ─────────
-  const qLower = query.toLowerCase();
-  const pinnedMatches = PINNED_ADDRESSES.filter((s) =>
-    s.fullAddress.toLowerCase().includes(qLower) ||
-    s.street.toLowerCase().includes(qLower) ||
-    s.city.toLowerCase().includes(qLower) ||
-    s.zip.startsWith(qLower)
-  );
-  pinnedMatches.forEach(addSuggestion);
 
   // ─── STEP 2: Geoapify (ALWAYS called when key present - full US dataset) ──
   const geoapifyApiKey = process.env.GEOAPIFY_API_KEY || process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
