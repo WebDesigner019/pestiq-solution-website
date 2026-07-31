@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React from "react";
 import Link from "next/link";
@@ -7,47 +7,21 @@ import { Footer } from "@/components/Footer";
 import { useLocation } from "@/context/LocationContext";
 
 export default function PlansPage() {
-  const { priceTier, serviceArea, propertySqFt, setPropertySqFt, zipCode, setIsAddressModalOpen } = useLocation();
+  const { priceTier, serviceArea, zipCode, setIsAddressModalOpen } = useLocation();
 
-  // Helper to compute local adjusted prices
+  // Prices are automatically set based on the user's location tier
   const getPrices = () => {
-    let baseEssential = 59;
-    let baseComplete = 69;
-    let baseOnetime = 279;
-
-    if (priceTier === "westchester") {
-      baseEssential = 49;
-      baseComplete = 59;
-      baseOnetime = 249;
-    } else if (priceTier === "newjersey") {
-      baseEssential = 45;
-      baseComplete = 55;
-      baseOnetime = 229;
+    if (priceTier === "newjersey") {
+      return { essential: 45, complete: 55, onetime: 229 };
+    } else if (priceTier === "westchester") {
+      return { essential: 49, complete: 59, onetime: 249 };
+    } else if (priceTier === "longisland") {
+      return { essential: 59, complete: 69, onetime: 269 };
+    } else if (priceTier === "ct") {
+      return { essential: 55, complete: 65, onetime: 259 };
     }
-
-    // Square footage adjustment
-    let monthlyAdjustment = 0;
-    let onetimeAdjustment = 0;
-
-    if (propertySqFt) {
-      if (propertySqFt > 1500 && propertySqFt <= 2500) {
-        monthlyAdjustment = 10;
-        onetimeAdjustment = 30;
-      } else if (propertySqFt > 2500 && propertySqFt <= 3500) {
-        monthlyAdjustment = 20;
-        onetimeAdjustment = 60;
-      } else if (propertySqFt > 3500) {
-        monthlyAdjustment = 30;
-        onetimeAdjustment = 90;
-      }
-    }
-
-    return {
-      essential: baseEssential + monthlyAdjustment,
-      complete: baseComplete + monthlyAdjustment,
-      onetime: baseOnetime + onetimeAdjustment,
-      adjusted: monthlyAdjustment > 0
-    };
+    // Default (NYC, other)
+    return { essential: 59, complete: 69, onetime: 279 };
   };
 
   const prices = getPrices();
@@ -88,33 +62,23 @@ export default function PlansPage() {
             <h1>Straightforward protection for your property.</h1>
             <div className="flex flex-col items-center gap-4 mt-2">
               {zipCode ? (
-                <div className="flex flex-col sm:flex-row items-center gap-3 bg-[#e8f5ed] border border-[#17824b]/20 px-6 py-3 rounded-2xl shadow-sm">
+                <div className="flex items-center gap-2 bg-[#e8f5ed] border border-[#17824b]/20 px-5 py-2.5 rounded-2xl shadow-sm">
                   <span className="text-sm font-semibold text-[#17824b] flex items-center gap-1.5">
                     📍 Local pricing for: <strong>{serviceArea}</strong>
                   </span>
-                  
-                  <div className="flex items-center gap-2 pl-0 sm:pl-3 border-t sm:border-t-0 sm:border-l border-[#17824b]/20 pt-2 sm:pt-0">
-                    <label className="text-xs font-bold text-gray-700 whitespace-nowrap">Home Size:</label>
-                    <input 
-                      type="range" 
-                      min="800" 
-                      max="5000" 
-                      step="100" 
-                      value={propertySqFt || 2000} 
-                      onChange={(e) => setPropertySqFt(parseInt(e.target.value, 10))}
-                      className="w-28 sm:w-36 accent-[#17824b] cursor-pointer"
-                    />
-                    <span className="text-xs font-extrabold text-[#071b4d] bg-white px-2.5 py-1 rounded-md border border-gray-200">
-                      {propertySqFt || 2000} sq ft
-                    </span>
-                  </div>
+                  <button
+                    onClick={() => setIsAddressModalOpen(true)}
+                    className="text-[11px] font-bold text-[#0066cc] hover:underline ml-2"
+                  >
+                    Change
+                  </button>
                 </div>
               ) : (
                 <button
                   onClick={() => setIsAddressModalOpen(true)}
                   className="bg-[#0066cc] hover:bg-[#0052a3] text-white font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider shadow-sm transition-all"
                 >
-                  📍 Enter address to reveal exact local pricing →
+                  📍 Enter address to see local pricing →
                 </button>
               )}
             </div>
@@ -219,11 +183,7 @@ export default function PlansPage() {
                 </Link>
               </article>
             </div>
-            {prices.adjusted && (
-              <p className="comparison-note">
-                * Prices include a size-based adjustment for your {propertySqFt} sq ft property.
-              </p>
-            )}
+
           </div>
         </section>
 
