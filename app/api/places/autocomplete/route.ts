@@ -243,7 +243,8 @@ export async function GET(req: NextRequest) {
           .toUpperCase()
           .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
           .trim()
-          .split(/\s+/)[0];
+          .split(/\s+/)[0]
+          .slice(0, 5); // Max 5 chars for spelling resilience (e.g. "MARCE" matches "MARCELA" and "MARCELLA")
 
         return `(PROP_LOC LIKE '${house} ${cleanStreet}%' AND ZIP_CODE = '${s.zip}')`;
       });
@@ -282,7 +283,8 @@ export async function GET(req: NextRequest) {
             .toUpperCase()
             .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
             .trim()
-            .split(/\s+/)[0];
+            .split(/\s+/)[0]
+            .slice(0, 5);
 
           const matchKeyPrefix = `${house} ${cleanStreet}`;
           return Array.from(verifiedKeys).some(
