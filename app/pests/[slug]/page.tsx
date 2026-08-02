@@ -319,15 +319,18 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
         </section>
 
         {/* Promo Banner */}
-        <section className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row border border-slate-200 overflow-hidden">
-            <div className="bg-[#f3f4f6] p-8 md:w-2/3 flex flex-col justify-center relative overflow-hidden">
+        <section className="w-full bg-[#f3f4f6] border-t border-b border-slate-200 relative overflow-hidden">
+          {/* Green block spanning to the right edge of the screen */}
+          <div className="absolute inset-y-0 right-0 left-[60%] lg:left-[65%] xl:left-[68%] bg-[#17824b] hidden md:block" />
+          
+          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row relative z-10">
+            <div className="py-8 md:py-12 md:w-[60%] lg:w-[65%] xl:w-[68%] relative overflow-hidden pr-4">
               {/* Dotted Patterns */}
               <div className="absolute top-3 left-4 w-12 h-12 opacity-25 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)', backgroundSize: '7px 7px' }}></div>
               <div className="absolute bottom-3 right-6 w-20 h-10 opacity-25 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)', backgroundSize: '7px 7px' }}></div>
               
               <div className="relative z-10">
-                <h3 className="text-3xl font-extrabold text-[#071b4d] tracking-tight mb-2">Save BIG on your first pest control service</h3>
+                <h3 className="text-2xl md:text-3xl font-extrabold text-[#071b4d] tracking-tight mb-2">Save BIG on your first pest control service</h3>
                 <p className="text-slate-600 text-sm font-semibold mb-5">Get your first pest control service for only $149¹</p>
                 <div>
                   <button className="bg-[#ffc400] text-black font-extrabold text-xs uppercase tracking-wider py-3.5 px-8 rounded-full hover:bg-yellow-400 transition-colors shadow-sm">
@@ -337,13 +340,13 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
               </div>
             </div>
             
-            <div className="md:w-1/3 flex flex-col relative bg-[#17824b] text-white min-h-[160px]">
+            <div className="bg-[#17824b] md:bg-transparent md:w-[40%] lg:w-[35%] xl:w-[32%] flex flex-col relative text-white min-h-[160px]">
               {/* Gold Top Bar */}
-              <div className="bg-[#ffc400] text-black text-center py-2.5 px-4 text-xs font-black uppercase tracking-wider">
+              <div className="bg-[#ffc400] text-black text-center py-2.5 px-4 text-xs font-black uppercase tracking-wider w-full">
                 Start your service for $149!
               </div>
               {/* Content Inner */}
-              <div className="flex-grow flex flex-col items-center justify-center p-6 text-center">
+              <div className="flex-grow flex flex-col items-center justify-center p-6 text-center w-full">
                 <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/90 mb-1">Our</span>
                 <div className="flex items-center justify-center font-black text-5xl text-white tracking-tighter my-2 leading-none">
                   <span>B</span>
