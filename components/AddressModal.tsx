@@ -49,14 +49,35 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // ── Core helpers ──────────────────────────────────────────────────────────
-  const commitAddress = (address: string) => {
+  const commitAddress = async (address: string) => {
     if (!address.trim()) return;
     setIsSubmitting(true);
-    setShowSuggestions(false);
-    submitAddressSearch(address);
-    setTimeout(() => onClose(), 200);
-  };
+    setLocationError("");
 
+    try {
+      const res = await fetch("/api/places/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ address })
+      });
+
+      const data = await res.json();
+
+      if (res.ok && !data.valid) {
+        setIsSubmitting(false);
+        setLocationError(data.error || "This address could not be verified. Please enter a valid residential address.");
+        return;
+      }
+
+      // Proceed if valid
+      submitAddressSearch(address);
+      setTimeout(() => onClose(), 200);
+    } catch (e) {
+      // Fallback on network/validation api failure to not block checkout
+      submitAddressSearch(address);
+      setTimeout(() => onClose(), 200);
+    }
+  };
   const fetchSuggestions = async (val: string) => {
     if (val.length < 1) {
       setSuggestions([]);

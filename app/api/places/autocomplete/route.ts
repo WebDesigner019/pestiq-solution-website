@@ -26,7 +26,6 @@ export async function GET(req: NextRequest) {
   const seenAddresses = new Set<string>();
 
   const addSuggestion = (item: PlaceSuggestion) => {
-    // Normalize key for deduplication
     const key = item.fullAddress.toLowerCase().replace(/\s+/g, " ").trim();
     if (!seenAddresses.has(key)) {
       seenAddresses.add(key);
@@ -86,10 +85,9 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ─── PROVIDER 2: Photon (Free, instant OSM-backed fallback if Geoapify yields no results or is missing key) ───
+  // ─── PROVIDER 2: Photon (Free, instant OSM-backed fallback) ──────────────────
   if (!geoapifySucceeded && results.length < 8) {
     try {
-      // Append NJ to search for local priority
       const searchQuery = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
         ? query
         : `${query}, NJ`;
@@ -107,7 +105,6 @@ export async function GET(req: NextRequest) {
             const state = props.state || "";
             const countryCode = (props.countrycode || "").toUpperCase();
 
-            // Strict NJ and US filter
             if (state !== "New Jersey" && state !== "NJ") continue;
             if (countryCode && countryCode !== "US") continue;
 
@@ -136,14 +133,13 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ─── PROVIDER 3: OSM Nominatim (Free, secondary fallback with NJ bounding box limit) ───
+  // ─── PROVIDER 3: OSM Nominatim (Free, secondary fallback) ─────────────────────
   if (!geoapifySucceeded && results.length < 4) {
     try {
       const searchTarget = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
         ? query
         : `${query}, New Jersey`;
 
-      // Bound to NJ viewport
       const osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTarget)}&format=json&addressdetails=1&countrycodes=us&viewbox=-75.55,41.36,-73.89,38.93&bounded=1&limit=8`;
 
       const osmRes = await fetch(osmUrl, {
@@ -161,7 +157,6 @@ export async function GET(req: NextRequest) {
             const addr = item.address || {};
             const state = addr.state || "";
 
-            // Strict NJ filter
             if (state !== "New Jersey" && state !== "NJ") continue;
 
             const road = addr.road || addr.pedestrian || addr.street || "";
@@ -189,7 +184,50 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ─── NO SYNTHETIC FALLBACKS ───
-  // We NEVER fabricate or invent address suggestions. Only return actual geocoded results.
+  // ─── ZIP CODE CITY NORMALIZATION (USPS Postal City Matcher) ─────────────────
+  // Resolves municipal names (e.g. "Parsippany-Troy Hills") into official USPS mail delivery cities (e.g. "Morris Plains")
+  const zipsToFetch = Array.from(new Set(results.map((r) => r.zip).filter((z) => z && /^\d{5}$/.test(z))));
+
+  if (zipsToFetch.length > 0) {
+    try {
+      const zipMap = new Map<string, string>();
+      await Promise.all(
+        zipsToFetch.map(async (z) => {
+          try {
+            const zRes = await fetch(`https://api.zippopotam.us/us/${z}`, {
+              signal: AbortSignal.timeout(1500),
+            });
+            if (zRes.ok) {
+              const zData = await zRes.json();
+              const placeName = zData.places?.[0]?.["place name"];
+              if (placeName) {
+                zipMap.set(z, placeName);
+              }
+            }
+          } catch {
+            // silent fallback
+          }
+        })
+      );
+
+      for (const item of results) {
+        if (item.zip && zipMap.has(item.zip)) {
+          const normalizedCity = zipMap.get(item.zip)!;
+          if (item.city !== normalizedCity) {
+            // Update fullAddress string with correct USPS city
+            const escapedOldCity = item.city.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
+            item.fullAddress = item.fullAddress.replace(
+              new RegExp(`,\\s*${escapedOldCity},\\s*NJ`, "i"),
+              `, ${normalizedCity}, NJ`
+            );
+            item.city = normalizedCity;
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("ZIP city normalization error:", e);
+    }
+  }
+
   return NextResponse.json({ suggestions: results.slice(0, 8) });
 }
