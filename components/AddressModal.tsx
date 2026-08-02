@@ -111,7 +111,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
       {/* Close button */}
       <button
         onClick={onClose}
-        className="absolute top-6 right-6 text-white/60 hover:text-white text-3xl font-light leading-none outline-none cursor-pointer"
+        className="absolute top-4 right-4 sm:top-5 sm:right-5 w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/25 text-white text-2xl sm:text-3xl font-light leading-none outline-none cursor-pointer transition-all"
         aria-label="Close"
       >
         ×
@@ -212,6 +212,29 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
         {locationError && (
           <p className="text-amber-300 text-sm font-medium -mt-3">⚠️ {locationError}</p>
+        )}
+
+        {/* Manual input fallback */}
+        {!showSuggestions && (
+          <p className="text-zinc-500 text-xs -mt-2">
+            Can&apos;t find your address?{" "}
+            <button
+              type="button"
+              onClick={() => {
+                // Allow the user to submit whatever they typed as-is
+                if (addressInput.trim()) {
+                  commitAddress(addressInput.trim());
+                } else {
+                  // Focus the input so they can type
+                  const el = document.querySelector<HTMLInputElement>("input[type='text']");
+                  el?.focus();
+                }
+              }}
+              className="text-yellow-400 hover:text-yellow-300 underline underline-offset-2 cursor-pointer transition-colors"
+            >
+              Enter it manually
+            </button>
+          </p>
         )}
       </div>
     </div>
