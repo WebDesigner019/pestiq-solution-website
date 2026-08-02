@@ -14,7 +14,8 @@ export default function BookPage() {
     zipCode,
     streetAddress,
     serviceArea,
-    propertySqFt
+    propertySqFt,
+    submitAddressSearch
   } = useLocation();
 
   // Booking Form State
@@ -35,6 +36,9 @@ export default function BookPage() {
   const [accessNotes, setAccessNotes] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
   const [referenceCode, setReferenceCode] = useState("");
+  
+  const [validationError, setValidationError] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
 
   // Sync state from location context and URL query params on load
   useEffect(() => {
@@ -99,13 +103,38 @@ export default function BookPage() {
     };
   }, [activeArea, propertySqFt]);
 
-  const handleNextStep = (e: React.FormEvent) => {
+  const handleNextStep = async (e: React.FormEvent) => {
     e.preventDefault();
     if (step === 1) {
-      // Sync ZIP / address to context if changed
-      setZipCode(inputZip);
-      if (inputAddress.trim()) {
-        setStreetAddress(inputAddress);
+      if (!inputAddress.trim()) {
+        setValidationError("Service address is required.");
+        return;
+      }
+
+      setValidationError("");
+      setIsValidating(true);
+
+      try {
+        const res = await fetch("/api/places/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: inputAddress })
+        });
+
+        const data = await res.json();
+
+        if (res.ok && !data.valid) {
+          setValidationError(data.error || "This address could not be verified. Please enter a valid residential address.");
+          setIsValidating(false);
+          return;
+        }
+
+        // Sync validated address to location context
+        submitAddressSearch(inputAddress);
+      } catch (err) {
+        console.warn("Validation request warning, proceeding anyway:", err);
+      } finally {
+        setIsValidating(false);
       }
     }
     setStep((prev) => Math.min(3, prev + 1));
@@ -275,6 +304,9 @@ export default function BookPage() {
                       placeholder="e.g. 1150 Marcela Ct, Lakewood, NJ"
                       required
                     />
+                    {validationError && (
+                      <p className="mt-2 text-xs font-semibold text-red-600">⚠️ {validationError}</p>
+                    )}
                   </label>
                   <label>
                     Service area
@@ -348,9 +380,9 @@ export default function BookPage() {
                     authorize a charge.
                   </span>
                 </label>
-                <button className="checkout-next" type="submit">
-                  Continue to schedule <span>›</span>
-                </button>
+                 <button className="checkout-next disabled:bg-slate-300 disabled:cursor-not-allowed" type="submit" disabled={isValidating}>
+                   {isValidating ? "Verifying address..." : <>Continue to schedule <span>›</span></>}
+                 </button>
               </form>
             )}
 

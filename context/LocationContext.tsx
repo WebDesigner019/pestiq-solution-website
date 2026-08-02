@@ -22,9 +22,11 @@ interface LocationContextType {
   isAddressModalOpen: boolean;
   isUnserviceableModalOpen: boolean;
   unserviceableAddress: string;
+  onAddressSubmitRedirect: string | null;
   setIsAddressModalOpen: (open: boolean) => void;
   setIsUnserviceableModalOpen: (open: boolean) => void;
   setUnserviceableAddress: (address: string) => void;
+  setOnAddressSubmitRedirect: (url: string | null) => void;
   setZipCode: (zip: string) => boolean;
   setStreetAddress: (address: string) => void;
   setPropertySqFt: (sqft: number) => void;
@@ -46,6 +48,7 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState<boolean>(false);
   const [isUnserviceableModalOpen, setIsUnserviceableModalOpen] = useState<boolean>(false);
   const [unserviceableAddress, setUnserviceableAddress] = useState<string>("");
+  const [onAddressSubmitRedirect, setOnAddressSubmitRedirect] = useState<string | null>(null);
 
   const calculateSqFt = (addr: string): number => {
     if (!addr) return 2000;
@@ -224,9 +227,11 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         isAddressModalOpen,
         isUnserviceableModalOpen,
         unserviceableAddress,
+        onAddressSubmitRedirect,
         setIsAddressModalOpen,
         setIsUnserviceableModalOpen,
         setUnserviceableAddress,
+        setOnAddressSubmitRedirect,
         setZipCode: handleSetZipCode,
         setStreetAddress: handleSetStreetAddress,
         setPropertySqFt: handleSetPropertySqFt,

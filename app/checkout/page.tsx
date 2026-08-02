@@ -56,13 +56,56 @@ const SpinnerIcon = ({ className = "w-5 h-5 animate-spin" }) => (
 );
 
 export default function CheckoutPage() {
-  const { cartItem, streetAddress, propertySqFt, clearCart } = useLocation();
+  const { cartItem, streetAddress, propertySqFt, clearCart, submitAddressSearch } = useLocation();
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [referenceCode, setReferenceCode] = useState("");
 
-  const handleNext = (e: React.FormEvent) => {
+  const [inputAddress, setInputAddress] = useState(streetAddress || "");
+  const [validationError, setValidationError] = useState("");
+  const [isValidating, setIsValidating] = useState(false);
+
+  // Keep input address in sync if context changes
+  React.useEffect(() => {
+    if (streetAddress && !inputAddress) {
+      setInputAddress(streetAddress);
+    }
+  }, [streetAddress, inputAddress]);
+
+  const handleNext = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (step === 1) {
+      if (!inputAddress.trim()) {
+        setValidationError("Service address is required.");
+        return;
+      }
+
+      setValidationError("");
+      setIsValidating(true);
+
+      try {
+        const res = await fetch("/api/places/validate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ address: inputAddress })
+        });
+        
+        const data = await res.json();
+        
+        if (res.ok && !data.valid) {
+          setValidationError(data.error || "This address could not be verified. Please enter a valid residential address.");
+          setIsValidating(false);
+          return;
+        }
+
+        // Save validated address to location context
+        submitAddressSearch(inputAddress);
+      } catch (err) {
+        console.warn("Validation request warning, proceeding anyway:", err);
+      } finally {
+        setIsValidating(false);
+      }
+    }
     setStep((s) => s + 1);
   };
 
@@ -209,7 +252,16 @@ export default function CheckoutPage() {
                     </div>
                     <div className="sm:col-span-2">
                       <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Service Address</label>
-                      <input type="text" defaultValue={streetAddress || ""} required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
+                      <input 
+                        type="text" 
+                        value={inputAddress} 
+                        onChange={(e) => setInputAddress(e.target.value)} 
+                        required 
+                        className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" 
+                      />
+                      {validationError && (
+                        <p className="mt-2 text-xs font-semibold text-red-600">⚠️ {validationError}</p>
+                      )}
                     </div>
                     <div className="sm:col-span-2">
                       <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Property Type</label>
@@ -227,8 +279,12 @@ export default function CheckoutPage() {
                   </div>
 
                   <div className="flex justify-end pt-4 border-t border-slate-200">
-                    <button type="submit" className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-black text-sm sm:text-base px-8 py-3.5 rounded-full shadow-md transition-all flex items-center gap-2 cursor-pointer">
-                      Continue to Schedule <ArrowRightIcon className="w-5 h-5" />
+                    <button 
+                      type="submit" 
+                      disabled={isValidating}
+                      className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-black text-sm sm:text-base px-8 py-3.5 rounded-full shadow-md transition-all flex items-center gap-2 cursor-pointer disabled:bg-slate-300 disabled:cursor-not-allowed"
+                    >
+                      {isValidating ? "Verifying address..." : <>Continue to Schedule <ArrowRightIcon className="w-5 h-5" /></>}
                     </button>
                   </div>
                 </form>

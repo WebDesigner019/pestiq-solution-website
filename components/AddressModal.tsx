@@ -2,6 +2,7 @@
 
 import React, { useState, useRef } from "react";
 import { useLocation } from "@/context/LocationContext";
+import { useRouter } from "next/navigation";
 
 interface AddressModalProps {
   onClose: () => void;
@@ -25,7 +26,8 @@ const US_STATES = [
 ];
 
 export default function AddressModal({ onClose }: AddressModalProps) {
-  const { submitAddressSearch } = useLocation();
+  const { submitAddressSearch, onAddressSubmitRedirect, setOnAddressSubmitRedirect } = useLocation();
+  const router = useRouter();
 
   // ── Autocomplete state ────────────────────────────────────────────────────
   const [addressInput, setAddressInput] = useState("");
@@ -71,10 +73,18 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
       // Proceed if valid
       submitAddressSearch(address);
+      if (onAddressSubmitRedirect) {
+        router.push(onAddressSubmitRedirect);
+        setOnAddressSubmitRedirect(null);
+      }
       setTimeout(() => onClose(), 200);
     } catch (e) {
       // Fallback on network/validation api failure to not block checkout
       submitAddressSearch(address);
+      if (onAddressSubmitRedirect) {
+        router.push(onAddressSubmitRedirect);
+        setOnAddressSubmitRedirect(null);
+      }
       setTimeout(() => onClose(), 200);
     }
   };

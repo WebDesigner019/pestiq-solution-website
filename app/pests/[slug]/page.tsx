@@ -6,6 +6,7 @@ import { Footer } from '@/components/Footer'
 import { useRouter } from 'next/navigation'
 import { use } from 'react'
 import Image from 'next/image'
+import { CheckCircle2, Home, MapPin, Maximize2 } from 'lucide-react'
 
 const PEST_DATA: Record<string, any> = {
   'general': {
@@ -252,7 +253,7 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
   const router = useRouter();
   
   // Use context
-  const { isAddressModalOpen, setIsAddressModalOpen, zipCode, priceTier, propertySqFt, setCartItem } = useLocation();
+  const { isAddressModalOpen, setIsAddressModalOpen, zipCode, priceTier, propertySqFt, setCartItem, streetAddress, serviceArea } = useLocation();
   const isAddressVerified = !!zipCode;
   
   let slug = params.slug;
@@ -368,6 +369,44 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
                 {pest.name}s are one of the {pest.covered.complete} pests covered with a PestIQ pest control plan.
               </h2>
             </div>
+
+            {isAddressVerified && (
+              <div className="mb-10 p-6 bg-slate-50 border border-slate-200 rounded-2xl max-w-3xl mx-auto shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+                <div className="flex gap-4 items-start">
+                  <div className="p-3 bg-green-50 text-green-700 rounded-xl">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <div>
+                    <h3 className="font-extrabold text-[#071b4d] text-lg flex items-center gap-2">
+                      Verified Service Property
+                      <span className="text-xs font-bold text-green-700 bg-green-50 px-2.5 py-0.5 rounded-full border border-green-200">
+                        Official tax record confirmed
+                      </span>
+                    </h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2 mt-3 text-sm text-slate-600">
+                      <div className="flex items-center gap-2">
+                        <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span className="truncate max-w-[240px] font-semibold text-slate-800">{streetAddress}</span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Home className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span>Service Area: <strong className="text-slate-800 font-semibold">{serviceArea}</strong></span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Maximize2 className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                        <span>Est. Building Size: <strong className="text-slate-800 font-semibold">{propertySqFt} Sq Ft</strong></span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsAddressModalOpen(true)}
+                  className="text-sm font-bold text-[#071b4d] border border-slate-300 hover:bg-slate-100 px-4 py-2 rounded-lg transition-colors whitespace-nowrap self-stretch md:self-auto text-center"
+                >
+                  Change Address
+                </button>
+              </div>
+            )}
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-end">
               

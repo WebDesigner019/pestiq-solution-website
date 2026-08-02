@@ -135,7 +135,7 @@ const reviews = [
 ];
 
 export default function HomePage() {
-  const { setIsAddressModalOpen } = useLocation();
+  const { setIsAddressModalOpen, setOnAddressSubmitRedirect } = useLocation();
   const [activeTab, setActiveTab] = useState("Ants");
   const [reviewIndex, setReviewIndex] = useState(0);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
@@ -270,7 +270,10 @@ export default function HomePage() {
                     Use code <strong className="font-bold">SAVE50</strong> at checkout to save $50 when starting a new pest control plan.
                   </p>
                   <button
-                    onClick={() => setIsAddressModalOpen(true)}
+                    onClick={() => {
+                      setOnAddressSubmitRedirect("/pests/general#plans");
+                      setIsAddressModalOpen(true);
+                    }}
                     className="bg-[#ffc400] hover:bg-[#e6af00] text-[#0a2540] font-bold text-xs sm:text-[15px] px-6 sm:px-8 py-3 sm:py-3.5 rounded-full transition-all flex items-center gap-1 w-max shadow-sm"
                   >
                     Get started <ChevronRight className="w-4 h-4" />
@@ -301,7 +304,10 @@ export default function HomePage() {
                 <strong className="font-bold">Use code BITE50</strong> at checkout.²
               </p>
               <button
-                onClick={() => setIsAddressModalOpen(true)}
+                onClick={() => {
+                  setOnAddressSubmitRedirect("/pests/mosquitoes#plans");
+                  setIsAddressModalOpen(true);
+                }}
                 className="bg-[#ffc400] text-[#071b4d] px-8 py-3 rounded-full font-bold hover:bg-yellow-400 transition-colors shadow-sm w-max text-sm tracking-wide"
               >
                 Save Now
@@ -510,7 +516,10 @@ export default function HomePage() {
                   {currentPest.tagline}
                 </p>
                 <button
-                  onClick={() => setIsAddressModalOpen(true)}
+                  onClick={() => {
+                    setOnAddressSubmitRedirect(`${currentPest.link}#plans`);
+                    setIsAddressModalOpen(true);
+                  }}
                   className="bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-bold text-xs md:text-sm px-5 py-2.5 rounded-full transition-colors w-max flex items-center gap-2 shadow-sm"
                 >
                   View {currentPest.name.toLowerCase()} control plans <ChevronRight className="w-4 h-4" />
