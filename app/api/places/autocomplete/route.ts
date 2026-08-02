@@ -10,9 +10,7 @@ export interface PlaceSuggestion {
 }
 
 // New Jersey geographic bounding box (west, south, east, north)
-// Geoapify rect filter: minLon,minLat,maxLon,maxLat
 const NJ_RECT = "-75.6,38.9,-73.9,41.4";
-// NJ center for proximity bias (Toms River area)
 const NJ_BIAS = "proximity:-74.4057,40.0583";
 
 export async function GET(req: NextRequest) {
@@ -24,68 +22,174 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ suggestions: [] });
   }
 
+  const results: PlaceSuggestion[] = [];
+  const seenAddresses = new Set<string>();
+
+  const addSuggestion = (item: PlaceSuggestion) => {
+    // Normalize key for deduplication
+    const key = item.fullAddress.toLowerCase().replace(/\s+/g, " ").trim();
+    if (!seenAddresses.has(key)) {
+      seenAddresses.add(key);
+      results.push(item);
+    }
+  };
+
+  // ─── PROVIDER 1: Geoapify (Authoritative & Preferred) ─────────────────────
   const geoapifyApiKey = process.env.GEOAPIFY_API_KEY;
+  let geoapifySucceeded = false;
 
-  if (!geoapifyApiKey) {
-    console.error("GEOAPIFY_API_KEY is not set.");
-    return NextResponse.json({ suggestions: [] });
-  }
+  if (geoapifyApiKey) {
+    try {
+      const url = [
+        `https://api.geoapify.com/v1/geocode/autocomplete`,
+        `?text=${encodeURIComponent(query)}`,
+        `&filter=rect:${NJ_RECT}`,
+        `&bias=${NJ_BIAS}`,
+        `&limit=8`,
+        `&apiKey=${geoapifyApiKey}`,
+      ].join("");
 
-  try {
-    // Use Geoapify's built-in NJ bounding box filter + proximity bias.
-    // This means Geoapify itself restricts results to New Jersey geographically
-    // — we never need to filter or fabricate anything ourselves.
-    const url = [
-      `https://api.geoapify.com/v1/geocode/autocomplete`,
-      `?text=${encodeURIComponent(query)}`,
-      `&filter=rect:${NJ_RECT}`,
-      `&bias=${NJ_BIAS}`,
-      `&limit=8`,
-      `&apiKey=${geoapifyApiKey}`,
-    ].join("");
+      const geoRes = await fetch(url, { signal: AbortSignal.timeout(3000) });
+      if (geoRes.ok) {
+        const geoData = await geoRes.json();
+        if (geoData.features && Array.isArray(geoData.features) && geoData.features.length > 0) {
+          geoapifySucceeded = true;
+          for (const feat of geoData.features) {
+            const props = feat.properties || {};
+            const stateCode = (props.state_code || "").toUpperCase();
 
-    const geoRes = await fetch(url, { signal: AbortSignal.timeout(4000) });
+            // Strict New Jersey filter
+            if (stateCode && stateCode !== "NJ") continue;
 
-    if (!geoRes.ok) {
-      console.warn(`Geoapify returned HTTP ${geoRes.status}`);
-      return NextResponse.json({ suggestions: [] });
-    }
+            const streetName = props.street || props.address_line1 || "";
+            if (!streetName) continue;
 
-    const geoData = await geoRes.json();
+            const house = props.housenumber ? `${props.housenumber} ` : "";
+            const fullStreet = `${house}${streetName}`.trim();
+            const city = props.city || props.town || props.suburb || props.county || "";
+            const zip = props.postcode || "";
+            const fullAddress = props.formatted || `${fullStreet}, ${city}, NJ ${zip}`;
 
-    if (!geoData.features || !Array.isArray(geoData.features)) {
-      return NextResponse.json({ suggestions: [] });
-    }
-
-    const results: PlaceSuggestion[] = [];
-    const seen = new Set<string>();
-
-    for (const feat of geoData.features) {
-      const props = feat.properties || {};
-
-      // Require a real street-level result
-      const streetName = props.street || props.address_line1 || "";
-      if (!streetName) continue;
-
-      const house = props.housenumber ? `${props.housenumber} ` : "";
-      const fullStreet = `${house}${streetName}`.trim();
-      const city = props.city || props.town || props.suburb || props.county || "";
-      const stateCode = (props.state_code || "NJ").toUpperCase();
-      const zip = props.postcode || "";
-
-      // props.formatted is Geoapify's authoritative address string — always accurate
-      const fullAddress = props.formatted || `${fullStreet}, ${city}, ${stateCode} ${zip}`.trim();
-
-      const key = fullAddress.toLowerCase().replace(/\s+/g, " ").trim();
-      if (!seen.has(key)) {
-        seen.add(key);
-        results.push({ street: fullStreet, city, state: stateCode, zip, fullAddress, provider: "geoapify" });
+            addSuggestion({
+              street: fullStreet,
+              city,
+              state: "NJ",
+              zip,
+              fullAddress,
+              provider: "geoapify",
+            });
+          }
+        }
       }
+    } catch (e) {
+      console.warn("Geoapify autocomplete fetch error:", e);
     }
-
-    return NextResponse.json({ suggestions: results });
-  } catch (e) {
-    console.warn("Geoapify autocomplete error:", e);
-    return NextResponse.json({ suggestions: [] });
   }
+
+  // ─── PROVIDER 2: Photon (Free, instant OSM-backed fallback if Geoapify yields no results or is missing key) ───
+  if (!geoapifySucceeded && results.length < 8) {
+    try {
+      // Append NJ to search for local priority
+      const searchQuery = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
+        ? query
+        : `${query}, NJ`;
+
+      const photonRes = await fetch(
+        `https://photon.komoot.io/api/?q=${encodeURIComponent(searchQuery)}&lat=40.0583&lon=-74.4057&zoom=10&limit=10`,
+        { headers: { "User-Agent": "PestIQ-Places-API/2.0" }, signal: AbortSignal.timeout(3000) }
+      );
+
+      if (photonRes.ok) {
+        const photonData = await photonRes.json();
+        if (photonData.features && Array.isArray(photonData.features)) {
+          for (const feat of photonData.features) {
+            const props = feat.properties || {};
+            const state = props.state || "";
+            const countryCode = (props.countrycode || "").toUpperCase();
+
+            // Strict NJ and US filter
+            if (state !== "New Jersey" && state !== "NJ") continue;
+            if (countryCode && countryCode !== "US") continue;
+
+            const streetName = props.street || props.name || "";
+            if (!streetName) continue;
+
+            const house = props.housenumber ? `${props.housenumber} ` : "";
+            const fullStreet = `${house}${streetName}`.trim();
+            const city = props.city || props.town || props.district || props.county || "";
+            const zip = props.postcode || "";
+            const fullAddress = `${fullStreet}, ${city}, NJ ${zip}`.trim();
+
+            addSuggestion({
+              street: fullStreet,
+              city,
+              state: "NJ",
+              zip,
+              fullAddress,
+              provider: "photon",
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Photon autocomplete fetch error:", e);
+    }
+  }
+
+  // ─── PROVIDER 3: OSM Nominatim (Free, secondary fallback with NJ bounding box limit) ───
+  if (!geoapifySucceeded && results.length < 4) {
+    try {
+      const searchTarget = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
+        ? query
+        : `${query}, New Jersey`;
+
+      // Bound to NJ viewport
+      const osmUrl = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(searchTarget)}&format=json&addressdetails=1&countrycodes=us&viewbox=-75.55,41.36,-73.89,38.93&bounded=1&limit=8`;
+
+      const osmRes = await fetch(osmUrl, {
+        headers: {
+          "Accept-Language": "en-US,en",
+          "User-Agent": "PestIQ-Web-Address-Autocomplete/2.0",
+        },
+        signal: AbortSignal.timeout(3000),
+      });
+
+      if (osmRes.ok) {
+        const osmData = await osmRes.json();
+        if (Array.isArray(osmData)) {
+          for (const item of osmData) {
+            const addr = item.address || {};
+            const state = addr.state || "";
+
+            // Strict NJ filter
+            if (state !== "New Jersey" && state !== "NJ") continue;
+
+            const road = addr.road || addr.pedestrian || addr.street || "";
+            if (!road) continue;
+
+            const houseNumber = addr.house_number ? `${addr.house_number} ` : "";
+            const streetName = `${houseNumber}${road}`.trim();
+            const city = addr.city || addr.town || addr.village || addr.suburb || addr.county || "";
+            const zip = addr.postcode || "";
+            const fullAddress = `${streetName}, ${city}, NJ ${zip}`.trim();
+
+            addSuggestion({
+              street: streetName,
+              city,
+              state: "NJ",
+              zip,
+              fullAddress,
+              provider: "nominatim",
+            });
+          }
+        }
+      }
+    } catch (e) {
+      console.warn("Nominatim autocomplete fetch error:", e);
+    }
+  }
+
+  // ─── NO SYNTHETIC FALLBACKS ───
+  // We NEVER fabricate or invent address suggestions. Only return actual geocoded results.
+  return NextResponse.json({ suggestions: results.slice(0, 8) });
 }

@@ -58,7 +58,11 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   };
 
   const fetchSuggestions = async (val: string) => {
-    if (val.length < 1) { setSuggestions([]); setShowSuggestions(false); return; }
+    if (val.length < 1) {
+      setSuggestions([]);
+      setShowSuggestions(false);
+      return;
+    }
     setIsLoadingSuggestions(true);
     try {
       const res = await fetch(`/api/places/autocomplete?q=${encodeURIComponent(val)}`);
@@ -69,8 +73,11 @@ export default function AddressModal({ onClose }: AddressModalProps) {
           setShowSuggestions(data.suggestions.length > 0);
         }
       }
-    } catch { /* silent */ }
-    finally { setIsLoadingSuggestions(false); }
+    } catch {
+      // silent
+    } finally {
+      setIsLoadingSuggestions(false);
+    }
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -127,7 +134,19 @@ export default function AddressModal({ onClose }: AddressModalProps) {
     commitAddress(parts);
   };
 
-  // ── Shared overlay wrapper ────────────────────────────────────────────────
+  const handleAutocompleteSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    
+    // 1. If suggestions exist, pick the first geocoded one
+    if (suggestions.length > 0) {
+      commitAddress(suggestions[0].fullAddress);
+      return;
+    }
+
+    // 2. If no suggestions exist, do NOT submit raw incomplete queries
+    setLocationError("Please select a suggested address or enter it manually.");
+  };
+
   return (
     <div
       className="fixed inset-0 z-50 flex items-center justify-center px-4 animate-fade-in"
@@ -146,10 +165,9 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         ×
       </button>
 
-      {/* ── MANUAL ENTRY FORM (shown when "Enter it manually" is clicked) ── */}
+      {/* ── MANUAL ENTRY FORM ── */}
       {showManualForm ? (
         <div className="w-full max-w-xl text-white flex flex-col gap-6">
-          {/* Title */}
           <div className="text-center">
             <h2 className="text-[36px] sm:text-[48px] font-extrabold tracking-tight leading-tight whitespace-nowrap">
               What is your address?
@@ -159,9 +177,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             </p>
           </div>
 
-          {/* Fields */}
           <div className="flex flex-col gap-4">
-            {/* Street Address */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1.5">
                 Street Address
@@ -176,7 +192,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
               />
             </div>
 
-            {/* City + ZIP side by side */}
             <div className="flex gap-4">
               <div className="flex-1">
                 <label className="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1.5">
@@ -205,13 +220,11 @@ export default function AddressModal({ onClose }: AddressModalProps) {
               </div>
             </div>
 
-            {/* State — custom dropdown, stays within modal */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1.5">
                 State
               </label>
               <div className="relative">
-                {/* Trigger button */}
                 <button
                   type="button"
                   onClick={() => setShowStateDropdown((v) => !v)}
@@ -221,7 +234,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
                   <span className="text-gray-400 text-sm">{showStateDropdown ? "▴" : "▾"}</span>
                 </button>
 
-                {/* Custom dropdown list — bounded inside the modal */}
                 {showStateDropdown && (
                   <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-2xl z-50 max-h-52 overflow-y-auto border border-gray-100">
                     {US_STATES.map(([code, name]) => (
@@ -242,7 +254,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             </div>
           </div>
 
-          {/* GO BACK + CONTINUE */}
           <div className="flex items-center justify-between gap-4 pt-1">
             <button
               type="button"
@@ -262,9 +273,8 @@ export default function AddressModal({ onClose }: AddressModalProps) {
           </div>
         </div>
       ) : (
-        /* ── AUTOCOMPLETE SEARCH FORM (default view) ── */
+        /* ── AUTOCOMPLETE SEARCH FORM ── */
         <div className="w-full max-w-xl text-white text-center flex flex-col items-center gap-5">
-          {/* Title — kept on one line */}
           <div className="flex flex-col gap-2">
             <h2 className="text-[36px] sm:text-[52px] font-extrabold tracking-tight leading-tight whitespace-nowrap">
               What is your address?
@@ -274,9 +284,8 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             </p>
           </div>
 
-          {/* Search input */}
           <form
-            onSubmit={(e) => { e.preventDefault(); commitAddress(addressInput); }}
+            onSubmit={handleAutocompleteSubmit}
             className="w-full relative"
           >
             <div className="relative">
@@ -307,7 +316,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
               />
             </div>
 
-            {/* Dropdown */}
             {showSuggestions && suggestions.length > 0 && (
               <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-2xl shadow-2xl overflow-hidden z-50 text-left border border-gray-100 max-h-[38vh] overflow-y-auto py-1">
                 <button
@@ -341,7 +349,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             )}
           </form>
 
-          {/* "Can't find" manual link */}
           <p className="text-zinc-400 text-[13px] -mt-1">
             Can&apos;t find your address?{" "}
             <button
@@ -353,7 +360,6 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             </button>
           </p>
 
-          {/* GPS link */}
           {!showSuggestions && (
             <button
               type="button"
@@ -373,10 +379,9 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             <p className="text-amber-300 text-sm font-medium -mt-2">⚠️ {locationError}</p>
           )}
 
-          {/* CONTINUE button */}
           <button
             type="button"
-            onClick={() => commitAddress(addressInput)}
+            onClick={handleAutocompleteSubmit}
             disabled={!addressInput.trim() || isSubmitting || isLocating}
             className="w-full max-w-xs bg-[#ffc400] hover:bg-[#e6af00] disabled:opacity-40 disabled:cursor-not-allowed text-[#071b4d] font-extrabold text-[15px] uppercase tracking-widest py-4 rounded-full shadow-lg transition-all cursor-pointer mt-1"
           >
