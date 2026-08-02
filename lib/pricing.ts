@@ -1,10 +1,27 @@
 import { PriceTier } from "@/context/LocationContext";
 
 export function calculatePrices(priceTier: PriceTier, propertySqFt: number | null) {
-  // Base rates for New Jersey
-  let baseEssential = 45;
-  let baseComplete = 55;
-  let baseOnetime = 229;
+  let baseEssential = 59;
+  let baseComplete = 69;
+  let baseOnetime = 279;
+
+  if (priceTier === "westchester") {
+    baseEssential = 49;
+    baseComplete = 59;
+    baseOnetime = 249;
+  } else if (priceTier === "newjersey") {
+    baseEssential = 45;
+    baseComplete = 55;
+    baseOnetime = 229;
+  } else if (priceTier === "longisland") {
+    baseEssential = 59;
+    baseComplete = 69;
+    baseOnetime = 269;
+  } else if (priceTier === "ct") {
+    baseEssential = 55;
+    baseComplete = 65;
+    baseOnetime = 259;
+  }
 
   let monthlyAdjustment = 0;
   let onetimeAdjustment = 0;

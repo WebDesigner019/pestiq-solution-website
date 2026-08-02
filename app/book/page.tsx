@@ -5,14 +5,12 @@ import Link from "next/link";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { useLocation } from "@/context/LocationContext";
-import AddressAutocomplete from "@/components/AddressAutocomplete";
 
 export default function BookPage() {
   const {
     priceTier,
     setZipCode,
     setStreetAddress,
-    setVerifiedAddress,
     zipCode,
     streetAddress,
     serviceArea,
@@ -269,26 +267,15 @@ export default function BookPage() {
                       required
                     />
                   </label>
-                  <div className="wide">
-                    <label className="block text-sm font-bold text-gray-700 mb-1">
-                      Verified New Jersey Street Address
-                    </label>
-                    <AddressAutocomplete
+                  <label className="wide">
+                    Street Address
+                    <input
                       value={inputAddress}
-                      onSelectVerifiedAddress={(verified) => {
-                        if (verified && verified.verified) {
-                          setInputAddress(verified.formattedAddress);
-                          setInputZip(verified.postalCode);
-                          setVerifiedAddress(verified);
-                        } else {
-                          setInputAddress("");
-                          setInputZip("");
-                          setVerifiedAddress(null);
-                        }
-                      }}
-                      placeholder="Type your NJ street address (e.g. 11 Oak Dr)..."
+                      onChange={(e) => setInputAddress(e.target.value)}
+                      placeholder="e.g. 1150 Marcela Ct, Lakewood, NJ"
+                      required
                     />
-                  </div>
+                  </label>
                   <label>
                     Service area
                     <select value={activeArea} onChange={(e) => setActiveArea(e.target.value)}>

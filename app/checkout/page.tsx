@@ -48,8 +48,6 @@ const StarHalfIcon = ({ className = "w-4 h-4" }) => (
   </svg>
 );
 
-import AddressAutocomplete from "@/components/AddressAutocomplete";
-
 const SpinnerIcon = ({ className = "w-5 h-5 animate-spin" }) => (
   <svg className={className} fill="none" viewBox="0 0 24 24">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
@@ -58,7 +56,7 @@ const SpinnerIcon = ({ className = "w-5 h-5 animate-spin" }) => (
 );
 
 export default function CheckoutPage() {
-  const { cartItem, streetAddress, propertySqFt, clearCart, setVerifiedAddress, isAddressVerified } = useLocation();
+  const { cartItem, streetAddress, propertySqFt, clearCart } = useLocation();
   const [step, setStep] = useState(1);
   const [isProcessing, setIsProcessing] = useState(false);
   const [referenceCode, setReferenceCode] = useState("");
@@ -210,18 +208,8 @@ export default function CheckoutPage() {
                       <input type="tel" required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
                     <div className="sm:col-span-2">
-                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Verified New Jersey Service Address</label>
-                      <AddressAutocomplete
-                        value={streetAddress}
-                        onSelectVerifiedAddress={(verified) => {
-                          if (verified && verified.verified) {
-                            setVerifiedAddress(verified);
-                          } else {
-                            setVerifiedAddress(null);
-                          }
-                        }}
-                        placeholder="Type your NJ street address (e.g. 11 Oak Dr)..."
-                      />
+                      <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Service Address</label>
+                      <input type="text" defaultValue={streetAddress || ""} required className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" />
                     </div>
                     <div className="sm:col-span-2">
                       <label className="text-xs sm:text-sm font-bold text-[#071b4d] mb-1.5 block uppercase tracking-wider">Property Type</label>

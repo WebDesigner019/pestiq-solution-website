@@ -16,16 +16,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required contact details" }, { status: 400 });
     }
 
-    // Server-side New Jersey address revalidation
-    const cleanState = String(state || "").toUpperCase();
-    const cleanZip = String(zip || "").trim();
-    const isNJZip = /^\d{5}$/.test(cleanZip) && (parseInt(cleanZip, 10) >= 7001 && parseInt(cleanZip, 10) <= 8989);
-    const isNJState = cleanState === "NJ" || String(state || "").toLowerCase() === "new jersey";
-    const isVerifiedNJ = isNJState || isNJZip;
-
     const referenceCode = `PIQ-${Date.now().toString().slice(-6)}`;
     const planName = planType === "monthly" ? "Complete Protection Plan" : "One-Time Treatment";
-    const fullAddress = `${address}, ${city || "Toms River"}, ${isNJState ? "NJ" : state || "NJ"} ${zip || "08753"}`;
+    const fullAddress = `${address}, ${city || "New York"}, ${state || "NY"} ${zip || "10001"}`;
 
     // Dispatch transactional email async
     sendOrderConfirmationEmail({
