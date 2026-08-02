@@ -77,19 +77,19 @@ export default function AddressModal({ onClose }: AddressModalProps) {
         try {
           const { latitude, longitude } = position.coords;
           const res = await fetch(`/api/places/reverse-geocode?lat=${latitude}&lng=${longitude}`);
-          if (res.ok) {
-            const data = await res.json();
-            if (data.fullAddress) {
-              setIsLocating(false);
-              commitAddress(data.fullAddress);
-              return;
-            }
+          const data = await res.json();
+          if (res.ok && data.fullAddress) {
+            setIsLocating(false);
+            commitAddress(data.fullAddress);
+            return;
           }
+          // API returned an error message — show it
+          setIsLocating(false);
+          setLocationError(data.error || "Could not detect your location. Please type your address.");
         } catch {
-          // fall through to error
+          setIsLocating(false);
+          setLocationError("Could not detect your location. Please type your address.");
         }
-        setIsLocating(false);
-        setLocationError("Could not detect your location. Please type your address.");
       },
       (err) => {
         setIsLocating(false);
