@@ -9,7 +9,6 @@ export interface PlaceSuggestion {
   provider?: string;
 }
 
-// New Jersey geographic bounding box (west, south, east, north)
 const NJ_RECT = "-75.6,38.9,-73.9,41.4";
 const NJ_BIAS = "proximity:-74.4057,40.0583";
 
@@ -22,7 +21,7 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ suggestions: [] });
   }
 
-  const results: PlaceSuggestion[] = [];
+  let results: PlaceSuggestion[] = [];
   const seenAddresses = new Set<string>();
 
   const addSuggestion = (item: PlaceSuggestion) => {
@@ -33,7 +32,7 @@ export async function GET(req: NextRequest) {
     }
   };
 
-  // ─── PROVIDER 1: Geoapify (Authoritative & Preferred) ─────────────────────
+  // ─── PROVIDER 1: Geoapify ────────────────────────────────────────────────
   const geoapifyApiKey = process.env.GEOAPIFY_API_KEY;
   let geoapifySucceeded = false;
 
@@ -57,7 +56,6 @@ export async function GET(req: NextRequest) {
             const props = feat.properties || {};
             const stateCode = (props.state_code || "").toUpperCase();
 
-            // Strict New Jersey filter
             if (stateCode && stateCode !== "NJ") continue;
 
             const streetName = props.street || props.address_line1 || "";
@@ -85,7 +83,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ─── PROVIDER 2: Photon (Free, instant OSM-backed fallback) ──────────────────
+  // ─── PROVIDER 2: Photon ──────────────────────────────────────────────────
   if (!geoapifySucceeded && results.length < 8) {
     try {
       const searchQuery = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
@@ -133,7 +131,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ─── PROVIDER 3: OSM Nominatim (Free, secondary fallback) ─────────────────────
+  // ─── PROVIDER 3: OSM Nominatim ─────────────────────────────────────────────
   if (!geoapifySucceeded && results.length < 4) {
     try {
       const searchTarget = query.toLowerCase().includes("nj") || query.toLowerCase().includes("jersey")
@@ -185,7 +183,6 @@ export async function GET(req: NextRequest) {
   }
 
   // ─── ZIP CODE CITY NORMALIZATION (USPS Postal City Matcher) ─────────────────
-  // Resolves municipal names (e.g. "Parsippany-Troy Hills") into official USPS mail delivery cities (e.g. "Morris Plains")
   const zipsToFetch = Array.from(new Set(results.map((r) => r.zip).filter((z) => z && /^\d{5}$/.test(z))));
 
   if (zipsToFetch.length > 0) {
@@ -214,7 +211,6 @@ export async function GET(req: NextRequest) {
         if (item.zip && zipMap.has(item.zip)) {
           const normalizedCity = zipMap.get(item.zip)!;
           if (item.city !== normalizedCity) {
-            // Update fullAddress string with correct USPS city
             const escapedOldCity = item.city.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
             item.fullAddress = item.fullAddress.replace(
               new RegExp(`,\\s*${escapedOldCity},\\s*NJ`, "i"),
@@ -226,6 +222,77 @@ export async function GET(req: NextRequest) {
       }
     } catch (e) {
       console.warn("ZIP city normalization error:", e);
+    }
+  }
+
+  // ─── NEW JERSEY STATEWIDE MOD-IV REAL PROPERTY FILTER ───────────────────────
+  // We check each suggestion containing a house number against the official state tax records.
+  // This filters out interpolated/fabricated house numbers before they are displayed.
+  const suggestionsToValidate = results.filter((r) => {
+    const hasHouse = /^\d+/.test(r.street);
+    return hasHouse && r.zip;
+  });
+
+  if (suggestionsToValidate.length > 0) {
+    try {
+      const whereClauses = suggestionsToValidate.map((s) => {
+        const houseMatch = s.street.match(/^(\d+)/);
+        const house = houseMatch ? houseMatch[1] : "";
+        const cleanStreet = s.street
+          .replace(/^\d+\s+/, "")
+          .toUpperCase()
+          .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
+          .trim()
+          .split(/\s+/)[0];
+
+        return `(PROP_LOC LIKE '${house} ${cleanStreet}%' AND ZIP_CODE = '${s.zip}')`;
+      });
+
+      const url = `https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer/0/query?${new URLSearchParams({
+        where: whereClauses.join(" OR "),
+        outFields: "PROP_LOC,ZIP_CODE",
+        returnGeometry: "false",
+        f: "json",
+      }).toString()}`;
+
+      const parcelRes = await fetch(url, { signal: AbortSignal.timeout(1800) });
+      
+      if (parcelRes.ok) {
+        const parcelData = await parcelRes.json();
+        const verifiedKeys = new Set<string>();
+
+        if (parcelData.features && Array.isArray(parcelData.features)) {
+          parcelData.features.forEach((f: any) => {
+            const attr = f.attributes || {};
+            const propLoc = (attr.PROP_LOC || "").toUpperCase().trim();
+            const zip = attr.ZIP_CODE || "";
+            verifiedKeys.add(`${propLoc}_${zip}`);
+          });
+        }
+
+        // Keep suggestions that match the verified parcel keys,
+        // or suggestions that do not contain house numbers (like generic streets).
+        results = results.filter((s) => {
+          const houseMatch = s.street.match(/^(\d+)/);
+          if (!houseMatch || !s.zip) return true; // Keep street-level results
+
+          const house = houseMatch[1];
+          const cleanStreet = s.street
+            .replace(/^\d+\s+/, "")
+            .toUpperCase()
+            .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
+            .trim()
+            .split(/\s+/)[0];
+
+          const matchKeyPrefix = `${house} ${cleanStreet}`;
+          return Array.from(verifiedKeys).some(
+            (k) => k.startsWith(matchKeyPrefix) && k.endsWith(`_${s.zip}`)
+          );
+        });
+      }
+    } catch (e) {
+      console.warn("State parcel filtering error:", e);
+      // Fallback: in case of parcel API timeout/error, do not empty suggestions, let them load.
     }
   }
 
