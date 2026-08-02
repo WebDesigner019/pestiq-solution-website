@@ -31,7 +31,7 @@ export async function GET(req: NextRequest) {
   };
 
   // ─── STEP 2: Geoapify (ALWAYS called when key present - full US dataset) ──
-  const geoapifyApiKey = process.env.GEOAPIFY_API_KEY || process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY;
+  const geoapifyApiKey = process.env.GEOAPIFY_API_KEY;
   let geoapifySucceeded = false;
 
   if (geoapifyApiKey) {
@@ -48,18 +48,23 @@ export async function GET(req: NextRequest) {
           geoapifySucceeded = true;
           for (const feat of geoData.features.slice(0, 8)) {
             const props = feat.properties || {};
+            const stateCode = (props.state_code || "").toUpperCase();
+
+            // Only accept New Jersey results — reject all other states
+            if (stateCode && stateCode !== "NJ") continue;
+
             const house = props.housenumber ? `${props.housenumber} ` : "";
-            const streetName = props.street || props.address_line1 || query;
+            const streetName = props.street || props.address_line1 || "";
+            if (!streetName) continue; // skip city/county-level results with no street
             const fullStreet = `${house}${streetName}`.trim();
-            const city = props.city || props.town || props.suburb || props.county || "New Jersey";
-            const stateCode = props.state_code || "NJ";
-            const zip = props.postcode || "08753";
-            const fullAddress = props.formatted || `${fullStreet}, ${city}, ${stateCode} ${zip}`;
+            const city = props.city || props.town || props.suburb || props.county || "";
+            const zip = props.postcode || "";
+            const fullAddress = props.formatted || `${fullStreet}, ${city}, NJ ${zip}`;
 
             addSuggestion({
               street: fullStreet,
               city,
-              state: stateCode,
+              state: "NJ",
               zip,
               fullAddress,
               provider: "geoapify",
@@ -128,12 +133,11 @@ export async function GET(req: NextRequest) {
         if (photonData.features && Array.isArray(photonData.features)) {
           for (const feat of photonData.features) {
             const props = feat.properties || {};
-            const house = props.housenumber ? `${props.housenumber} ` : (userHouseNum ? `${userHouseNum} ` : "");
-            const streetName = props.street || props.name || query;
-            let fullStreet = `${house}${streetName}`.trim();
-            if (userHouseNum && !/^\d/.test(fullStreet)) {
-              fullStreet = `${userHouseNum} ${fullStreet}`;
-            }
+            // Never inject the raw user-typed text as a house number onto unrelated streets
+            const house = props.housenumber ? `${props.housenumber} ` : "";
+            const streetName = props.street || props.name || "";
+            if (!streetName) continue; // skip results with no real street name
+            const fullStreet = `${house}${streetName}`.trim();
             const city = props.city || props.town || props.district || props.county || "New Jersey";
             const state = props.state === "New Jersey" ? "NJ" : props.state === "New York" ? "NY" : props.state || "NJ";
             const zip = props.postcode || (state === "NJ" ? "08701" : "10001");
@@ -181,12 +185,11 @@ export async function GET(req: NextRequest) {
         if (Array.isArray(osmData)) {
           for (const item of osmData) {
             const addr = item.address || {};
-            const road = addr.road || addr.pedestrian || addr.street || item.display_name.split(",")[0];
-            const houseNumber = addr.house_number ? `${addr.house_number} ` : (userHouseNum ? `${userHouseNum} ` : "");
-            let streetName = `${houseNumber}${road}`.trim();
-            if (userHouseNum && !/^\d/.test(streetName)) {
-              streetName = `${userHouseNum} ${streetName}`;
-            }
+            const road = addr.road || addr.pedestrian || addr.street || "";
+            if (!road) continue; // skip results with no real street name
+            // Never inject raw user-typed text as a house number onto unrelated streets
+            const houseNumber = addr.house_number ? `${addr.house_number} ` : "";
+            const streetName = `${houseNumber}${road}`.trim();
             const city = addr.city || addr.town || addr.village || addr.suburb || addr.county || "New Jersey";
             const state = addr.state === "New Jersey" ? "NJ" : addr.state === "New York" ? "NY" : addr.state || "NJ";
             const zip = addr.postcode || (state === "NJ" ? "08701" : "10001");
@@ -207,17 +210,7 @@ export async function GET(req: NextRequest) {
     }
   }
 
-  // ─── STEP 6: Ultimate fallback — format the query as an NJ address ─────────
-  if (results.length === 0 && query.length >= 3) {
-    addSuggestion({
-      street: query,
-      city: "Toms River",
-      state: "NJ",
-      zip: "08753",
-      fullAddress: `${query}, Toms River, NJ 08753`,
-      provider: "fallback",
-    });
-  }
+  // STEP 6 removed: never fabricate or invent addresses from user input
 
   // Return max 8 clean results
   return NextResponse.json({ suggestions: results.slice(0, 8) });
