@@ -330,8 +330,8 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
                 </button>
               </div>
             </div>
-            <div className="bg-[#104d4f] text-white p-6 md:w-1/3 flex flex-col items-center justify-center text-center">
-              <span className="bg-white text-[#104d4f] text-xs font-bold px-2 py-1 rounded mb-3">START YOUR SERVICE FOR $149!</span>
+            <div className="bg-[#17824b] text-white p-6 md:w-1/3 flex flex-col items-center justify-center text-center">
+              <span className="bg-white text-[#17824b] text-xs font-bold px-2 py-1 rounded mb-3">START YOUR SERVICE FOR $149!</span>
               <h4 className="text-3xl font-extrabold leading-tight">OUR BIG<br/>SUMMER<br/>SAVINGS</h4>
             </div>
           </div>
