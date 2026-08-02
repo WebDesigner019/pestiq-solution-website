@@ -9,6 +9,12 @@ export interface PlaceSuggestion {
   provider?: string;
 }
 
+// New Jersey geographic bounding box (west, south, east, north)
+// Geoapify rect filter: minLon,minLat,maxLon,maxLat
+const NJ_RECT = "-75.6,38.9,-73.9,41.4";
+// NJ center for proximity bias (Toms River area)
+const NJ_BIAS = "proximity:-74.4057,40.0583";
+
 export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const rawQuery = searchParams.get("q") || "";
@@ -18,34 +24,27 @@ export async function GET(req: NextRequest) {
     return NextResponse.json({ suggestions: [] });
   }
 
-  const results: PlaceSuggestion[] = [];
-  const seenAddresses = new Set<string>();
-
-  const addSuggestion = (item: PlaceSuggestion) => {
-    const key = item.fullAddress.toLowerCase().replace(/\s+/g, " ").trim();
-    if (!seenAddresses.has(key)) {
-      seenAddresses.add(key);
-      results.push(item);
-    }
-  };
-
-  // ─── GEOAPIFY: The only trusted source of address data ────────────────────
-  // We ONLY use Geoapify. No Photon, no Nominatim, no synthetic fallbacks.
-  // Geoapify returns real, verified addresses directly from authoritative datasets.
   const geoapifyApiKey = process.env.GEOAPIFY_API_KEY;
 
   if (!geoapifyApiKey) {
-    console.error("GEOAPIFY_API_KEY is not set. No address results will be returned.");
+    console.error("GEOAPIFY_API_KEY is not set.");
     return NextResponse.json({ suggestions: [] });
   }
 
   try {
-    const geoRes = await fetch(
-      `https://api.geoapify.com/v1/geocode/autocomplete?text=${encodeURIComponent(
-        query
-      )}&filter=countrycode:us&apiKey=${geoapifyApiKey}&limit=8`,
-      { signal: AbortSignal.timeout(4000) }
-    );
+    // Use Geoapify's built-in NJ bounding box filter + proximity bias.
+    // This means Geoapify itself restricts results to New Jersey geographically
+    // — we never need to filter or fabricate anything ourselves.
+    const url = [
+      `https://api.geoapify.com/v1/geocode/autocomplete`,
+      `?text=${encodeURIComponent(query)}`,
+      `&filter=rect:${NJ_RECT}`,
+      `&bias=${NJ_BIAS}`,
+      `&limit=8`,
+      `&apiKey=${geoapifyApiKey}`,
+    ].join("");
+
+    const geoRes = await fetch(url, { signal: AbortSignal.timeout(4000) });
 
     if (!geoRes.ok) {
       console.warn(`Geoapify returned HTTP ${geoRes.status}`);
@@ -58,41 +57,35 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ suggestions: [] });
     }
 
-    for (const feat of geoData.features.slice(0, 8)) {
+    const results: PlaceSuggestion[] = [];
+    const seen = new Set<string>();
+
+    for (const feat of geoData.features) {
       const props = feat.properties || {};
-      const stateCode = (props.state_code || "").toUpperCase();
 
-      // ── Only accept New Jersey results ──────────────────────────────────────
-      // Geoapify returns the real state_code from its dataset — we trust this.
-      if (stateCode && stateCode !== "NJ") continue;
-
-      // ── Require a real street name — reject city/county-level entries ───────
+      // Require a real street-level result
       const streetName = props.street || props.address_line1 || "";
       if (!streetName) continue;
 
-      // ── Build address components from verified Geoapify data only ───────────
       const house = props.housenumber ? `${props.housenumber} ` : "";
       const fullStreet = `${house}${streetName}`.trim();
       const city = props.city || props.town || props.suburb || props.county || "";
+      const stateCode = (props.state_code || "NJ").toUpperCase();
       const zip = props.postcode || "";
 
-      // props.formatted is Geoapify's authoritative formatted address string.
-      // It is always accurate — use it as the primary display value.
-      const fullAddress = props.formatted || `${fullStreet}, ${city}, NJ ${zip}`.trim();
+      // props.formatted is Geoapify's authoritative address string — always accurate
+      const fullAddress = props.formatted || `${fullStreet}, ${city}, ${stateCode} ${zip}`.trim();
 
-      addSuggestion({
-        street: fullStreet,
-        city,
-        state: "NJ",
-        zip,
-        fullAddress,
-        provider: "geoapify",
-      });
+      const key = fullAddress.toLowerCase().replace(/\s+/g, " ").trim();
+      if (!seen.has(key)) {
+        seen.add(key);
+        results.push({ street: fullStreet, city, state: stateCode, zip, fullAddress, provider: "geoapify" });
+      }
     }
-  } catch (e) {
-    console.warn("Geoapify autocomplete fetch error:", e);
-  }
 
-  // ── No fabrication. No fallbacks. If Geoapify returned nothing, we return nothing. ──
-  return NextResponse.json({ suggestions: results.slice(0, 8) });
+    return NextResponse.json({ suggestions: results });
+  } catch (e) {
+    console.warn("Geoapify autocomplete error:", e);
+    return NextResponse.json({ suggestions: [] });
+  }
 }

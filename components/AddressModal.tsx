@@ -41,6 +41,7 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   const [manualCity, setManualCity] = useState("");
   const [manualZip, setManualZip] = useState("");
   const [manualState, setManualState] = useState("NJ");
+  const [showStateDropdown, setShowStateDropdown] = useState(false);
 
   // ── GPS state ─────────────────────────────────────────────────────────────
   const [isLocating, setIsLocating] = useState(false);
@@ -204,26 +205,39 @@ export default function AddressModal({ onClose }: AddressModalProps) {
               </div>
             </div>
 
-            {/* State */}
+            {/* State — custom dropdown, stays within modal */}
             <div>
               <label className="block text-xs font-bold uppercase tracking-widest text-zinc-400 mb-1.5">
                 State
               </label>
               <div className="relative">
-                <select
-                  value={manualState}
-                  onChange={(e) => setManualState(e.target.value)}
-                  className="w-full appearance-none px-5 py-4 text-gray-900 bg-white rounded-xl border border-transparent outline-none focus:ring-2 focus:ring-yellow-400 transition-all text-[15px] cursor-pointer"
+                {/* Trigger button */}
+                <button
+                  type="button"
+                  onClick={() => setShowStateDropdown((v) => !v)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-gray-900 bg-white rounded-xl outline-none focus:ring-2 focus:ring-yellow-400 transition-all text-[15px] cursor-pointer"
                 >
-                  {US_STATES.map(([code, name]) => (
-                    <option key={code} value={code}>
-                      {name} ({code})
-                    </option>
-                  ))}
-                </select>
-                <span className="absolute right-5 top-1/2 -translate-y-1/2 pointer-events-none text-gray-500">
-                  ▾
-                </span>
+                  <span>{US_STATES.find(([c]) => c === manualState)?.[1]} ({manualState})</span>
+                  <span className="text-gray-400 text-sm">{showStateDropdown ? "▴" : "▾"}</span>
+                </button>
+
+                {/* Custom dropdown list — bounded inside the modal */}
+                {showStateDropdown && (
+                  <div className="absolute left-0 right-0 top-full mt-1 bg-white rounded-xl shadow-2xl z-50 max-h-52 overflow-y-auto border border-gray-100">
+                    {US_STATES.map(([code, name]) => (
+                      <button
+                        key={code}
+                        type="button"
+                        onClick={() => { setManualState(code); setShowStateDropdown(false); }}
+                        className={`w-full text-left px-5 py-3 text-[14px] hover:bg-yellow-50 transition-colors cursor-pointer ${
+                          code === manualState ? "font-bold text-yellow-600 bg-yellow-50" : "text-gray-800"
+                        }`}
+                      >
+                        {name} ({code})
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>
