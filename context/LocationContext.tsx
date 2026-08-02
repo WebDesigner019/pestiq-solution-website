@@ -29,6 +29,10 @@ interface LocationContextType {
   setIsUnserviceableModalOpen: (open: boolean) => void;
   setUnserviceableAddress: (address: string) => void;
   setVerifiedAddress: (address: VerifiedAddress | null) => void;
+  setZipCode: (zip: string) => boolean;
+  setStreetAddress: (address: string) => void;
+  setPropertySqFt: (sqft: number) => void;
+  setCartItem: (item: CartItem | null) => void;
   clearLocation: () => void;
   clearCart: () => void;
   submitAddressSearch: (address: VerifiedAddress) => boolean;
@@ -89,6 +93,15 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         localStorage.removeItem("pestiq_sqft");
       }
     }
+  };
+
+  const handleSetZipCode = (zip: string): boolean => {
+    setZipCodeState(zip);
+    return true;
+  };
+
+  const handleSetStreetAddress = (address: string) => {
+    setStreetAddressState(address);
   };
 
   const submitAddressSearch = (addr: VerifiedAddress): boolean => {
@@ -167,6 +180,10 @@ export function LocationProvider({ children }: { children: React.ReactNode }) {
         setIsUnserviceableModalOpen,
         setUnserviceableAddress,
         setVerifiedAddress: handleSetVerifiedAddress,
+        setZipCode: handleSetZipCode,
+        setStreetAddress: handleSetStreetAddress,
+        setPropertySqFt: setPropertySqFtState,
+        setCartItem: handleSetCartItem,
         clearLocation: handleClearLocation,
         clearCart: handleClearCart,
         submitAddressSearch,
