@@ -320,19 +320,60 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
 
         {/* Promo Banner */}
         <section className="max-w-6xl mx-auto px-4 py-8">
-          <div className="flex flex-col md:flex-row rounded-lg overflow-hidden shadow-md">
-            <div className="bg-white p-6 md:w-2/3 flex flex-col justify-center border-l-4 border-green-600">
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">Save BIG on your first pest control service</h3>
-              <p className="text-gray-600 mb-4">Get your first pest control service for only $149</p>
-              <div>
-                <button className="bg-[#ffc400] text-black font-bold py-2 px-6 rounded-full hover:bg-yellow-400 transition-colors">
-                  Act and save now
-                </button>
+          <div className="flex flex-col md:flex-row border border-slate-200 overflow-hidden">
+            <div className="bg-[#f3f4f6] p-8 md:w-2/3 flex flex-col justify-center relative overflow-hidden">
+              {/* Dotted Patterns */}
+              <div className="absolute top-3 left-4 w-12 h-12 opacity-25 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)', backgroundSize: '7px 7px' }}></div>
+              <div className="absolute bottom-3 right-6 w-20 h-10 opacity-25 pointer-events-none" style={{ backgroundImage: 'radial-gradient(#94a3b8 1.5px, transparent 1.5px)', backgroundSize: '7px 7px' }}></div>
+              
+              <div className="relative z-10">
+                <h3 className="text-3xl font-extrabold text-[#071b4d] tracking-tight mb-2">Save BIG on your first pest control service</h3>
+                <p className="text-slate-600 text-sm font-semibold mb-5">Get your first pest control service for only $149¹</p>
+                <div>
+                  <button className="bg-[#ffc400] text-black font-extrabold text-xs uppercase tracking-wider py-3.5 px-8 rounded-full hover:bg-yellow-400 transition-colors shadow-sm">
+                    Act and save now
+                  </button>
+                </div>
               </div>
             </div>
-            <div className="bg-[#17824b] text-white p-6 md:w-1/3 flex flex-col items-center justify-center text-center">
-              <span className="bg-white text-[#17824b] text-xs font-bold px-2 py-1 rounded mb-3">START YOUR SERVICE FOR $149!</span>
-              <h4 className="text-3xl font-extrabold leading-tight">OUR BIG<br/>SUMMER<br/>SAVINGS</h4>
+            
+            <div className="md:w-1/3 flex flex-col relative bg-[#17824b] text-white min-h-[160px]">
+              {/* Gold Top Bar */}
+              <div className="bg-[#ffc400] text-black text-center py-2.5 px-4 text-xs font-black uppercase tracking-wider">
+                Start your service for $149!
+              </div>
+              {/* Content Inner */}
+              <div className="flex-grow flex flex-col items-center justify-center p-6 text-center">
+                <span className="text-[11px] font-extrabold uppercase tracking-[0.2em] text-white/90 mb-1">Our</span>
+                <div className="flex items-center justify-center font-black text-5xl text-white tracking-tighter my-2 leading-none">
+                  <span>B</span>
+                  <svg viewBox="0 0 100 100" className="w-11 h-11 mx-1 text-white flex-shrink-0" fill="currentColor">
+                    {/* Head */}
+                    <circle cx="50" cy="22" r="10" />
+                    {/* Eyes */}
+                    <circle cx="46" cy="18" r="1.5" fill="#17824b" />
+                    <circle cx="54" cy="18" r="1.5" fill="#17824b" />
+                    {/* Body */}
+                    <ellipse cx="50" cy="58" rx="22" ry="30" />
+                    {/* Center seam line */}
+                    <line x1="50" y1="28" x2="50" y2="88" stroke="#17824b" strokeWidth="3" />
+                    {/* Antennae */}
+                    <path d="M46 13 Q38 3 28 8" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
+                    <path d="M54 13 Q62 3 72 8" stroke="currentColor" strokeWidth="3" fill="none" strokeLinecap="round" />
+                    {/* Legs */}
+                    {/* Left Legs */}
+                    <path d="M30 45 Q12 40 8 30" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                    <path d="M28 58 Q8 58 6 53" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                    <path d="M30 71 Q12 80 10 88" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                    {/* Right Legs */}
+                    <path d="M70 45 Q88 40 92 30" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                    <path d="M72 58 Q92 58 94 53" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                    <path d="M70 71 Q88 80 90 88" stroke="currentColor" strokeWidth="3.5" fill="none" strokeLinecap="round" />
+                  </svg>
+                  <span>G</span>
+                </div>
+                <span className="text-sm font-extrabold uppercase tracking-widest text-white mt-1">Summer Savings</span>
+              </div>
             </div>
           </div>
         </section>
