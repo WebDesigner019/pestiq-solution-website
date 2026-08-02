@@ -533,19 +533,60 @@ export default function PestServicePage(props: { params: Promise<{ slug: string 
           </div>
         </section>
 
-        {/* Treatment Options Section */}
-        <section className="bg-slate-50 py-16">
-          <div className="max-w-4xl mx-auto px-4 text-center">
-            <h2 className="text-3xl font-bold text-[#071b4d] mb-10">Your {pest.name.toLowerCase()} treatment options</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {pest.tabs.map((tab: string, i: number) => (
-                <div key={i} className="bg-white p-6 rounded-lg shadow border border-gray-100 text-left">
-                  <h4 className="text-xl font-bold text-[#17824b] mb-2">{tab}</h4>
-                  <p className="text-gray-600 text-sm">
-                    Targeted application focusing on critical points to stop pest progression. Designed specifically for optimal effectiveness against {pest.name.toLowerCase()}s in residential settings.
-                  </p>
-                </div>
-              ))}
+        {/* Treatment Process Section */}
+        <section className="bg-slate-50 py-20 border-t border-slate-100">
+          <div className="max-w-6xl mx-auto px-4 text-center">
+            <h2 className="text-3xl md:text-4xl font-extrabold text-[#071b4d] mb-4 tracking-tight">
+              What to expect with {pest.name.toLowerCase()} control from PestIQ
+            </h2>
+            <p className="text-slate-600 text-base md:text-lg max-w-3xl mx-auto mb-16 font-medium leading-relaxed">
+              Keep your home protected from {pest.name.toLowerCase()}s with our expert pest control services! Our licensed exterminators are equipped with effective, target-driven strategies to eliminate active infestations and prevent future issues. Here's how it works:
+            </p>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+              {/* Step 1: Inspection */}
+              <div className="flex flex-col items-center">
+                <svg viewBox="0 0 64 64" className="w-20 h-20 text-[#071b4d] mb-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <circle cx="26" cy="26" r="16" />
+                  <line x1="38" y1="38" x2="54" y2="54" strokeWidth="4" />
+                  <path d="M20 20 Q26 14 32 20" opacity="0.3" />
+                </svg>
+                <h3 className="text-2xl font-black text-[#071b4d] mb-2 tracking-tight">Inspection</h3>
+                <div className="w-12 h-1 bg-[#17824b] rounded mb-5"></div>
+                <p className="text-slate-600 text-sm leading-relaxed max-w-sm font-medium">
+                  A trained technician will examine your property to identify the specific {pest.name.toLowerCase()} species, locate nesting areas, and pinpoint active entry points.
+                </p>
+              </div>
+
+              {/* Step 2: Treatment */}
+              <div className="flex flex-col items-center">
+                <svg viewBox="0 0 64 64" className="w-20 h-20 text-[#071b4d] mb-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M18 24c0-6 10-10 14-10s14 4 14 10H18z" />
+                  <path d="M14 24h36c3 0 4-4 0-4H32" />
+                  <path d="M22 24v5c0 6 4 10 10 10s10-4 10-10v-5" />
+                  <path d="M10 50c0-10 8-12 22-12s22 2 22 12" />
+                  <path d="M30 44l2 4 2-4v-6h-4v6z" />
+                </svg>
+                <h3 className="text-2xl font-black text-[#071b4d] mb-2 tracking-tight">Treatment</h3>
+                <div className="w-12 h-1 bg-[#17824b] rounded mb-5"></div>
+                <p className="text-slate-600 text-sm leading-relaxed max-w-sm font-medium">
+                  Once we've identified the problem areas, your technician will apply targeted solutions to eliminate existing {pest.name.toLowerCase()} colonies and reduce their population.
+                </p>
+              </div>
+
+              {/* Step 3: Prevention */}
+              <div className="flex flex-col items-center">
+                <svg viewBox="0 0 64 64" className="w-20 h-20 text-[#071b4d] mb-6" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M32 6 C48 6, 54 10, 54 28 C54 44, 38 54, 32 58 C26 54, 10 44, 10 28 C10 10, 16 6, 32 6 Z" />
+                  <path d="M32 20 L44 30 V44 H20 V30 Z" />
+                  <path d="M28 44 V36 H36 V44" />
+                </svg>
+                <h3 className="text-2xl font-black text-[#071b4d] mb-2 tracking-tight">Prevention</h3>
+                <div className="w-12 h-1 bg-[#17824b] rounded mb-5"></div>
+                <p className="text-slate-600 text-sm leading-relaxed max-w-sm font-medium">
+                  Your technician will give you personalized suggestions on how to prevent {pest.name.toLowerCase()}s from returning and create protective barriers to stop future infestations.
+                </p>
+              </div>
             </div>
           </div>
         </section>
