@@ -284,8 +284,7 @@ export async function GET(req: NextRequest) {
             .replace(/^\d+\s+/, "")
             .trim()
             .split(/\s+/)[0]
-            .toUpperCase()
-            .slice(0, 5);
+            .toUpperCase();
 
           const cleanCityName = (s.city || "")
             .replace(/\b(TWP|TOWNSHIP|BORO|BOROUGH|CITY)\b/gi, "")
@@ -307,8 +306,7 @@ export async function GET(req: NextRequest) {
               .replace(/^\d+\s+/, "")
               .trim()
               .split(/\s+/)[0]
-              .toUpperCase()
-              .slice(0, 5);
+              .toUpperCase();
 
             if (featStreetWord !== sugStreetWord) return false;
 

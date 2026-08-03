@@ -27,8 +27,7 @@ export async function POST(req: NextRequest) {
       .toUpperCase()
       .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
       .trim()
-      .split(/\s+/)[0]
-      .slice(0, 5); // Max 5 chars for spelling resilience (e.g. "MARCE" matches "MARCELA" and "MARCELLA")
+      .split(/\s+/)[0];
 
     if (!streetPrefix) {
       return NextResponse.json({ valid: false, error: "Street name could not be parsed." });
@@ -90,8 +89,7 @@ export async function POST(req: NextRequest) {
           .replace(/^\d+\s+/, "")
           .trim()
           .split(/\s+/)[0]
-          .toUpperCase()
-          .slice(0, 5);
+          .toUpperCase();
 
         if (featStreetWord !== streetPrefix) return false;
 
