@@ -41,12 +41,22 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ valid: false, error: "ZIP code is required for validation." });
     }
 
+    // Parse city name from full address
+    const addressParts = address.split(",");
+    let city = "";
+    if (addressParts.length >= 3) {
+      city = addressParts[addressParts.length - 2].trim().toUpperCase();
+    } else if (addressParts.length === 2) {
+      city = addressParts[1].trim().toUpperCase();
+    }
+    city = city.replace(/\b(NJ|NEW JERSEY)\b/gi, "").trim();
+
     // 2. Query the official New Jersey MOD-IV Composite Parcel Database (GIS State Master Records)
-    // If it exists in this tax parcel map, it is an actual physical building on a valid lot.
-    const whereClause = `PROP_LOC LIKE '${houseNumber} ${streetPrefix}%' AND ZIP_CODE = '${zip}'`;
+    // Query by house and street prefix. We check ZIP and MUN_NAME in code to avoid strict database typos.
+    const whereClause = `PROP_LOC LIKE '${houseNumber} ${streetPrefix}%'`;
     const queryParams = new URLSearchParams({
       where: whereClause,
-      outFields: "PROP_LOC,ZIP_CODE,PROP_CLASS",
+      outFields: "PROP_LOC,ZIP_CODE,MUN_NAME,PROP_CLASS",
       returnGeometry: "false",
       f: "json",
     });
@@ -57,19 +67,35 @@ export async function POST(req: NextRequest) {
 
     if (!res.ok) {
       console.warn(`NJ Parcel Service returned HTTP ${res.status}`);
-      // Fallback: if the state database is down, do not block the user, just warn in logs
       return NextResponse.json({ valid: true, warning: "Validation service temporarily offline." });
     }
 
     const data = await res.json();
 
-    if (data.features && data.features.length > 0) {
-      // Address exists and is verified in NJ GIS Master Records
-      return NextResponse.json({
-        valid: true,
-        verifiedAddress: data.features[0].attributes.PROP_LOC,
-        zip: data.features[0].attributes.ZIP_CODE,
+    if (data.features && Array.isArray(data.features) && data.features.length > 0) {
+      const cleanCityName = city.replace(/\b(TWP|TOWNSHIP|BORO|BOROUGH|CITY)\b/gi, "").trim().toUpperCase();
+      
+      const matchedFeature = data.features.find((f: any) => {
+        const attr = f.attributes || {};
+        const featZip = (attr.ZIP_CODE || "").trim();
+        const featMun = (attr.MUN_NAME || "").toUpperCase().trim();
+
+        // Check 1: ZIP code match
+        if (featZip && featZip === zip) return true;
+
+        // Check 2: Municipality name matches parsed City name (handles state typos like Toms River ZIP entered as 10951)
+        if (featMun && cleanCityName && (featMun.includes(cleanCityName) || cleanCityName.includes(featMun))) return true;
+
+        return false;
       });
+
+      if (matchedFeature) {
+        return NextResponse.json({
+          valid: true,
+          verifiedAddress: matchedFeature.attributes.PROP_LOC,
+          zip: matchedFeature.attributes.ZIP_CODE,
+        });
+      }
     }
 
     // Address is fabricated or interpolated (doesn't exist in tax records)

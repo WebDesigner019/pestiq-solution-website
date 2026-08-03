@@ -246,14 +246,14 @@ export async function GET(req: NextRequest) {
           .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
           .trim()
           .split(/\s+/)[0]
-          .slice(0, 5); // Max 5 chars for spelling resilience (e.g. "MARCE" matches "MARCELA" and "MARCELLA")
+          .slice(0, 5);
 
-        return `(PROP_LOC LIKE '${house} ${cleanStreet}%' AND ZIP_CODE = '${s.zip}')`;
+        return `PROP_LOC LIKE '${house} ${cleanStreet}%'`;
       });
 
       const url = `https://services2.arcgis.com/XVOqAjTOJ5P6ngMu/arcgis/rest/services/Parcels_Composite_NJ_WM/FeatureServer/0/query?${new URLSearchParams({
         where: whereClauses.join(" OR "),
-        outFields: "PROP_LOC,ZIP_CODE",
+        outFields: "PROP_LOC,ZIP_CODE,MUN_NAME",
         returnGeometry: "false",
         f: "json",
       }).toString()}`;
@@ -268,16 +268,16 @@ export async function GET(req: NextRequest) {
           parcelData.features.forEach((f: any) => {
             const attr = f.attributes || {};
             const propLoc = (attr.PROP_LOC || "").toUpperCase().trim();
-            const zip = attr.ZIP_CODE || "";
-            verifiedKeys.add(`${propLoc}_${zip}`);
+            const zip = (attr.ZIP_CODE || "").trim();
+            const mun = (attr.MUN_NAME || "").toUpperCase().trim();
+            verifiedKeys.add(`${propLoc}_ZIP:${zip}_MUN:${mun}`);
           });
         }
 
-        // Keep suggestions that match the verified parcel keys,
-        // or suggestions that do not contain house numbers (like generic streets).
+        // Keep suggestions that match the verified parcel keys based on ZIP or City Name
         results = results.filter((s) => {
           const houseMatch = s.street.match(/^(\d+)/);
-          if (!houseMatch || !s.zip) return true; // Keep street-level results
+          if (!houseMatch) return true; // Keep street-level results
 
           const house = houseMatch[1];
           const cleanStreet = s.street
@@ -289,9 +289,28 @@ export async function GET(req: NextRequest) {
             .slice(0, 5);
 
           const matchKeyPrefix = `${house} ${cleanStreet}`;
-          return Array.from(verifiedKeys).some(
-            (k) => k.startsWith(matchKeyPrefix) && k.endsWith(`_${s.zip}`)
-          );
+          const cleanCityName = (s.city || "")
+            .replace(/\b(TWP|TOWNSHIP|BORO|BOROUGH|CITY)\b/gi, "")
+            .trim()
+            .toUpperCase();
+
+          return Array.from(verifiedKeys).some((keyStr) => {
+            if (!keyStr.startsWith(matchKeyPrefix)) return false;
+
+            const zipMatch = keyStr.match(/_ZIP:(\d+)/);
+            const munMatch = keyStr.match(/_MUN:([^_\n]+)/);
+
+            const featZip = zipMatch ? zipMatch[1] : "";
+            const featMun = munMatch ? munMatch[1] : "";
+
+            // Match 1: ZIP code matches
+            if (s.zip && featZip === s.zip) return true;
+
+            // Match 2: Municipality name matches City name
+            if (featMun && cleanCityName && (featMun.includes(cleanCityName) || cleanCityName.includes(featMun))) return true;
+
+            return false;
+          });
         });
 
         // Fallback: if strict verification filtered out every suggestion,
@@ -302,7 +321,6 @@ export async function GET(req: NextRequest) {
       }
     } catch (e) {
       console.warn("State parcel filtering error:", e);
-      // Fallback: in case of parcel API timeout/error, do not empty suggestions, let them load.
       if (results.length === 0) {
         results = rawSuggestions;
       }
