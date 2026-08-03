@@ -77,6 +77,24 @@ export async function POST(req: NextRequest) {
       
       const matchedFeature = data.features.find((f: any) => {
         const attr = f.attributes || {};
+        const propLoc = (attr.PROP_LOC || "").toUpperCase().trim();
+
+        // Extract house number and first street word from propLoc
+        const featHouseMatch = propLoc.match(/^(\d+)/);
+        if (!featHouseMatch) return false;
+
+        const featHouse = featHouseMatch[1];
+        if (featHouse !== houseNumber) return false;
+
+        const featStreetWord = propLoc
+          .replace(/^\d+\s+/, "")
+          .trim()
+          .split(/\s+/)[0]
+          .toUpperCase()
+          .slice(0, 5);
+
+        if (featStreetWord !== streetPrefix) return false;
+
         const featZip = (attr.ZIP_CODE || "").trim();
         const featMun = (attr.MUN_NAME || "").toUpperCase().trim();
 

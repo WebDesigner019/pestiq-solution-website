@@ -280,22 +280,37 @@ export async function GET(req: NextRequest) {
           if (!houseMatch) return true; // Keep street-level results
 
           const house = houseMatch[1];
-          const cleanStreet = s.street
+          const sugStreetWord = s.street
             .replace(/^\d+\s+/, "")
-            .toUpperCase()
-            .replace(/\b(ROAD|RD|DRIVE|DR|LANE|LN|COURT|CT|STREET|ST|AVENUE|AVE|PLACE|PL|WAY|BOULEVARD|BLVD|TERRACE|TER|CIRCLE|CIR)\b/g, "")
             .trim()
             .split(/\s+/)[0]
+            .toUpperCase()
             .slice(0, 5);
 
-          const matchKeyPrefix = `${house} ${cleanStreet}`;
           const cleanCityName = (s.city || "")
             .replace(/\b(TWP|TOWNSHIP|BORO|BOROUGH|CITY)\b/gi, "")
             .trim()
             .toUpperCase();
 
           return Array.from(verifiedKeys).some((keyStr) => {
-            if (!keyStr.startsWith(matchKeyPrefix)) return false;
+            const parts = keyStr.split("_ZIP:");
+            const propLoc = parts[0];
+
+            // Extract house number and first street word from propLoc
+            const featHouseMatch = propLoc.match(/^(\d+)/);
+            if (!featHouseMatch) return false;
+
+            const featHouse = featHouseMatch[1];
+            if (featHouse !== house) return false;
+
+            const featStreetWord = propLoc
+              .replace(/^\d+\s+/, "")
+              .trim()
+              .split(/\s+/)[0]
+              .toUpperCase()
+              .slice(0, 5);
+
+            if (featStreetWord !== sugStreetWord) return false;
 
             const zipMatch = keyStr.match(/_ZIP:(\d+)/);
             const munMatch = keyStr.match(/_MUN:([^_\n]+)/);
