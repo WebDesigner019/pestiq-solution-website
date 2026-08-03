@@ -317,7 +317,7 @@ export default function BookPage() {
                            }}
                            className="underline text-blue-600 hover:text-blue-800 ml-1 cursor-pointer font-bold"
                          >
-                           Use this address anyway
+                           Continue anyway
                          </button>
                        </p>
                      )}
