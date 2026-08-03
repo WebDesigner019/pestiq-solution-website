@@ -260,7 +260,20 @@ export default function CheckoutPage() {
                         className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" 
                       />
                       {validationError && (
-                        <p className="mt-2 text-xs font-semibold text-red-600">⚠️ {validationError}</p>
+                        <p className="mt-2 text-xs font-semibold text-red-600">
+                          ⚠️ {validationError}{" "}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setValidationError("");
+                              submitAddressSearch(inputAddress);
+                              setStep(2);
+                            }}
+                            className="underline text-blue-600 hover:text-blue-800 ml-1 cursor-pointer font-bold"
+                          >
+                            Use this address anyway
+                          </button>
+                        </p>
                       )}
                     </div>
                     <div className="sm:col-span-2">

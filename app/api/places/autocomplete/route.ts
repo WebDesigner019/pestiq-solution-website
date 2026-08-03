@@ -228,6 +228,8 @@ export async function GET(req: NextRequest) {
   // ─── NEW JERSEY STATEWIDE MOD-IV REAL PROPERTY FILTER ───────────────────────
   // We check each suggestion containing a house number against the official state tax records.
   // This filters out interpolated/fabricated house numbers before they are displayed.
+  const rawSuggestions = [...results];
+
   const suggestionsToValidate = results.filter((r) => {
     const hasHouse = /^\d+/.test(r.street);
     return hasHouse && r.zip;
@@ -291,10 +293,19 @@ export async function GET(req: NextRequest) {
             (k) => k.startsWith(matchKeyPrefix) && k.endsWith(`_${s.zip}`)
           );
         });
+
+        // Fallback: if strict verification filtered out every suggestion,
+        // revert to showing the raw geocoded suggestions so it "at least shows something"
+        if (results.length === 0) {
+          results = rawSuggestions;
+        }
       }
     } catch (e) {
       console.warn("State parcel filtering error:", e);
       // Fallback: in case of parcel API timeout/error, do not empty suggestions, let them load.
+      if (results.length === 0) {
+        results = rawSuggestions;
+      }
     }
   }
 

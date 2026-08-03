@@ -304,9 +304,23 @@ export default function BookPage() {
                       placeholder="e.g. 1150 Marcela Ct, Lakewood, NJ"
                       required
                     />
-                    {validationError && (
-                      <p className="mt-2 text-xs font-semibold text-red-600">⚠️ {validationError}</p>
-                    )}
+                     {validationError && (
+                       <p className="mt-2 text-xs font-semibold text-red-600">
+                         ⚠️ {validationError}{" "}
+                         <button
+                           type="button"
+                           onClick={() => {
+                             setValidationError("");
+                             submitAddressSearch(inputAddress);
+                             setStep(2);
+                             window.scrollTo({ top: 0, behavior: "smooth" });
+                           }}
+                           className="underline text-blue-600 hover:text-blue-800 ml-1 cursor-pointer font-bold"
+                         >
+                           Use this address anyway
+                         </button>
+                       </p>
+                     )}
                   </label>
                   <label>
                     Service area
