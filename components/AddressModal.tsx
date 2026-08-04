@@ -12,18 +12,7 @@ interface SuggestionItem {
   fullAddress: string;
 }
 
-const US_STATES = [
-  ["AL","Alabama"],["AK","Alaska"],["AZ","Arizona"],["AR","Arkansas"],["CA","California"],
-  ["CO","Colorado"],["CT","Connecticut"],["DE","Delaware"],["FL","Florida"],["GA","Georgia"],
-  ["HI","Hawaii"],["ID","Idaho"],["IL","Illinois"],["IN","Indiana"],["IA","Iowa"],
-  ["KS","Kansas"],["KY","Kentucky"],["LA","Louisiana"],["ME","Maine"],["MD","Maryland"],
-  ["MA","Massachusetts"],["MI","Michigan"],["MN","Minnesota"],["MS","Mississippi"],["MO","Missouri"],
-  ["MT","Montana"],["NE","Nebraska"],["NV","Nevada"],["NH","New Hampshire"],["NJ","New Jersey"],
-  ["NM","New Mexico"],["NY","New York"],["NC","North Carolina"],["ND","North Dakota"],["OH","Ohio"],
-  ["OK","Oklahoma"],["OR","Oregon"],["PA","Pennsylvania"],["RI","Rhode Island"],["SC","South Carolina"],
-  ["SD","South Dakota"],["TN","Tennessee"],["TX","Texas"],["UT","Utah"],["VT","Vermont"],
-  ["VA","Virginia"],["WA","Washington"],["WV","West Virginia"],["WI","Wisconsin"],["WY","Wyoming"],
-];
+const US_STATES = [["NJ", "New Jersey"]];
 
 export default function AddressModal({ onClose }: AddressModalProps) {
   const { submitAddressSearch, onAddressSubmitRedirect, setOnAddressSubmitRedirect } = useLocation();
@@ -52,20 +41,10 @@ export default function AddressModal({ onClose }: AddressModalProps) {
   const [unverifiedAddress, setUnverifiedAddress] = useState<string | null>(null);
 
   // ── Core helpers ──────────────────────────────────────────────────────────
-  const commitAddress = async (address: string, force: boolean = false) => {
+  const commitAddress = async (address: string) => {
     if (!address.trim()) return;
     setIsSubmitting(true);
     setLocationError("");
-
-    if (force) {
-      submitAddressSearch(address);
-      if (onAddressSubmitRedirect) {
-        router.push(onAddressSubmitRedirect);
-        setOnAddressSubmitRedirect(null);
-      }
-      setTimeout(() => onClose(), 200);
-      return;
-    }
 
     try {
       const res = await fetch("/api/places/validate", {
@@ -76,27 +55,23 @@ export default function AddressModal({ onClose }: AddressModalProps) {
 
       const data = await res.json();
 
-      if (res.ok && !data.valid) {
+      if (!res.ok || !data.valid || !data.verifiedAddress?.fullAddress) {
         setIsSubmitting(false);
         setUnverifiedAddress(address);
+        setLocationError(data.error || "We could not verify this New Jersey address. Please check the details and try again.");
         return;
       }
 
-      // Proceed if valid
-      submitAddressSearch(address);
+      // Only the canonical address from the official NJ service becomes trusted location data.
+      submitAddressSearch(data.verifiedAddress.fullAddress);
       if (onAddressSubmitRedirect) {
         router.push(onAddressSubmitRedirect);
         setOnAddressSubmitRedirect(null);
       }
       setTimeout(() => onClose(), 200);
-    } catch (e) {
-      // Fallback on network/validation api failure to not block checkout
-      submitAddressSearch(address);
-      if (onAddressSubmitRedirect) {
-        router.push(onAddressSubmitRedirect);
-        setOnAddressSubmitRedirect(null);
-      }
-      setTimeout(() => onClose(), 200);
+    } catch {
+      setIsSubmitting(false);
+      setLocationError("Address verification is temporarily unavailable. Please try again shortly.");
     }
   };
   const fetchSuggestions = async (val: string) => {
@@ -237,10 +212,10 @@ export default function AddressModal({ onClose }: AddressModalProps) {
             </button>
             <button
               type="button"
-              onClick={() => commitAddress(unverifiedAddress, true)}
+              onClick={() => commitAddress(unverifiedAddress)}
               className="w-full sm:flex-1 bg-[#ffc400] hover:bg-[#e6af00] text-[#071b4d] font-extrabold text-[15px] uppercase tracking-widest py-4 rounded-full shadow-lg transition-all cursor-pointer text-center"
             >
-              Continue anyway ›
+              Try verification again ›
             </button>
           </div>
         </div>

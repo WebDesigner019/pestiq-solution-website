@@ -92,16 +92,18 @@ export default function CheckoutPage() {
         
         const data = await res.json();
         
-        if (res.ok && !data.valid) {
+        if (!res.ok || !data.valid || !data.verifiedAddress?.fullAddress) {
           setValidationError(data.error || "This address could not be verified. Please enter a valid residential address.");
           setIsValidating(false);
           return;
         }
 
-        // Save validated address to location context
-        submitAddressSearch(inputAddress);
-      } catch (err) {
-        console.warn("Validation request warning, proceeding anyway:", err);
+        const verifiedAddress = data.verifiedAddress.fullAddress;
+        setInputAddress(verifiedAddress);
+        submitAddressSearch(verifiedAddress);
+      } catch {
+        setValidationError("Address verification is temporarily unavailable. Please try again shortly.");
+        return;
       } finally {
         setIsValidating(false);
       }
@@ -260,20 +262,7 @@ export default function CheckoutPage() {
                         className="w-full h-11 sm:h-12 px-4 rounded-xl border border-slate-300 text-sm sm:text-base font-medium text-slate-900 bg-slate-50/80 outline-none focus:border-[#1557b8] focus:bg-white transition-all" 
                       />
                       {validationError && (
-                        <p className="mt-2 text-xs font-semibold text-red-600">
-                          ⚠️ {validationError}{" "}
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setValidationError("");
-                              submitAddressSearch(inputAddress);
-                              setStep(2);
-                            }}
-                            className="underline text-blue-600 hover:text-blue-800 ml-1 cursor-pointer font-bold"
-                          >
-                            Continue anyway
-                          </button>
-                        </p>
+                        <p className="mt-2 text-xs font-semibold text-red-600">⚠️ {validationError}</p>
                       )}
                     </div>
                     <div className="sm:col-span-2">

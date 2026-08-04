@@ -71,17 +71,9 @@ export default function AddressAutocomplete({
       console.warn("Places API autocomplete error:", err);
     }
 
-    // Fallback suggestion format
-    setSuggestions([
-      {
-        street: text,
-        city: "Toms River",
-        state: "NJ",
-        zip: "08753",
-        fullAddress: `${text}, Toms River, NJ 08753`,
-      },
-    ]);
-    setShowDropdown(true);
+    // Never manufacture a location when the verification service is unavailable.
+    setSuggestions([]);
+    setShowDropdown(false);
     setIsLoading(false);
   };
 
@@ -140,9 +132,6 @@ export default function AddressAutocomplete({
       (error) => {
         console.warn("Geolocation error:", error);
         setIsLocating(false);
-        const sample = "11 Oak Dr, Brick Township, NJ 08723";
-        setQuery(sample);
-        onChange(sample, "08723", "Brick Township", "NJ");
       },
       { timeout: 8000 }
     );
