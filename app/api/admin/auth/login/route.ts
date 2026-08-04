@@ -6,11 +6,15 @@ const FAILED_ATTEMPTS = new Map<string, { attempts: number; lockUntil: number }>
 const MAX_ATTEMPTS = 5;
 const LOCKOUT_MS = 15 * 60 * 1000; // 15 minutes lockout
 
-const MASTER_PIN = process.env.ADMIN_PIN || "pestiq2025";
-const MASTER_EMAIL = process.env.ADMIN_EMAIL || "admin@pestiq.com";
+const MASTER_PIN = process.env.ADMIN_PIN;
+const MASTER_EMAIL = process.env.ADMIN_EMAIL?.trim().toLowerCase();
 
 export async function POST(req: NextRequest) {
   try {
+    if (!MASTER_PIN || !MASTER_EMAIL) {
+      return NextResponse.json({ error: "Staff login is not configured." }, { status: 503 });
+    }
+
     const ip = req.headers.get("x-forwarded-for") || "127.0.0.1";
     const now = Date.now();
 
@@ -40,7 +44,7 @@ export async function POST(req: NextRequest) {
     const inputEmail = email ? String(email).trim().toLowerCase() : MASTER_EMAIL;
 
     // Verify Password & Email
-    if (inputPass === MASTER_PIN) {
+    if (inputEmail === MASTER_EMAIL && inputPass === MASTER_PIN) {
       // Clear failed attempts on success
       FAILED_ATTEMPTS.delete(ip);
 

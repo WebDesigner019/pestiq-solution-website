@@ -1,9 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { MOCK_BOOKINGS, MOCK_CUSTOMERS } from "@/lib/adminMockData";
+import { verifyStaffSession } from "@/lib/supabase";
 
 export async function GET(req: NextRequest) {
   try {
+    const staff = await verifyStaffSession(req.headers.get("authorization"));
+    if (!staff) return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+
     if (process.env.DATABASE_URL) {
       try {
         const totalBookings = await prisma.order.count();

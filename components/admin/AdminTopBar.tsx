@@ -108,7 +108,7 @@ export default function AdminTopBar({ sidebarOpen, onToggle }: Props) {
         }}>A</div>
         <div>
           <p style={{ color: "#0f172a", fontSize: 12, fontWeight: 700, margin: 0, lineHeight: 1.2 }}>Admin</p>
-          <p style={{ color: "#94a3b8", fontSize: 10, margin: 0, lineHeight: 1.2 }}>pestiq2025</p>
+          <p style={{ color: "#94a3b8", fontSize: 10, margin: 0, lineHeight: 1.2 }}>Authenticated staff</p>
         </div>
       </div>
     </header>

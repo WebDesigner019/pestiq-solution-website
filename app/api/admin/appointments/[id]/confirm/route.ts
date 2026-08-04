@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { verifyStaffSession } from "@/lib/supabase";
 
 export async function POST(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const staff = await verifyStaffSession(req.headers.get("authorization"));
+    if (!staff || staff.role === "TECHNICIAN") {
+      return NextResponse.json({ error: "Unauthorized access" }, { status: 401 });
+    }
+
     const { id } = await params;
     const body = await req.json();
     const { scheduledDate, scheduledTime = "09:00 AM", technicianId, serviceNotes } = body;

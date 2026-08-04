@@ -24,13 +24,7 @@ export interface StaffUser {
 
 export async function verifyStaffSession(authHeader?: string | null): Promise<StaffUser | null> {
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
-    // Return default admin profile for local session auth compatibility
-    return {
-      id: "STAFF-001",
-      email: "admin@pestiq.com",
-      role: "ADMIN",
-      fullName: "Master Administrator",
-    };
+    return null;
   }
 
   const token = authHeader.replace("Bearer ", "");

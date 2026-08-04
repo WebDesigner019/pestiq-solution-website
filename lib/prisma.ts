@@ -1,18 +1,12 @@
 import { PrismaClient } from "@prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import { Pool } from "pg";
-import fs from "fs";
-import path from "path";
-
 function getDbUrl(): string {
   if (process.env.DATABASE_URL) return process.env.DATABASE_URL;
-  const envLocalPath = path.join(process.cwd(), ".env.local");
-  if (fs.existsSync(envLocalPath)) {
-    const content = fs.readFileSync(envLocalPath, "utf-8");
-    const dbMatch = content.match(/DATABASE_URL=["']?([^"'\r\n]+)["']?/);
-    if (dbMatch && dbMatch[1]) return dbMatch[1];
-  }
-  return "postgresql://postgres.tiraknfedmxqzwoqsbej:Pestiq%40123s@aws-0-ca-central-1.pooler.supabase.com:6543/postgres?pgbouncer=true";
+  // Route modules are loaded during builds even when they do not use the database.
+  // This non-routable placeholder permits that compilation only; every route that
+  // accesses data separately checks DATABASE_URL before making a query.
+  return "postgresql://unconfigured:unconfigured@127.0.0.1:1/pestiq_unconfigured";
 }
 
 const globalForPrisma = globalThis as unknown as {

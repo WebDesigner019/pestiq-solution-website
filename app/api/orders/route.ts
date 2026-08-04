@@ -1,9 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendOrderConfirmationEmail } from "@/lib/email";
+import { validateNjAddress } from "@/lib/njGeocode";
+import { checkRateLimit, noStoreJson, reportAddressEvent } from "@/lib/requestGuards";
 
 export async function POST(req: NextRequest) {
   try {
+    const rateLimit = checkRateLimit(req, "service-request", { limit: 5, windowMs: 60_000 });
+    if (!rateLimit.allowed) {
+      return noStoreJson({ error: "Too many service requests. Please wait a moment and try again." }, {
+        status: 429,
+        headers: { "Retry-After": String(rateLimit.retryAfterSeconds) },
+      });
+    }
+
     const body = await req.json();
     const {
       name, email, phone, address, city, state, zip,
@@ -13,12 +23,21 @@ export async function POST(req: NextRequest) {
     } = body;
 
     if (!name || !phone || !email || !address) {
-      return NextResponse.json({ error: "Missing required contact details" }, { status: 400 });
+      return noStoreJson({ error: "Missing required contact details" }, { status: 400 });
     }
+
+    const verifiedAddress = await validateNjAddress(address);
+    if (!verifiedAddress) {
+      reportAddressEvent("service_request_address", "rejected");
+      return noStoreJson({
+        error: "We could not verify this as an exact New Jersey address. Please correct it and try again.",
+      }, { status: 422 });
+    }
+    reportAddressEvent("service_request_address", "allowed");
 
     const referenceCode = `PIQ-${Date.now().toString().slice(-6)}`;
     const planName = planType === "monthly" ? "Complete Protection Plan" : "One-Time Treatment";
-    const fullAddress = `${address}, ${city || "New York"}, ${state || "NY"} ${zip || "10001"}`;
+    const fullAddress = verifiedAddress.fullAddress;
 
     // Dispatch transactional email async
     sendOrderConfirmationEmail({
@@ -44,10 +63,10 @@ export async function POST(req: NextRequest) {
         const serviceAddress = await prisma.serviceAddress.create({
           data: {
             customerId: customer.id,
-            street: address,
-            city: city || "New York",
-            state: state || "NY",
-            zip: zip || "10001",
+            street: verifiedAddress.street,
+            city: verifiedAddress.city,
+            state: verifiedAddress.state,
+            zip: verifiedAddress.zip,
             propertyType: propertyType || "Single Family Home",
             accessNotes,
           },
@@ -85,7 +104,7 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        return NextResponse.json({
+        return noStoreJson({
           success: true,
           referenceCode,
           orderId: order.id,
@@ -97,12 +116,12 @@ export async function POST(req: NextRequest) {
     }
 
     // Fallback response for unmigrated DB
-    return NextResponse.json({
+    return noStoreJson({
       success: true,
       referenceCode,
       message: "Appointment request recorded and email dispatched.",
     });
   } catch (err: any) {
-    return NextResponse.json({ error: err.message || "Failed to process order" }, { status: 500 });
+    return noStoreJson({ error: "Unable to process this service request right now." }, { status: 500 });
   }
 }
